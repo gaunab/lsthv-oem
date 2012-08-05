@@ -19,18 +19,40 @@ class beraterApp(QtGui.QWidget):
     ### Init The Window
 
     def initUI(self):
-	self.setGeometry(300,300,250,150) 		# set Window properties
 	self.setWindowTitle('XBerater') 		# 
 	# self.setWindowIcon(QtGui.QIcon('icon.png'))   # set Icon (not yet)
 
+
+	### Statusbar
+#	self.statusBar().showMessage('')
+
+	### Menubar
+	exitAction = QtGui.QAction(QtGui.QIcon('exit.png'),'&Beenden',self)
+	exitAction.setShortcut('Ctrl+Q')
+	exitAction.setStatusTip('Programm Beenden')
+	exitAction.triggered.connect(QtGui.qApp.quit)
+
+
+#	menubar = self.menuBar()
+#	fileMenu = menubar.addMenu('&Datei')
+#	fileMenu.addAction(exitAction)
+
+	### Add COntainer
+
+	vbox = QtGui.QVBoxLayout()
+	vbox.addStretch(1)
+
 	### Add Buttons of Main-Window
 
-	btn = QtGui.QPushButton('Button',self)
+	btn = QtGui.QPushButton('Button')
 	btn.setToolTip('This is a <b>QPushButton</b> widget')
-	
-	btnQuit = QtGui.QPushButton('Beenden',self) 			 # Exit Button
-	btnQuit.clicked.connect(QtCore.QCoreApplication.instance().quit ) # Exit function
+	vbox.addWidget(btn)
 
+        btnQuit = QtGui.QPushButton('Beenden') 			 # Exit Button
+	btnQuit.clicked.connect(QtCore.QCoreApplication.instance().quit ) # Exit function
+	vbox.addWidget(btnQuit)
+
+	self.setLayout(vbox)
 	self.show()
 	
     def closeEvent(self, event):
