@@ -38,13 +38,16 @@ class monthWindow(QtGui.QWidget):
 	btnPrint     = QtGui.QPushButton(u"Drucken")
 	
 	btnAditional = QtGui.QPushButton(u"Sonstige Einnahmen")
-		
+	
+	btnSave = QtGui.QPushButton(u"Speichern")
+
 	# Creating Button-Layout	
 	buttonBox.addWidget(btnAddEntry,0,0)
 	buttonBox.addWidget(btnDelEntry,1,0)
 	buttonBox.addWidget(btnPrintPrev,0,1)
 	buttonBox.addWidget(btnPrint,1,1)
 	buttonBox.addWidget(btnAditional,0,2)
+	buttonBox.addWidget(btnSave,0,4)
 
 	vbox.addLayout(buttonBox) 		# Put ButtonBox into Main-Container
 	self.setLayout(vbox)
