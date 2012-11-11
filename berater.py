@@ -7,7 +7,7 @@ This Project is for calculating bils
 """
 import sys
 from PyQt4 import QtGui,QtCore
-
+import  editpref 
 
 class beraterApp(QtGui.QWidget):
     def __init__(self):
@@ -44,9 +44,16 @@ class beraterApp(QtGui.QWidget):
 
 	### Add Buttons of Main-Window
 
-	btn = QtGui.QPushButton('Button')
-	btn.setToolTip('This is a <b>QPushButton</b> widget')
-	vbox.addWidget(btn)
+	btnOpenMonth = QtGui.QPushButton(u"Monat öffnen")
+	
+	btnNewMonth = QtGui.QPushButton('Neuer Monat')
+	btnNewMonth.setToolTip('This is a <b>QPushButton</b> widget')
+	vbox.addWidget(btnOpenMonth)
+	vbox.addWidget(btnNewMonth)
+
+	btnEditPref = QtGui.QPushButton(u"Beraterdaten")
+	btnEditPref.clicked.connect(self.editPref)
+	vbox.addWidget(btnEditPref)
 
         btnQuit = QtGui.QPushButton('Beenden') 			 # Exit Button
 	btnQuit.clicked.connect(QtCore.QCoreApplication.instance().quit ) # Exit function
@@ -62,6 +69,10 @@ class beraterApp(QtGui.QWidget):
             event.accept()
         else:
             event.ignore()  
+
+    def editPref(self):
+	print("Hallo welt")
+	self.frmPrefs = editpref.prefWindow()
 
 def main():
     app = QtGui.QApplication(sys.argv)
