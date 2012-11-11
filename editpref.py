@@ -18,6 +18,9 @@ class prefWindow(QtGui.QWidget):
 	lblName = QtGui.QLabel(u"Name")
 	edtFirstName = QtGui.QLineEdit()
 	lblFirstName = QtGui.QLabel(u"Vorname")
+	
+	
+
 	grid.addWidget(edtName,0,1)
 	grid.addWidget(lblName,0,0)
 	grid.addWidget(edtFirstName,1,1)

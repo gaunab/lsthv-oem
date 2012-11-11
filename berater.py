@@ -71,7 +71,7 @@ class beraterApp(QtGui.QWidget):
             event.ignore()  
 
     def editPref(self):
-	print("Hallo welt")
+	# print("Hallo welt")
 	self.frmPrefs = editpref.prefWindow()
 
 def main():
