@@ -9,6 +9,7 @@ import sys
 from PyQt4 import QtGui,QtCore
 
 class monthWindow(QtGui.QWidget):
+
     def __init__(self):
 	super(monthWindow, self).__init__()
 
@@ -21,15 +22,14 @@ class monthWindow(QtGui.QWidget):
 
 	
 	# Creating Table
-	table = QtGui.QTableWidget()
-	table.setRowCount(3)
-	table.setColumnCount(10)
+	self.table.setRowCount(3)
+	self.table.setColumnCount(10)
 	vbox.addWidget(table)
 
 
 	# Creating Buttons
 	btnAddEntry = QtGui.QPushButton(u"Eintrag hinzufügen")
-	btnAddEntry.clicked.connect(table.insertRow(1))
+	btnAddEntry.clicked.connect(self.addEntry)
 	btnDelEntry = QtGui.QPushButton(u"Eintrag löschen")
 
 	btnPrintPrev = QtGui.QPushButton(u"Auswertung")
@@ -49,6 +49,11 @@ class monthWindow(QtGui.QWidget):
 	vbox.addLayout(buttonBox) 		# Put ButtonBox into Main-Container
 	self.setLayout(vbox)
 	self.show()
+
+    def addEntry(self):
+	sender = self.sender()
+	self.table.insertRow(1)
+
 
 def main():
     app = QtGui.QApplication(sys.argv)
