@@ -9,6 +9,7 @@ import sys
 from PyQt4 import QtGui,QtCore
 
 class monthWindow(QtGui.QWidget):
+
     def __init__(self):
 	super(monthWindow, self).__init__()
 
@@ -21,12 +22,18 @@ class monthWindow(QtGui.QWidget):
 
 	
 	# Creating Table
+<<<<<<< HEAD
+	self.table.setRowCount(3)
+	self.table.setColumnCount(10)
+	vbox.addWidget(table)
+=======
 	self.table = QtGui.QTableWidget()
 	self.table.setRowCount(3)
 	self.table.setColumnCount(9)
 
 	self.table.setHorizontalHeaderLabels(['Lfd','Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
 	vbox.addWidget(self.table)
+>>>>>>> 13add297044e30ee154760e2a96e4b33c4f15f43
 
 
 	# Creating Buttons
@@ -53,6 +60,11 @@ class monthWindow(QtGui.QWidget):
 	self.setLayout(vbox)
 	self.show()
 
+<<<<<<< HEAD
+    def addEntry(self):
+	sender = self.sender()
+	self.table.insertRow(1)
+=======
     # Adding new Rows	
     def addEntry(self):
 	if (self.table.currentRow() == -1):
@@ -64,6 +76,7 @@ class monthWindow(QtGui.QWidget):
     # Delete a Row
     def delEntry(self):
 	self.table.removeRow(self.table.currentRow())   # Delete the current Row
+>>>>>>> 13add297044e30ee154760e2a96e4b33c4f15f43
 
 
 def main():
