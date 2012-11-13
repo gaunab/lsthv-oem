@@ -7,7 +7,9 @@ This Project is for calculating bils
 """
 import sys
 from PyQt4 import QtGui,QtCore
-import  editpref 
+import editpref 
+import settings
+
 
 class beraterApp(QtGui.QWidget):
     def __init__(self):
@@ -79,6 +81,7 @@ def main():
 
     window = beraterApp()
 
+    
 
     sys.exit(app.exec_())
  
