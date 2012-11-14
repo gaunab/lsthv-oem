@@ -1,9 +1,9 @@
 bank: ''
 bankid: ''
 deposit: ''
-firstname: ''
+firstname: "Paul\xF6\u20AC"
 id: ''
-name: Kuntke
+name: !!python/unicode 'Kuntke'
 street: ''
 town: ''
 ustnr: ''

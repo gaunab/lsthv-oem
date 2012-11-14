@@ -12,9 +12,10 @@ import settings
 
 
 class beraterApp(QtGui.QWidget):
-    def __init__(self):
+    def __init__(self,berater):
 	super(beraterApp, self).__init__()
 
+	self.berater = berater
 	self.initUI()
 
 
@@ -23,7 +24,7 @@ class beraterApp(QtGui.QWidget):
     def initUI(self):
 	self.setWindowTitle('XBerater') 		# 
 	# self.setWindowIcon(QtGui.QIcon('icon.png'))   # set Icon (not yet)
-
+	
 
 	### Statusbar
 #	self.statusBar().showMessage('')
@@ -74,14 +75,13 @@ class beraterApp(QtGui.QWidget):
 
     def editPref(self):
 	# print("Hallo welt")
-	self.frmPrefs = editpref.prefWindow()
+	self.frmPrefs = editpref.prefWindow(self.berater)
 
 def main():
     app = QtGui.QApplication(sys.argv)
 
-    window = beraterApp()
-
-    
+    berater = settings.beraterData()
+    window = beraterApp(berater)
 
     sys.exit(app.exec_())
  
