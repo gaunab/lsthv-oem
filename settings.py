@@ -25,7 +25,7 @@ class beraterData:
 	self.town = (data["town"] if "town" in data else "")
 	# governmental things
 	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
-
+	self.zip = (data["zip"] if "zip" in data else "")
     	f_settings.close()
 
     def save(self):
@@ -39,6 +39,7 @@ class beraterData:
 	data["street"] = self.street
 	data["town"] = self.town
 	data["ustnr"] = self.ustnr
+	data["zip"] = self.zip
 
 	f_settings = open("settings.yaml","w")
 	yaml.dump(data, f_settings ,default_flow_style=False)
