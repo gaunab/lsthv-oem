@@ -7,7 +7,8 @@ This Project is for calculating bils
 """
 import sys
 from PyQt4 import QtGui,QtCore
-import editpref 
+import editpref
+import monthlist
 import settings
 
 
@@ -48,6 +49,7 @@ class beraterApp(QtGui.QWidget):
 	### Add Buttons of Main-Window
 
 	btnOpenMonth = QtGui.QPushButton(u"Monat öffnen")
+	btnOpenMonth.clicked.connect(self.monthList)
 	
 	btnNewMonth = QtGui.QPushButton('Neuer Monat')
 	btnNewMonth.setToolTip('This is a <b>QPushButton</b> widget')
@@ -72,6 +74,10 @@ class beraterApp(QtGui.QWidget):
             event.accept()
         else:
             event.ignore()  
+
+    def monthList(self):
+	self.frmMonthList = monthlist.monthList()
+
 
     def editPref(self):
 	# print("Hallo welt")

@@ -5,14 +5,15 @@
 This Project is for calculating bils 
 
 """
+import month
 import sys
 from PyQt4 import QtGui,QtCore
 
 class monthWindow(QtGui.QWidget):
 
-    def __init__(self):
+    def __init__(self,month):
 	super(monthWindow, self).__init__()
-
+	print "Opening Month"
 	self.initUI()
 
     def initUI(self):
@@ -54,6 +55,11 @@ class monthWindow(QtGui.QWidget):
 	self.setLayout(vbox)
 	self.show()
 
+    # Load Month Data into Grid
+    def loadMonth(self,month):
+	print "loading data"
+
+
     # Adding new Rows	
     def addEntry(self):
 	if (self.table.currentRow() == -1):
@@ -70,7 +76,7 @@ class monthWindow(QtGui.QWidget):
 def main():
     app = QtGui.QApplication(sys.argv)
 
-    window = monthWindow()
+    window = monthWindow("hallo")
 
 
     sys.exit(app.exec_())
