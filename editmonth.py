@@ -14,8 +14,10 @@ class monthWindow(QtGui.QWidget):
     def __init__(self,month):
 	super(monthWindow, self).__init__()
 	print "Opening Month"
-	self.initUI()
-
+	self.initUI() 				# Initilasing QT Window
+	self.month = month
+	self.loadMonth(month) 			# Load Data into Table
+	
     def initUI(self):
 	vbox = QtGui.QVBoxLayout() 		# Main Container
 	
@@ -24,7 +26,7 @@ class monthWindow(QtGui.QWidget):
 	
 	# Creating Table
 	self.table = QtGui.QTableWidget()
-	self.table.setRowCount(3)
+	self.table.setRowCount(0)
 	self.table.setColumnCount(9)
 
 	self.table.setHorizontalHeaderLabels(['Lfd','Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
@@ -42,6 +44,7 @@ class monthWindow(QtGui.QWidget):
 	btnAditional = QtGui.QPushButton(u"Sonstige Einnahmen")
 	
 	btnSave = QtGui.QPushButton(u"Speichern")
+	btnSave.clicked.connect(self.save)
 
 	# Creating Button-Layout	
 	buttonBox.addWidget(btnAddEntry,0,0)
@@ -57,7 +60,32 @@ class monthWindow(QtGui.QWidget):
 
     # Load Month Data into Grid
     def loadMonth(self,month):
-	print "loading data"
+	
+	    readerrors = 0 			# Counting errors on reading the data-file
+
+	    for entry in month.data["table"]: 	# Iterate through all Data-Lines
+		self.table.insertRow(self.table.rowCount()) 	# insert new Row at end of table
+
+		# now fill the table with life
+		try:
+		    # continue reading with next line after finding an error
+    		    self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"]))) 	
+    		    self.table.setItem(self.table.rowCount()-1,1,QtGui.QTableWidgetItem(unicode(entry["mtgl-nr"])))
+    		    self.table.setItem(self.table.rowCount()-1,2,QtGui.QTableWidgetItem(unicode(entry["name"])))
+    		    self.table.setItem(self.table.rowCount()-1,3,QtGui.QTableWidgetItem(unicode(entry["firstname"])))
+    		    self.table.setItem(self.table.rowCount()-1,4,QtGui.QTableWidgetItem(unicode(entry["aufnahmegeb"])))
+    		    self.table.setItem(self.table.rowCount()-1,5,QtGui.QTableWidgetItem(unicode(entry["aufnahmepayed"])))
+    		    self.table.setItem(self.table.rowCount()-1,6,QtGui.QTableWidgetItem(unicode(entry["beitrag"])))
+    		    self.table.setItem(self.table.rowCount()-1,7,QtGui.QTableWidgetItem(unicode(entry["beitragpayed"])))
+		except (KeyError), name: 	
+		    readerrors+=1 			# only Count Errors
+
+	    if readerrors:
+		QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
+
+#	except:
+#	    return False
+
 
 
     # Adding new Rows	
@@ -72,6 +100,24 @@ class monthWindow(QtGui.QWidget):
     def delEntry(self):
 	self.table.removeRow(self.table.currentRow())   # Delete the current Row
 
+    # Save monthdata
+    def save(self):
+	# First write Table-Content to Month-Object
+	data = []
+	for row in range(self.table.rowCount()):
+	    data.append({'lfd':self.table.item(row,0).text().toUtf8().data(),
+		    	 'mtgl-nr':self.table.item(row,1).text().toUtf8().data(),
+		    	 'name':self.table.item(row,2).text().toUtf8().data(),
+		    	 'firstname':self.table.item(row,3).text().toUtf8().data(),
+		    	 'aufnahmegeb':self.table.item(row,4).text().toUtf8().data(),
+		    	 'aufnahmepayed':self.table.item(row,5).text().toUtf8().data(),
+		    	 'beitrag':self.table.item(row,6).text().toUtf8().data(),
+		    	 'beitragpayed':self.table.item(row,7).text().toUtf8().data(), 
+			}
+		    )
+
+	self.month.data["table"] = data
+	self.month.save()
 
 def main():
     app = QtGui.QApplication(sys.argv)

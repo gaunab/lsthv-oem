@@ -10,7 +10,7 @@ class lsthvmonth:
 
     def save(self):
 	if ("month" in self.data and "year" in self.data):
-    	    f_month = open(self.data["month"]+self.data["year"]+".yaml","w")	
+    	    f_month = open(str(self.data["month"])+str(self.data["year"])+"monat.yaml","w")	
     	    yaml.dump(self.data,f_month, default_flow_style=False)
     	    f_month.close()
 	    return True
@@ -20,6 +20,14 @@ class lsthvmonth:
 
     def open(self,filename):	
 	f_month = open(filename,"r")
-	self.data = yaml.load(f_month)
-	f_month.close()
-
+	try: 					# Try to load File as YAML
+	    self.data = yaml.load(f_month)
+	except:
+	    return False 			# Not a valid YAML-File
+	print self.data
+	f_month.close() 
+	# Now Check for Data-Structure: month, yeaar, data
+	if self.data["month"] and  self.data["year"] :
+	    return True
+	else: 
+	    return False

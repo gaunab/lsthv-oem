@@ -62,8 +62,10 @@ class monthList(QtGui.QWidget):
 	for filename in fileList: 		# iterate through all files
 	    if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
 		monat = month.lsthvmonth()
-		monat.open(filename)
-		self.monthlist.append(monat)
+		if (monat.open(filename)): 	# Only append to , if valid month
+		    self.monthlist.append(monat)
+		else:
+		    print "rejecting"+filename
 
 
 def main():

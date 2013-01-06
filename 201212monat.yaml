@@ -1,2 +1,5 @@
 month: 12
 year: 2012
+table:
+  - {lfd: 1, mtgl-nr: 0352173, name: Hans, firstname: dieter}
+  - {lfd: 2, mtgl-nr: 0312312, name: Hans, firstname: paul}
