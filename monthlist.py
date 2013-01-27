@@ -59,7 +59,8 @@ class monthList(QtGui.QWidget):
 
     def findMonths(self):
 	fileList = os.listdir(".")  		# list of all Files
-	for filename in fileList: 		# iterate through all files
+	fileList.sort() 			# sort files by name
+	for filename in fileList : 		# iterate through all files
 	    if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
 		monat = month.lsthvmonth()
 		if (monat.open(filename)): 	# Only append to , if valid month

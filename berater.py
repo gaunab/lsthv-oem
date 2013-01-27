@@ -9,6 +9,7 @@ import sys
 from PyQt4 import QtGui,QtCore
 import editpref
 import monthlist
+import newmonth
 import settings
 
 
@@ -52,7 +53,8 @@ class beraterApp(QtGui.QWidget):
 	btnOpenMonth.clicked.connect(self.monthList)
 	
 	btnNewMonth = QtGui.QPushButton('Neuer Monat')
-	btnNewMonth.setToolTip('This is a <b>QPushButton</b> widget')
+	btnNewMonth.setToolTip('einen neuen Monat anlegen')
+	btnNewMonth.clicked.connect(self.newMonth)
 	vbox.addWidget(btnOpenMonth)
 	vbox.addWidget(btnNewMonth)
 
@@ -78,6 +80,8 @@ class beraterApp(QtGui.QWidget):
     def monthList(self):
 	self.frmMonthList = monthlist.monthList()
 
+    def newMonth(self):
+	self.frmNewMonth = newmonth.newMonth()
 
     def editPref(self):
 	# print("Hallo welt")
