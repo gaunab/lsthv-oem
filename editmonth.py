@@ -40,7 +40,7 @@ class monthWindow(QtGui.QWidget):
 	btnDelEntry.clicked.connect(self.delEntry)
 	btnPrintPrev = QtGui.QPushButton(u"Auswertung")
 	btnPrint     = QtGui.QPushButton(u"Drucken")
-	
+        btnPrint.clicked.connect(self.handlePrint)	
 	btnAditional = QtGui.QPushButton(u"Sonstige Einnahmen")
 	
 	btnSave = QtGui.QPushButton(u"Speichern")
@@ -118,6 +118,11 @@ class monthWindow(QtGui.QWidget):
 
 	self.month.data["table"] = data
 	self.month.save()
+
+    def handlePrint(self):
+	dialog = QtGui.QPrintDialog()
+	# if dialog.exec_() == QtGui.QDialog.Accepted:
+	# handle the Printing   
 
 def main():
     app = QtGui.QApplication(sys.argv)
