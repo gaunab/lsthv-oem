@@ -124,7 +124,10 @@ class monthWindow(QtGui.QWidget):
 	dialog = QtGui.QPrintDialog(printer,self)
 	dialog.exec_()
 	# if dialog.exec_() == QtGui.QDialog.Accepted:
+	    
 	# handle the Printing   
+
+
 
 def main():
     app = QtGui.QApplication(sys.argv)
