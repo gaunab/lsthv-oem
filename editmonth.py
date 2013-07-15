@@ -5,7 +5,7 @@
 This Project is for calculating bils 
 
 """
-import month
+import month,printing
 import sys
 from PyQt4 import QtGui,QtCore
 
@@ -122,9 +122,10 @@ class monthWindow(QtGui.QWidget):
     def handlePrint(self):
     	printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
 	dialog = QtGui.QPrintDialog(printer,self)
-	dialog.exec_()
-	# if dialog.exec_() == QtGui.QDialog.Accepted:
-	    
+	# dialog.exec_()
+	if dialog.exec_() == QtGui.QDialog.Accepted:
+	 
+	    printing.createPrintOutput(printer,self.table)
 	# handle the Printing   
 
 
