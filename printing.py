@@ -10,10 +10,12 @@ def createPrintOutput(printer,table):
     print "Painter-Device: "
     printDev = pages.device;
     print printer.pageRect().width()
-    
+    print "Font:" 
+    print pages.fontInfo().pixelSize()
     pages.begin(printer)
     # Now let's do the drawing of the Pages
-  
+ 
+
     ### Head of each page
     pages.drawText(1,30,"Hallo")
 
