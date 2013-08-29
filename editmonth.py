@@ -120,13 +120,8 @@ class monthWindow(QtGui.QWidget):
 	self.month.save()
 
     def handlePrint(self):
-    	printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
-	dialog = QtGui.QPrintDialog(printer,self)
-	# dialog.exec_()
-	if dialog.exec_() == QtGui.QDialog.Accepted:
-	 
-	    printing.createPrintOutput(printer,self.table)
-	# handle the Printing   
+	printdata = printing.printout(self.table,self)
+	printdata.dialog()
 
 
 
