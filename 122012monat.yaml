@@ -1,3 +1,19 @@
 month: 12
-table: []
+table:
+- aufnahmegeb: ' '
+  aufnahmepayed: ' '
+  beitrag: ' '
+  beitragpayed: ' '
+  firstname: dieter
+  lfd: '1'
+  mtgl-nr: '119931'
+  name: Hans
+- aufnahmegeb: '        '
+  aufnahmepayed: ' '
+  beitrag: ' '
+  beitragpayed: ' '
+  firstname: paul
+  lfd: '2'
+  mtgl-nr: '103626'
+  name: Hans
 year: 2012
