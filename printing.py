@@ -49,7 +49,9 @@ class printout:
 	page.drawText(1,y,'Lohnsteuerhilfeverein')
 	y = y + page.fontInfo().pixelSize()
 	page.drawText(1,y,u"\u201eOberes Elbtal-Meißen\u201d e.V.")
-	y = y + page.fontInfo().pixelSize()
+	y = y + 2 * page.fontInfo().pixelSize()
+
+
 
 	
 

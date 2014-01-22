@@ -38,11 +38,11 @@ class prefWindow(QtGui.QWidget):
 
 	self.edtBankid = QtGui.QLineEdit()
 	self.edtBankid.setText(self.berater.bankid)
-	lblBankid = QtGui.QLabel(u"Bankleitzahl")
+	lblBankid = QtGui.QLabel(u"BIC")
 	
 	self.edtBankKto = QtGui.QLineEdit()
 	self.edtBankKto.setText(self.berater.deposit)
-	lblBankKto = QtGui.QLabel(u"Kontonummer")
+	lblBankKto = QtGui.QLabel(u"IBAN")
 	
 	self.edtStreet = QtGui.QLineEdit()
 	self.edtStreet.setText(self.berater.street)
