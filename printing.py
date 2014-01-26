@@ -3,7 +3,7 @@
 from PyQt4 import QtGui,QtCore
 
 # Doing all the rendering
-
+# http://pyqt.sourceforge.net/Docs/PyQt4/classes.html
 
 class printout:
 
@@ -50,12 +50,21 @@ class printout:
 	y = y + page.fontInfo().pixelSize()
 	page.drawText(1,y,u"\u201eOberes Elbtal-Meißen\u201d e.V.")
 	y = y + 2 * page.fontInfo().pixelSize()
-
-
-
-	
-
 	return y
+
+    def tableHead(self,page,y):
+        y = y + self.ymm(1)                 # first create some distance to top
+        page.drawText(self.xmm(10),y,'Lfd')
+        page.drawText(self.xmm(20),y,'Mitgl.Nr.')
+        page.drawText(self.xmm(30),y,'Name')
+        page.drawText(self.xmm(40),y,'Vorname')
+        page.drawText(self.xmm(50),y,'Aufnahme')
+
+
+        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),10))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
+        page.drawLine(self.xmm(10),y,self.xmm(150),y)
+        return y
+
 
 
     def create(self):
@@ -72,7 +81,7 @@ class printout:
 	y = 0; 				# Set Cursor to first line
 	y = y + self.heading(pages) 	# Write Headline
         pages.setFont(self.tableFont)   # set Font
-	
+	y = y + self.tableHead(pages,y)
 	for i in range(self.table.rowCount()):		# i --> current Row of Table
 	    print "printing entry" + str(i)
 	    
@@ -87,6 +96,8 @@ class printout:
 
 	    if y > self.pagewidth - fontsize: ### End of page reached
 		y = 0;
+                y = y + self.tableHead(pages,y)
+
 	pages.end()
 	    
 	return pages
