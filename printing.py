@@ -25,7 +25,9 @@ class printout:
         self.tableHeadFont = QtGui.QFont('Helvetica',12,75)     # Bold font
 	self.headingFont = QtGui.QFont('Helvetica',20,75) 	# Big Heading
 	self.heading2Font = QtGui.QFont('Helvetica',15,50) 	# Paper Description Font
-
+        
+        ### Define Table Columns in mm
+        self.tableCols = [10,20,40,60,80,100,120,140]
 
     # Calculate from mm to px
     def xmm(self,xpos):
@@ -43,6 +45,7 @@ class printout:
     # create the printing-content and send it to the printer
 
     def heading(self,page):
+        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),15))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
 	y = self.ymm(10)
 	page.drawImage(self.pagewidth - self.xmm(70),y - self.ymm(5),QtGui.QImage('logo.jpg').scaledToWidth(self.xmm(60)))
 	page.setFont(self.headingFont)
@@ -52,17 +55,34 @@ class printout:
 	y = y + 2 * page.fontInfo().pixelSize()
 	return y
 
+    ###
+    # Write Content of a Column
+    ###
+    def tableCol(self,page,col,y,text):
+        print text
+        print y 
+        page.drawText(self.xmm(self.tableCols[col]),y,text) 
+        if col > 0:
+            page.drawLine(self.xmm(self.tableCols[col]), y-page.fontInfo().pixelSize(), self.xmm(self.tableCols[col]), y)
+
+
+
     def tableHead(self,page,y):
         y = y + self.ymm(1)                 # first create some distance to top
-        page.drawText(self.xmm(10),y,'Lfd')
-        page.drawText(self.xmm(20),y,'Mitgl.Nr.')
-        page.drawText(self.xmm(30),y,'Name')
-        page.drawText(self.xmm(40),y,'Vorname')
-        page.drawText(self.xmm(50),y,'Aufnahme')
 
+        headlines = ['Lfd','Mitgl.Nr.','Name','Vorname','Aufnahme','Bezahlt']
+        col = 0
+        for headline in headlines:
+            self.tableCol(page,col,y,headline)
+            col = col + 1
 
-        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),10))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
-        page.drawLine(self.xmm(10),y,self.xmm(150),y)
+        y = y + self.ymm(1)                 # create some distance to the line
+        
+        for col in range(0,6):
+            self.tableCol(page,col,y,'')
+
+        page.drawLine(self.xmm(10),y,self.xmm(190),y)
+
         return y
 
 
@@ -78,20 +98,18 @@ class printout:
 	pages.begin(self.printer)
 	# Now let's do the drawing of the Pages
 	  
-	y = 0; 				# Set Cursor to first line
-	y = y + self.heading(pages) 	# Write Headline
+	y = self.heading(pages) 	# Write Headline
         pages.setFont(self.tableFont)   # set Font
-	y = y + self.tableHead(pages,y)
+	y = self.tableHead(pages,y) + pages.fontInfo().pixelSize() # Create Tablehead, set Cursor to next line
+        print y
 	for i in range(self.table.rowCount()):		# i --> current Row of Table
-	    print "printing entry" + str(i)
-	    
 	    # Fetch data from table
 	    lfd = str(self.table.item(i,0).text())
 	    mtglnr = str(self.table.item(i,1).text())
 	    # now print to current row on paper
-	    pages.drawText(1,y,lfd)
-	    pages.drawText(self.xmm(20),y,mtglnr)
-	    
+	    self.tableCol(pages,0,y,lfd)
+	    self.tableCol(pages,1,y,mtglnr)
+
 	    y = y + fontsize
 
 	    if y > self.pagewidth - fontsize: ### End of page reached
