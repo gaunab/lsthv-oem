@@ -61,9 +61,9 @@ class printout:
 
         page.setFont(self.heading2Font)
         if type==1:
-            page.drawText(1,y,"Mitgliederbeitragsabrechnung")
+            page.drawText(1,y,u"Mitgliederbeitragsabrechnung")
         if type==2:
-            page.drawText(1,y,"Abrechnung der Beratervergütung")
+            page.drawText(1,y,u"Abrechnung der Beratervergütung")
         
         nextline =   page.fontInfo().pixelSize()
         # Print out the Month and Year
@@ -74,10 +74,18 @@ class printout:
                                                                                                  # pageborder
         y = y + nextline                                                                         # go on to the next line
         page.drawText(1,y,u"Berater: "+self.beraterData.name+", "+self.beraterData.firstname)
+        if type==2:
+            page.drawText(self.xmm(90) ,y,u"Beratungsstelle:")
         y = y +  page.fontInfo().pixelSize()
         page.drawText(1,y,u"BSL-Nr.: "+self.beraterData.id)
+        if type==2:
+            page.drawText(self.xmm(92) ,y,u""+self.beraterData.street)
+            y = y +  page.fontInfo().pixelSize()
+            page.drawText(self.xmm(92),y,u""+self.beraterData.town)
+
         y = y + 2 * page.fontInfo().pixelSize()
         
+       
 
 
 	return y
@@ -113,14 +121,32 @@ class printout:
 
         return y
 
+    def evaluationCell(self,page,col,y,text):
+        cols = [10,60,110,160]                  # Startposition of cols for evaluationPage
+        page.drawLine(self.xmm(cols[col]),y,self.xmm(cols[col+1]),y)
+        y = y +  page.fontInfo().pixelSize()
+        page.drawText(self.xmm(cols[col]),y,text)
+        page.drawLine(self.xmm(cols[col]),y,self.xmm(cols[col+1]),y)
 
+        return y
+
+   
 
     def create(self):
         print self.data["month"]
         print self.data["year"]
 
+        ### Set Sum's for evaluation-Page to 0 
+        aufnahmeges = 0.0
+        aufnahmeges_bez = 0.0
+        beitragges= 0.0
+        beitragges_bez = 0.0
+
+        aufnahme = {}
+        beitrag = {}
+
+        # Create Output-Dev
 	pages = QtGui.QPainter(self.printer)
-	
 	printDev = pages.device;
 
 	# Select font
@@ -128,7 +154,7 @@ class printout:
 	fontsize =  pages.fontInfo().pixelSize()
 	pages.begin(self.printer)
 	# Now let's do the drawing of the Pages
-	  
+	
 	y = self.heading(pages,type=1) 	# Write Headline
         pages.setFont(self.tableFont)   # set Font
 	y = self.tableHead(pages,y) + pages.fontInfo().pixelSize() # Create Tablehead, set Cursor to next line
@@ -138,15 +164,37 @@ class printout:
 	    lfd = str(self.table.item(i,0).text())
 	    mtglnr = str(self.table.item(i,1).text())
 	    # now print to current row on paper
-	    self.tableCol(pages,0,y,lfd)
-	    self.tableCol(pages,1,y,mtglnr)
-
+            for col in range(4):
+                self.tableCol(pages,col,y,str(self.table.item(i,col).text()))
 	    y = y + fontsize
 
 	    if y > self.pagewidth - fontsize: ### End of page reached
 		y = 0;
                 y = y + self.tableHead(pages,y)
 
-	pages.end()
-	    
+            ### Now let's calculate everything for evaluation
+            aufnahmeges +=  float(self.table.item(i,4).text())
+            aufnahmeges_bez +=  float(self.table.item(i,5).text())
+            beitragges  +=  float(self.table.item(i,6).text())
+            beitragges_bez  +=  float(self.table.item(i,7).text())
+            
+            # Now Sort per UST
+            ust = str(self.table.item(i,8).text())
+            if ust in aufnahme:
+                aufnahme[ust] += float(self.table.item(i,4).text())
+            if ust in beitrag:
+                beitrag[ust] += float(self.table.item(i,6).text())
+            
+
+
+        # Now lets print the Final Page
+        self.printer.newPage()
+        y=self.heading(pages,type=2)
+     
+        # pages.drawLine(self.xmm(10),y,self.xmm(100),y)
+        self.evaluationCell(pages,0,y,u"Gesamtumsatz")
+        self.evaluationCell(pages,1,y,unicode(aufnahmeges))
+
+        pages.end()
+	   
 	return pages

@@ -1,17 +1,17 @@
 month: 12
 table:
-- aufnahmegeb: ' '
-  aufnahmepayed: ' '
-  beitrag: ' '
-  beitragpayed: ' '
+- aufnahmegeb: '0'
+  aufnahmepayed: '0'
+  beitrag: '0'
+  beitragpayed: '0'
   firstname: dieter
   lfd: '1'
   mtgl-nr: '119931'
   name: Hans
-- aufnahmegeb: '        '
-  aufnahmepayed: ' '
-  beitrag: ' '
-  beitragpayed: ' '
+- aufnahmegeb: '0'
+  aufnahmepayed: '0'
+  beitrag: '0'
+  beitragpayed: '0'
   firstname: paul
   lfd: '2'
   mtgl-nr: '103626'
