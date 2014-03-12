@@ -173,17 +173,17 @@ class printout:
                 y = y + self.tableHead(pages,y)
 
             ### Now let's calculate everything for evaluation
-            aufnahmeges +=  float(self.table.item(i,4).text())
-            aufnahmeges_bez +=  float(self.table.item(i,5).text())
-            beitragges  +=  float(self.table.item(i,6).text())
-            beitragges_bez  +=  float(self.table.item(i,7).text())
+            aufnahmeges +=  self.table.cellToFloat(i,4)
+            aufnahmeges_bez +=  self.table.cellToFloat(i,5)
+            beitragges  +=  self.table.cellToFloat(i,6)
+            beitragges_bez  += self.table.cellToFloat(i,7)
             
             # Now Sort per UST
-            ust = str(self.table.item(i,8).text())
+            ust = self.table.cellToFloat(i,8)
             if ust in aufnahme:
-                aufnahme[ust] += float(self.table.item(i,4).text())
+                aufnahme[ust] += float(u"%f") %(self.table.item(i,4).text())
             if ust in beitrag:
-                beitrag[ust] += float(self.table.item(i,6).text())
+                beitrag[ust] += float(u"%f") %(self.table.item(i,6).text())
             
 
 
@@ -193,7 +193,7 @@ class printout:
      
         # pages.drawLine(self.xmm(10),y,self.xmm(100),y)
         self.evaluationCell(pages,0,y,u"Gesamtumsatz")
-        self.evaluationCell(pages,1,y,unicode(aufnahmeges))
+        self.evaluationCell(pages,1,y,u"%0.2f €") %(aufnahmeges)
 
         pages.end()
 	   

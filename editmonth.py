@@ -9,6 +9,19 @@ import month,printing
 import sys
 from PyQt4 import QtGui,QtCore
 
+class BeraterTable(QtGui.QTableWidget):
+    def __init__(self):
+        super(BeraterTable,self).__init__()
+
+    def cellToFloat(self,col,row):
+        try:
+            text = str(self.item(col,row).text())
+            text.replace(",",".")
+            return float(text)
+
+        except:
+            return 0.0
+
 class monthWindow(QtGui.QWidget):
 
     def __init__(self,month):
@@ -25,13 +38,15 @@ class monthWindow(QtGui.QWidget):
 
 	
 	# Creating Table
-	self.table = QtGui.QTableWidget()
+	# self.table = QtGui.QTableWidget()
+        self.table = BeraterTable()
 	self.table.setRowCount(0)
 	self.table.setColumnCount(9)
 
 	self.table.setHorizontalHeaderLabels(['Lfd','Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
 	vbox.addWidget(self.table)
 
+        self.table.itemChanged.connect(self.valueFormat)
 
 	# Creating Buttons
 	btnAddEntry = QtGui.QPushButton(u"Eintrag hinzufügen")
@@ -57,6 +72,20 @@ class monthWindow(QtGui.QWidget):
 	vbox.addLayout(buttonBox) 		# Put ButtonBox into Main-Container
 	self.setLayout(vbox)
 	self.show()
+
+    # Format Data for number-cols
+    def valueFormat(self,editItem):
+        if editItem.column() in [4,5,6,7,8]:                        # Format only Currency-Related cols
+            origText = editItem.text().replace(",",".")             # First replace all ,s as they're entered in Germany with .s
+            try:
+                newText = u"%0.2f" %(float(origText))
+                editItem.setText(newText.replace(".",","))          # now convert .s back to ,s
+            except:
+                pass
+        elif editItem.column() in [2,3]:                            # Convert first Letter of Names to Capital letter
+            itemtext = str(editItem.text()).title()
+            editItem.setText(itemtext)
+                
 
     # Load Month Data into Grid
     def loadMonth(self,month):
