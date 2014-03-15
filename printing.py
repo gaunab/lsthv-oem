@@ -191,10 +191,21 @@ class printout:
         self.printer.newPage()
         y=self.heading(pages,type=2)
      
+        y += self.ymm(10)
         # pages.drawLine(self.xmm(10),y,self.xmm(100),y)
         self.evaluationCell(pages,0,y,u"Gesamtumsatz")
-        self.evaluationCell(pages,1,y,u"%0.2f €") %(aufnahmeges)
+        outstr = u"%0.2f €" %(aufnahmeges + beitragges)
+        self.evaluationCell(pages,1,y,outstr) 
+
+	y = y + fontsize
+        self.evaluationCell(pages,0,y,u"direkt bezahlte")
+        outstr = u"%0.2f €" %(aufnahmeges_bez + beitragges_bez)
+        self.evaluationCell(pages,1,y,outstr) 
+
+
 
         pages.end()
 	   
 	return pages
+
+
