@@ -75,13 +75,20 @@ class monthWindow(QtGui.QWidget):
 
     # Format Data for number-cols
     def valueFormat(self,editItem):
+        red = QtGui.QColor()
+        red.setRgb(200,0,0)                      
+        black = QtGui.QColor()
+        black.setRgb(0,0,0)                       
+        # editItem.setTextColor(black)                              # on default all Columns are black
         if editItem.column() in [4,5,6,7,8]:                        # Format only Currency-Related cols
             origText = editItem.text().replace(",",".")             # First replace all ,s as they're entered in Germany with .s
             try:
                 newText = u"%0.2f" %(float(origText))
                 editItem.setText(newText.replace(".",","))          # now convert .s back to ,s
-            except:
-                pass
+                editItem.setTextColor(black)
+            except:                                                 # in case the number could not be formatted - print the cell in red
+                editItem.setTextColor(red)
+
         elif editItem.column() in [2,3]:                            # Convert first Letter of Names to Capital letter
             itemtext = str(editItem.text()).title()
             editItem.setText(itemtext)
@@ -134,14 +141,60 @@ class monthWindow(QtGui.QWidget):
 	# First write Table-Content to Month-Object
 	data = []
 	for row in range(self.table.rowCount()):
-	    data.append({'lfd':self.table.item(row,0).text().toUtf8().data(),
-		    	 'mtgl-nr':self.table.item(row,1).text().toUtf8().data(),
-		    	 'name':self.table.item(row,2).text().toUtf8().data(),
-		    	 'firstname':self.table.item(row,3).text().toUtf8().data(),
-		    	 'aufnahmegeb':self.table.item(row,4).text().toUtf8().data(),
-		    	 'aufnahmepayed':self.table.item(row,5).text().toUtf8().data(),
-		    	 'beitrag':self.table.item(row,6).text().toUtf8().data(),
-		    	 'beitragpayed':self.table.item(row,7).text().toUtf8().data(), 
+            if (self.table.item(row,0) is None):
+                lfd = str(row)
+            else:
+                lfd = self.table.item(row,0).text().toUtf8().data()
+
+            if (self.table.item(row,1) is None):
+                mtglnr = ""
+            else:
+                mtglnr = self.table.item(row,1).text().toUtf8().data()
+
+            if (self.table.item(row,2) is None):
+                name = ""
+            else:
+                name = self.table.item(row,2).text().toUtf8().data()
+
+            if (self.table.item(row,3) is None):
+                firstname = ""
+            else:
+                firsname = self.table.item(row,3).text().toUtf8().data()
+
+            if (self.table.item(row,4) is None):
+                aufnahmegeb = "0,00"
+            else:
+                aufnahmegeb = self.table.item(row,4).text().toUtf8().data()
+
+            if (self.table.item(row,5) is None):
+                aufnahmepayed = "0.00"
+            else:
+                aufnahmepayed = self.table.item(row,5).text().toUtf8().data()
+
+            if (self.table.item(row,6) is None):
+                beitrag = "0.00"
+            else:
+                beitrag = self.table.item(row,6).text().toUtf8().data()
+
+            if (self.table.item(row,7) is None):
+                beitragpayed = "0.00"
+            else:
+                beitragpayed = self.table.item(row,7).text().toUtf8().data()
+	    
+            if (self.table.item(row,8) is None):
+                ust = "0.00"
+            else:
+                ust = self.table.item(row,8).text().toUtf8().data()
+
+            data.append({'lfd':lfd,
+		    	 'mtgl-nr':mtglnr,
+                         'name':name,
+		    	 'firstname':firstname,
+		    	 'aufnahmegeb':aufnahmegeb,
+		    	 'aufnahmepayed':aufnahmepayed,
+		    	 'beitrag':beitrag,
+		    	 'beitragpayed':beitragpayed, 
+                         'ust':ust
 			}
 		    )
 
