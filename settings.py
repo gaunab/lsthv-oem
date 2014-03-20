@@ -18,8 +18,8 @@ class beraterData:
 	self.id = (data["id"] if "id" in data else "")
 	# Bank-Connection
 	self.bank = (data["bank"] if "bank" in data else "")
-	self.bankid = (data["bankid"] if "bankid" in data else "")
-	self.deposit = (data["deposit"] if "deposit" in data else "")
+	self.bic = (data["bic"] if "bic" in data else "")
+	self.iban = (data["iban"] if "iban" in data else "")
 	# Contact / Adress
 	self.street = (data["street"] if "street" in data else "")
 	self.town = (data["town"] if "town" in data else "")
@@ -28,14 +28,38 @@ class beraterData:
 	self.zip = (data["zip"] if "zip" in data else "")
     	f_settings.close()
 
+        if (len(self.iban) > 0):
+            if (self.checkiban()):
+                print "IBAN correct"
+            else:
+                print "IBAN incorrect"
+
+
+    def checkiban(self):
+        if (len(self.iban) < 20):
+            return False
+
+        try:
+            iban = self.iban.upper()                                                # Make Sure all Letters are Capitals
+            country = str(ord(iban[0])-55) + str(ord(iban[1])-55)                   # Every Letter gets a Value beginning with 10 for A
+            checksum = iban[2] + iban[3]                                            # Fetch Checksum
+            bban = iban[4:]                                                         # Fetch bban
+        except ValueError:
+            return False
+        
+        if (int(bban + country + checksum) % 97 == 1 ):                              # Now put everything together and check if modulo 97 is 1
+            return True
+        else:
+            return False
+
     def save(self):
 	data={}
 	data["name"] = self.name
 	data["firstname"] = self.firstname
 	data["id"] = self.id
 	data["bank"] = self.bank
-	data["bankid"] = self.bankid
-	data["deposit"] = self.deposit
+	data["bic"] = self.bic
+	data["iban"] = self.iban
 	data["street"] = self.street
 	data["town"] = self.town
 	data["ustnr"] = self.ustnr

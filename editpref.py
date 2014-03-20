@@ -36,13 +36,13 @@ class prefWindow(QtGui.QWidget):
 	self.edtBank.setText(self.berater.bank)
 	lblBank = QtGui.QLabel(u"Bank")
 
-	self.edtBankid = QtGui.QLineEdit()
-	self.edtBankid.setText(self.berater.bankid)
-	lblBankid = QtGui.QLabel(u"BIC")
+	self.edtBic = QtGui.QLineEdit()
+	self.edtBic.setText(self.berater.bic)
+	lblBic = QtGui.QLabel(u"BIC")
 	
-	self.edtBankKto = QtGui.QLineEdit()
-	self.edtBankKto.setText(self.berater.deposit)
-	lblBankKto = QtGui.QLabel(u"IBAN")
+	self.edtIban = QtGui.QLineEdit()
+	self.edtIban.setText(self.berater.iban)
+	lblIban = QtGui.QLabel(u"IBAN")
 	
 	self.edtStreet = QtGui.QLineEdit()
 	self.edtStreet.setText(self.berater.street)
@@ -72,10 +72,10 @@ class prefWindow(QtGui.QWidget):
 	grid.addWidget(lblZip,5,0)
 	grid.addWidget(self.edtBank,6,1)
 	grid.addWidget(lblBank,6,0)
-	grid.addWidget(self.edtBankid,7,1)
-	grid.addWidget(lblBankid,7,0)
-	grid.addWidget(self.edtBankKto,8,1)
-	grid.addWidget(lblBankKto,8,0)
+	grid.addWidget(self.edtBic,7,1)
+	grid.addWidget(lblBic,7,0)
+	grid.addWidget(self.edtIban,8,1)
+	grid.addWidget(lblIban,8,0)
 
 	grid.addWidget(btnSave,10,0)
 	grid.addWidget(btnClose,10,1)
@@ -85,7 +85,7 @@ class prefWindow(QtGui.QWidget):
     # Checking for changes 
     def closeEvent(self, event):
 	changed = False
-	if (unicode(self.berater.name) != unicode(self.edtName.text())) or (unicode(self.berater.firstname) != unicode(self.edtFirstName.text())) or (unicode(self.berater.id) != unicode(self.edtId.text())) or unicode(self.berater.bank) != unicode(self.edtBank.text()) or unicode(self.berater.bankid) != unicode(self.edtBankid.text()) or unicode(self.berater.deposit) != unicode(self.edtBankKto.text()) or unicode(self.berater.street) != unicode(self.edtStreet.text()) or unicode(self.berater.town) != unicode(self.edtTown.text()) or unicode(self.berater.zip) != unicode(self.edtZip.text()):
+	if (unicode(self.berater.name) != unicode(self.edtName.text())) or (unicode(self.berater.firstname) != unicode(self.edtFirstName.text())) or (unicode(self.berater.id) != unicode(self.edtId.text())) or unicode(self.berater.bank) != unicode(self.edtBank.text()) or unicode(self.berater.bic) != unicode(self.edtBic.text()) or unicode(self.berater.iban) != unicode(self.edtIban.text()) or unicode(self.berater.street) != unicode(self.edtStreet.text()) or unicode(self.berater.town) != unicode(self.edtTown.text()) or unicode(self.berater.zip) != unicode(self.edtZip.text()):
 	    changed = True
 
 	if (changed == True):
@@ -110,13 +110,17 @@ class prefWindow(QtGui.QWidget):
 
     # Saving Personal Data to berater Object, save to file afterwards
     def save(self):
-	self.berater.name = unicode(self.edtName.text())
-	self.berater.firstname = unicode(self.edtFirstName.text())
-	self.berater.id = unicode(self.edtId.text())
-	self.berater.bank = unicode(self.edtBank.text())
-	self.berater.bankid = unicode(self.edtBankid.text())
-	self.berater.deposit = unicode(self.edtBankKto.text())
-	self.berater.street = unicode(self.edtStreet.text())
-	self.berater.town = unicode(self.edtTown.text())
-	self.berater.zip = unicode(self.edtZip.text())
+	self.berater.name = unicode(self.edtName.text()).rstrip()                           # Convert Edit-Field to unicode string, remove all trailing whitespaces
+	self.berater.firstname = unicode(self.edtFirstName.text()).rstrip()
+	self.berater.id = unicode(self.edtId.text()).rstrip()
+	self.berater.bank = unicode(self.edtBank.text()).rstrip()
+	self.berater.bic = unicode(self.edtBic.text()).rstrip()
+	self.berater.iban = unicode(self.edtIban.text()).rstrip()
+        if (not self.berater.checkiban()):                                                  # Check if IBAN is correct
+	    msgBox = QtGui.QMessageBox();
+            msgBox.setText(u"Die IBAN ist inkorrekt.\nBitte überprüfen Sie Ihre Eingabe.");
+            msgBox.exec_()
+	self.berater.street = unicode(self.edtStreet.text()).rstrip()
+	self.berater.town = unicode(self.edtTown.text()).rstrip()
+	self.berater.zip = unicode(self.edtZip.text()).rstrip()
 	self.berater.save()

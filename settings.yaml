@@ -1,7 +1,7 @@
 bank: !!python/unicode 'Musterbankw'
-bankid: !!python/unicode '123 123 0000'
-deposit: !!python/unicode '9900990000'
+bic: !!python/unicode 'SOLADES1MEI'
 firstname: !!python/unicode 'Paulo'
+iban: !!python/unicode 'DE04850550004000090181'
 id: !!python/unicode '012345'
 name: !!python/unicode 'Kuntke'
 street: "Musterstra\xDFe 42"
