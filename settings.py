@@ -1,18 +1,23 @@
 import yaml
-
+import os.path
 
 # Settings and personal Data are stored in settings.yaml
 
 class beraterData:
 
     def __init__(self):
+        
     	# Open the Settings-File
-    	f_settings = open ("settings.yaml")
-	
-	data = yaml.load(f_settings)
-	
-	### Read all Fields from settings.yaml ###
+        if (os.path.isfile("settings.yaml")):
+            f_settings = open ("settings.yaml")
+            data = yaml.load(f_settings)
+            f_settings.close()
+            self.saved= True
+        else:
+            data = yaml.load("saved: false")
+            self.saved = False
 
+	### Read all Fields from settings.yaml ###
 	self.name = (data["name"] if "name" in data else "")
 	self.firstname = (data["firstname"] if "firstname" in data else "")
 	self.id = (data["id"] if "id" in data else "")
@@ -26,7 +31,6 @@ class beraterData:
 	# governmental things
 	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
 	self.zip = (data["zip"] if "zip" in data else "")
-    	f_settings.close()
 
         if (len(self.iban) > 0):
             if (self.checkiban()):
