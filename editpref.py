@@ -2,6 +2,7 @@
 # -*- coding: utf-8- -*-
 
 from PyQt4 import QtGui
+import editust
 
 class prefWindow(QtGui.QWidget):
     def __init__(self,berater):
@@ -56,6 +57,8 @@ class prefWindow(QtGui.QWidget):
 	self.edtZip.setText(self.berater.zip)
 	lblZip = QtGui.QLabel(u"Postleitzahl")
 
+        ustwidget = editust.ustWidget(self.berater.ust)
+
 	grid.addWidget(self.edtName,0,1)
 	grid.addWidget(lblName,0,0)
 	grid.addWidget(self.edtFirstName,1,1)
@@ -76,7 +79,7 @@ class prefWindow(QtGui.QWidget):
 	grid.addWidget(lblBic,7,0)
 	grid.addWidget(self.edtIban,8,1)
 	grid.addWidget(lblIban,8,0)
-
+        grid.addWidget(ustwidget,9,0)
 	grid.addWidget(btnSave,10,0)
 	grid.addWidget(btnClose,10,1)
 	self.setLayout(grid) 			# Grid for Layout
