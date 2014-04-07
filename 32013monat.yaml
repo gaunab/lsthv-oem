@@ -1,3 +1,12 @@
 month: 3
-table: []
+table:
+- aufnahmegeb: 0,00
+  aufnahmepayed: '0.00'
+  beitrag: '0.00'
+  beitragpayed: '0.00'
+  firstname: ''
+  lfd: '1'
+  mtgl-nr: ''
+  name: ''
+  ust: '0.00'
 year: 2013

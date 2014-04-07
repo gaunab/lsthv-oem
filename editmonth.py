@@ -5,7 +5,7 @@
 This Project is for calculating bils 
 
 """
-import month,printing
+import month,printing,settings
 import sys
 from PyQt4 import QtGui,QtCore
 
@@ -22,14 +22,63 @@ class BeraterTable(QtGui.QTableWidget):
         except:
             return 0.0
 
-class monthWindow(QtGui.QWidget):
+class monthWindow(QtGui.QMainWindow):
+    def __init__(self,month):
+        super(monthWindow,self).__init__()
+        monthwidget = monthWidget(month)
+        self.setCentralWidget(monthwidget)
+        self.show()
+        print "New Window"
+
+        # Create Menubar
+        menubar = self.menuBar()
+        filemenu = menubar.addMenu("Datei")
+        editmenu = menubar.addMenu("Bearbeiten")
+
+        exitAction = QtGui.QAction(u"Schließen", self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Programm Beenden')
+        exitAction.triggered.connect(self.close)
+
+        saveAction = QtGui.QAction('Speichern', self)
+        saveAction.setShortcut('Ctrl+S')
+        saveAction.setStatusTip('Aktuellen Monat speichern')
+        saveAction.triggered.connect(monthwidget.save)
+
+        printAction = QtGui.QAction('Drucken', self)
+        printAction.setShortcut('Ctrl+P')
+        printAction.setStatusTip('Aktuellen Monat drucken')
+        printAction.triggered.connect(monthwidget.handlePrint)
+
+        addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
+        addAction.setShortcut('Ctrl++')
+        addAction.setStatusTip('Fügt eine neue Zeile ein')
+        addAction.triggered.connect(monthwidget.addEntry)
+
+        removeAction = QtGui.QAction(u"Zeile löschen", self)
+        removeAction.setShortcut('Ctrl+-')
+        removeAction.setStatusTip('Entfernt die Markierte Zeile')
+        removeAction.triggered.connect(monthwidget.delEntry)
+
+        filemenu.addAction(saveAction)
+        filemenu.addAction(printAction)
+        filemenu.addAction(exitAction)
+        editmenu.addAction(addAction)
+        editmenu.addAction(removeAction)
+
+
+
+class monthWidget(QtGui.QWidget):
 
     def __init__(self,month):
-	super(monthWindow, self).__init__()
+	super(monthWidget, self).__init__()
 	print "Opening Month"
-	self.initUI() 				# Initilasing QT Window
+	self.initUI() 				# Initialating Month Widget
 	self.month = month
 	self.loadMonth(month) 			# Load Data into Table
+        self.beraterData = settings.beraterData()
+
+
 	
     def initUI(self):
 	vbox = QtGui.QVBoxLayout() 		# Main Container
@@ -98,23 +147,26 @@ class monthWindow(QtGui.QWidget):
     def loadMonth(self,month):
 	
 	    readerrors = 0 			# Counting errors on reading the data-file
+            if ("table" in month.data) :
+                for entry in month.data["table"]: 	# Iterate through all Data-Lines
+                    self.table.insertRow(self.table.rowCount()) 	# insert new Row at end of table
 
-	    for entry in month.data["table"]: 	# Iterate through all Data-Lines
-		self.table.insertRow(self.table.rowCount()) 	# insert new Row at end of table
-
-		# now fill the table with life
-		try:
-		    # continue reading with next line after finding an error
-    		    self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"]))) 	
-    		    self.table.setItem(self.table.rowCount()-1,1,QtGui.QTableWidgetItem(unicode(entry["mtgl-nr"])))
-    		    self.table.setItem(self.table.rowCount()-1,2,QtGui.QTableWidgetItem(unicode(entry["name"])))
-    		    self.table.setItem(self.table.rowCount()-1,3,QtGui.QTableWidgetItem(unicode(entry["firstname"])))
-    		    self.table.setItem(self.table.rowCount()-1,4,QtGui.QTableWidgetItem(unicode(entry["aufnahmegeb"])))
-    		    self.table.setItem(self.table.rowCount()-1,5,QtGui.QTableWidgetItem(unicode(entry["aufnahmepayed"])))
-    		    self.table.setItem(self.table.rowCount()-1,6,QtGui.QTableWidgetItem(unicode(entry["beitrag"])))
-    		    self.table.setItem(self.table.rowCount()-1,7,QtGui.QTableWidgetItem(unicode(entry["beitragpayed"])))
-		except (KeyError), name: 	
-		    readerrors+=1 			# only Count Errors
+                    # now fill the table with life
+                    try:
+                        # continue reading with next line after finding an error
+                        self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"]))) 	
+                        self.table.setItem(self.table.rowCount()-1,1,QtGui.QTableWidgetItem(unicode(entry["mtgl-nr"])))
+                        self.table.setItem(self.table.rowCount()-1,2,QtGui.QTableWidgetItem(unicode(entry["name"])))
+                        self.table.setItem(self.table.rowCount()-1,3,QtGui.QTableWidgetItem(unicode(entry["firstname"])))
+                        self.table.setItem(self.table.rowCount()-1,4,QtGui.QTableWidgetItem(unicode(entry["aufnahmegeb"])))
+                        self.table.setItem(self.table.rowCount()-1,5,QtGui.QTableWidgetItem(unicode(entry["aufnahmepayed"])))
+                        self.table.setItem(self.table.rowCount()-1,6,QtGui.QTableWidgetItem(unicode(entry["beitrag"])))
+                        self.table.setItem(self.table.rowCount()-1,7,QtGui.QTableWidgetItem(unicode(entry["beitragpayed"])))
+                        self.table.setItem(self.table.rowCount()-1,8,QtGui.QTableWidgetItem(unicode(entry["ust"])))
+                    except (KeyError), name: 	
+                        readerrors+=1 			# only Count Errors
+            else:                                                           # Empty table
+                self.table.insertRow(1)                                     # Create new empty Line
 
 	    if readerrors:
 		QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))

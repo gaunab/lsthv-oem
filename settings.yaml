@@ -1,10 +1,15 @@
-bank: !!python/unicode 'Musterbankw'
-bic: !!python/unicode 'SOLADES1MEI'
-firstname: !!python/unicode 'Paulo'
+bank: !!python/unicode 'BANK'
+bic: !!python/unicode ''
+firstname: !!python/unicode 'Vorname'
 iban: !!python/unicode 'DE38850550004000232741'
-id: !!python/unicode '012345'
-name: !!python/unicode 'Kuntke'
-street: "Musterstra\xDFe 42"
-town: !!python/unicode 'Musterstadt'
+id: !!python/unicode 'Beraternummer'
+name: !!python/unicode 'Name'
+street: !!python/unicode 'Strasse'
+town: !!python/unicode 'Stadt'
 ustnr: ''
-zip: !!python/unicode '012345'
+zip: !!python/unicode 'PLZ'
+ust:
+    - from: 201410
+      value: 21
+    - from: 200901
+      value: 19

@@ -31,6 +31,8 @@ class beraterData:
 	# governmental things
 	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
 	self.zip = (data["zip"] if "zip" in data else "")
+        ust = data["ust"]
+
 
         if (len(self.iban) > 0):
             if (self.checkiban()):
@@ -38,8 +40,7 @@ class beraterData:
             else:
                 print "IBAN incorrect"
 
-
-    def checkiban(self):
+      def checkiban(self):
         if (len(self.iban) < 20):
             return False
 
@@ -68,6 +69,7 @@ class beraterData:
 	data["town"] = self.town
 	data["ustnr"] = self.ustnr
 	data["zip"] = self.zip
+        data["ust"] = self.ust
 
 	f_settings = open("settings.yaml","w")
 	yaml.dump(data, f_settings ,default_flow_style=False)
