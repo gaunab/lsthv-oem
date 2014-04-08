@@ -31,7 +31,7 @@ class beraterData:
 	# governmental things
 	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
 	self.zip = (data["zip"] if "zip" in data else "")
-        ust = data["ust"]
+        self.ust = data["ust"]
 
 
         if (len(self.iban) > 0):
@@ -40,7 +40,7 @@ class beraterData:
             else:
                 print "IBAN incorrect"
 
-      def checkiban(self):
+    def checkiban(self):
         if (len(self.iban) < 20):
             return False
 

@@ -79,7 +79,7 @@ class prefWindow(QtGui.QWidget):
 	grid.addWidget(lblBic,7,0)
 	grid.addWidget(self.edtIban,8,1)
 	grid.addWidget(lblIban,8,0)
-        grid.addWidget(ustwidget,9,0)
+        grid.addWidget(ustwidget,9,1)
 	grid.addWidget(btnSave,10,0)
 	grid.addWidget(btnClose,10,1)
 	self.setLayout(grid) 			# Grid for Layout
