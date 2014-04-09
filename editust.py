@@ -12,15 +12,30 @@ class ustWidget(QtGui.QWidget):
     def initUI(self):
         
         lblDesc = QtGui.QLabel(u"Umsatzsteuer-Verlauf")
-        grid = QtGui.QGridLayout()
-        grid.addWidget(lblDesc,0,0)
+        maingrid = QtGui.QGridLayout()
+        maingrid.addWidget(lblDesc,0,0,1,2)
 
         self.ustTable = QtGui.QTableWidget()
         self.ustTable.setColumnCount(3)
         self.ustTable.setHorizontalHeaderLabels(['Monat','Jahr','USt-Satz'])
 
-        grid.addWidget(self.ustTable,1,0)
-        self.setLayout(grid)
+        maingrid.addWidget(self.ustTable,1,0,1,2)
+        buttongrid = QtGui.QHBoxLayout()
+        btnAddLine = QtGui.QPushButton(u"Hinzufügen")
+        btnAddLine.clicked.connect(self.addNewEntry)
+        btnDelLine = QtGui.QPushButton(u"Löschen")
+        btnDelLine.clicked.connect(self.delEntry)
+        maingrid.addWidget(btnAddLine,2,0)
+        maingrid.addWidget(btnDelLine,2,1)
+
+
+        self.setLayout(maingrid)
+
+    def addNewEntry(self):
+        self.ustTable.insertRow(self.ustTable.rowCount())
+
+    def delEntry(self):
+        self.ustTable.removeRow(self.ustTable.currentRow())
 
 
 
