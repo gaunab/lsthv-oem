@@ -8,6 +8,7 @@ class ustWidget(QtGui.QWidget):
 	super(ustWidget, self).__init__()
 	self.ust = ust
 	self.initUI()
+        self.loadentries()
 
     def initUI(self):
         
@@ -30,6 +31,20 @@ class ustWidget(QtGui.QWidget):
 
 
         self.setLayout(maingrid)
+
+    def loadentries(self):
+        for entry in self.ust:
+            fromstr = str(entry["from"])
+            if len(fromstr) == 6:
+                self.ustTable.insertRow(self.ustTable.rowCount())
+                monthCell = QtGui.QTableWidgetItem(fromstr[4:])
+                print fromstr[4:]
+                yearCell  = QtGui.QTableWidgetItem(fromstr[:4])
+                print fromstr[:4]
+                valueCell = QtGui.QTableWidgetItem(str(entry["value"]))
+                self.ustTable.setItem(self.ustTable.rowCount()-1,0,monthCell)
+                self.ustTable.setItem(self.ustTable.rowCount()-1,1,yearCell)
+                self.ustTable.setItem(self.ustTable.rowCount()-1,2,valueCell)
 
     def addNewEntry(self):
         self.ustTable.insertRow(self.ustTable.rowCount())
