@@ -7,9 +7,9 @@ name: !!python/unicode 'Name'
 street: !!python/unicode 'Strasse'
 town: !!python/unicode 'Stadt'
 ust:
-- from: 201410
-  value: 21
 - from: 200901
   value: 19
+- from: 201405
+  value: 21
 ustnr: ''
 zip: !!python/unicode 'PLZ'

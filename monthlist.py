@@ -56,6 +56,7 @@ class monthList(QtGui.QWidget):
     #open selected Month - needs table/list as parameter
     def openMonth(self):
 	self.monthWin = editmonth.monthWindow(self.table.currentItem().month())
+        self.close()
 
     def findMonths(self):
 	fileList = os.listdir(".")  		# list of all Files

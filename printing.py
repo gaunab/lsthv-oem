@@ -161,10 +161,11 @@ class printout:
         print y
 	for i in range(self.table.rowCount()):		# i --> current Row of Table
 	    # Fetch data from table
-	    lfd = str(self.table.item(i,0).text())
-	    mtglnr = str(self.table.item(i,1).text())
+	    lfd = str(i)
+            self.tableCol(pages,0,y,str(i))
+	    mtglnr = str(self.table.item(i,0).text())
 	    # now print to current row on paper
-            for col in range(4):
+            for col in range(1,8):
                 self.tableCol(pages,col,y,str(self.table.item(i,col).text()))
 	    y = y + fontsize
 
@@ -173,17 +174,17 @@ class printout:
                 y = y + self.tableHead(pages,y)
 
             ### Now let's calculate everything for evaluation
-            aufnahmeges +=  self.table.cellToFloat(i,4)
-            aufnahmeges_bez +=  self.table.cellToFloat(i,5)
-            beitragges  +=  self.table.cellToFloat(i,6)
-            beitragges_bez  += self.table.cellToFloat(i,7)
+            aufnahmeges +=  self.table.cellToFloat(i,3)
+            aufnahmeges_bez +=  self.table.cellToFloat(i,4)
+            beitragges  +=  self.table.cellToFloat(i,5)
+            beitragges_bez  += self.table.cellToFloat(i,6)
             
             # Now Sort per UST
-            ust = self.table.cellToFloat(i,8)
+            ust = self.table.cellToFloat(i,7)
             if ust in aufnahme:
                 aufnahme[ust] += float(u"%f") %(self.table.item(i,4).text())
             if ust in beitrag:
-                beitrag[ust] += float(u"%f") %(self.table.item(i,6).text())
+                beitrag[ust] += float(u"%f") %(self.table.item(i,5).text())
             
 
 

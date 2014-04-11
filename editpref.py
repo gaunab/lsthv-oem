@@ -57,7 +57,11 @@ class prefWindow(QtGui.QWidget):
 	self.edtZip.setText(self.berater.zip)
 	lblZip = QtGui.QLabel(u"Postleitzahl")
 
-        ustwidget = editust.ustWidget(self.berater.ust)
+        self.ustwidget = editust.ustWidget(self.berater.ust)
+        ustgroupBox = QtGui.QGroupBox("Verlauf der Umsatzsteuer")
+        ustlayout = QtGui.QHBoxLayout()
+        ustlayout.addWidget(self.ustwidget)
+        ustgroupBox.setLayout(ustlayout)
 
 	grid.addWidget(self.edtName,0,1)
 	grid.addWidget(lblName,0,0)
@@ -79,7 +83,7 @@ class prefWindow(QtGui.QWidget):
 	grid.addWidget(lblBic,7,0)
 	grid.addWidget(self.edtIban,8,1)
 	grid.addWidget(lblIban,8,0)
-        grid.addWidget(ustwidget,9,1)
+        grid.addWidget(ustgroupBox,9,1)
 	grid.addWidget(btnSave,10,0)
 	grid.addWidget(btnClose,10,1)
 	self.setLayout(grid) 			# Grid for Layout
@@ -126,4 +130,5 @@ class prefWindow(QtGui.QWidget):
 	self.berater.street = unicode(self.edtStreet.text()).rstrip()
 	self.berater.town = unicode(self.edtTown.text()).rstrip()
 	self.berater.zip = unicode(self.edtZip.text()).rstrip()
+        self.berater.ust = self.ustwidget.returnEntries()
 	self.berater.save()

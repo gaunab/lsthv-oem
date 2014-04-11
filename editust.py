@@ -2,6 +2,7 @@
 # -*- coding: utf-8- -*-
 
 from PyQt4 import QtGui
+from operator import itemgetter
 
 class ustWidget(QtGui.QWidget):
     def __init__(self,ust):
@@ -12,9 +13,7 @@ class ustWidget(QtGui.QWidget):
 
     def initUI(self):
         
-        lblDesc = QtGui.QLabel(u"Umsatzsteuer-Verlauf")
         maingrid = QtGui.QGridLayout()
-        maingrid.addWidget(lblDesc,0,0,1,2)
 
         self.ustTable = QtGui.QTableWidget()
         self.ustTable.setColumnCount(3)
@@ -33,7 +32,10 @@ class ustWidget(QtGui.QWidget):
         self.setLayout(maingrid)
 
     def loadentries(self):
-        for entry in self.ust:
+        ustlist = sorted(self.ust, key=itemgetter('from')) 
+
+        for entry in ustlist:
+            print entry["from"]
             fromstr = str(entry["from"])
             if len(fromstr) == 6:
                 self.ustTable.insertRow(self.ustTable.rowCount())
@@ -45,6 +47,26 @@ class ustWidget(QtGui.QWidget):
                 self.ustTable.setItem(self.ustTable.rowCount()-1,0,monthCell)
                 self.ustTable.setItem(self.ustTable.rowCount()-1,1,yearCell)
                 self.ustTable.setItem(self.ustTable.rowCount()-1,2,valueCell)
+
+    def returnEntries(self):
+        entries = []
+        for line in range(self.ustTable.rowCount()):
+            print "Saving UST-Line "+str(line)
+            ustentry = {}
+            try:
+                fromvalue = "%i%02d" %(int(str(self.ustTable.item(line,1).text())), int(str(self.ustTable.item(line,0).text())))
+                ustentry["from"] = int(fromvalue)
+                ustentry["value"] = int(str(self.ustTable.item(line,2).text()))
+            except(ValueError,AttributeError):
+                ustentry["from"] = 2000
+                ustentry["value"] = 0
+                QtGui.QMessageBox.critical(self,u"Fehler",u"Fehler: Eintrag "+str(line+1) + u" enthält keine Zahl")
+
+
+
+            entries.append(ustentry)
+
+        return entries
 
     def addNewEntry(self):
         self.ustTable.insertRow(self.ustTable.rowCount())

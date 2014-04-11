@@ -5,9 +5,10 @@
 This Project is for calculating bils 
 
 """
-import month,printing,settings
+import month,printing,settings,monthlist 
 import sys
 from PyQt4 import QtGui,QtCore
+from operator import itemgetter
 
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
@@ -23,6 +24,9 @@ class BeraterTable(QtGui.QTableWidget):
             return 0.0
 
 class monthWindow(QtGui.QMainWindow):
+    def openMonth(self):
+	self.frmMonthList = monthlist.monthList()
+    
     def __init__(self,month):
         super(monthWindow,self).__init__()
         monthwidget = monthWidget(month)
@@ -60,6 +64,12 @@ class monthWindow(QtGui.QMainWindow):
         removeAction.setStatusTip('Entfernt die Markierte Zeile')
         removeAction.triggered.connect(monthwidget.delEntry)
 
+        openAction = QtGui.QAction(u"Monat öffnen", self)
+        openAction.setShortcut('Ctrl+o')
+        openAction.setStatusTip(u"Einen anderen Monat öffnen")
+        openAction.triggered.connect(self.openMonth)
+
+        filemenu.addAction(openAction)
         filemenu.addAction(saveAction)
         filemenu.addAction(printAction)
         filemenu.addAction(exitAction)
@@ -67,32 +77,46 @@ class monthWindow(QtGui.QMainWindow):
         editmenu.addAction(removeAction)
 
 
-
 class monthWidget(QtGui.QWidget):
+
+ 
+    # Determine UST
+    def getUST(self):
+        ustlist = sorted(self.beraterData.ust, key=itemgetter('from')) 
+        thismonth = "%i%02i" %(self.month.data["year"], self.month.data["month"])
+        thismonth = int(thismonth)
+        
+        ust = ustlist[0]["value"]
+        for date in ustlist:
+            if thismonth >= date["from"]:
+                ust = date["value"]
+
+        return ust	
 
     def __init__(self,month):
 	super(monthWidget, self).__init__()
 	print "Opening Month"
-	self.initUI() 				# Initialating Month Widget
 	self.month = month
+	self.initUI() 				# Initialating Month Widget
 	self.loadMonth(month) 			# Load Data into Table
         self.beraterData = settings.beraterData()
+        self.ust = self.getUST()
 
-
-	
     def initUI(self):
 	vbox = QtGui.QVBoxLayout() 		# Main Container
 	
 	buttonBox = QtGui.QGridLayout() 	# Container for Buttons
 
-	
+        lblMonth = QtGui.QLabel(u"Monat: "+str(self.month.data["month"]) + "." + str(self.month.data["year"]))
+        vbox.addWidget(lblMonth)
 	# Creating Table
 	# self.table = QtGui.QTableWidget()
         self.table = BeraterTable()
 	self.table.setRowCount(0)
-	self.table.setColumnCount(9)
+	self.table.setColumnCount(8)
 
-	self.table.setHorizontalHeaderLabels(['Lfd','Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
+	self.table.setHorizontalHeaderLabels(['Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
+
 	vbox.addWidget(self.table)
 
         self.table.itemChanged.connect(self.valueFormat)
@@ -122,6 +146,7 @@ class monthWidget(QtGui.QWidget):
 	self.setLayout(vbox)
 	self.show()
 
+
     # Format Data for number-cols
     def valueFormat(self,editItem):
         red = QtGui.QColor()
@@ -129,7 +154,7 @@ class monthWidget(QtGui.QWidget):
         black = QtGui.QColor()
         black.setRgb(0,0,0)                       
         # editItem.setTextColor(black)                              # on default all Columns are black
-        if editItem.column() in [4,5,6,7,8]:                        # Format only Currency-Related cols
+        if editItem.column() in [3,4,5,6,7]:                        # Format only Currency-Related cols
             origText = editItem.text().replace(",",".")             # First replace all ,s as they're entered in Germany with .s
             try:
                 newText = u"%0.2f" %(float(origText))
@@ -138,7 +163,7 @@ class monthWidget(QtGui.QWidget):
             except:                                                 # in case the number could not be formatted - print the cell in red
                 editItem.setTextColor(red)
 
-        elif editItem.column() in [2,3]:                            # Convert first Letter of Names to Capital letter
+        elif editItem.column() in [1,2]:                            # Convert first Letter of Names to Capital letter
             itemtext = str(editItem.text()).title()
             editItem.setText(itemtext)
                 
@@ -154,15 +179,15 @@ class monthWidget(QtGui.QWidget):
                     # now fill the table with life
                     try:
                         # continue reading with next line after finding an error
-                        self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"]))) 	
-                        self.table.setItem(self.table.rowCount()-1,1,QtGui.QTableWidgetItem(unicode(entry["mtgl-nr"])))
-                        self.table.setItem(self.table.rowCount()-1,2,QtGui.QTableWidgetItem(unicode(entry["name"])))
-                        self.table.setItem(self.table.rowCount()-1,3,QtGui.QTableWidgetItem(unicode(entry["firstname"])))
-                        self.table.setItem(self.table.rowCount()-1,4,QtGui.QTableWidgetItem(unicode(entry["aufnahmegeb"])))
-                        self.table.setItem(self.table.rowCount()-1,5,QtGui.QTableWidgetItem(unicode(entry["aufnahmepayed"])))
-                        self.table.setItem(self.table.rowCount()-1,6,QtGui.QTableWidgetItem(unicode(entry["beitrag"])))
-                        self.table.setItem(self.table.rowCount()-1,7,QtGui.QTableWidgetItem(unicode(entry["beitragpayed"])))
-                        self.table.setItem(self.table.rowCount()-1,8,QtGui.QTableWidgetItem(unicode(entry["ust"])))
+                        # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"]))) 	
+                        self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["mtgl-nr"])))
+                        self.table.setItem(self.table.rowCount()-1,1,QtGui.QTableWidgetItem(unicode(entry["name"])))
+                        self.table.setItem(self.table.rowCount()-1,2,QtGui.QTableWidgetItem(unicode(entry["firstname"])))
+                        self.table.setItem(self.table.rowCount()-1,3,QtGui.QTableWidgetItem(unicode(entry["aufnahmegeb"])))
+                        self.table.setItem(self.table.rowCount()-1,4,QtGui.QTableWidgetItem(unicode(entry["aufnahmepayed"])))
+                        self.table.setItem(self.table.rowCount()-1,5,QtGui.QTableWidgetItem(unicode(entry["beitrag"])))
+                        self.table.setItem(self.table.rowCount()-1,6,QtGui.QTableWidgetItem(unicode(entry["beitragpayed"])))
+                        self.table.setItem(self.table.rowCount()-1,7,QtGui.QTableWidgetItem(unicode(entry["ust"])))
                     except (KeyError), name: 	
                         readerrors+=1 			# only Count Errors
             else:                                                           # Empty table
@@ -180,8 +205,10 @@ class monthWidget(QtGui.QWidget):
     def addEntry(self):
 	if (self.table.currentRow() == -1):
 	    self.table.insertRow(0)
+            self.table.setItem(0,7,QtGui.QTableWidgetItem(unicode("%0.2f"))) %(self.ust)
 	else:
 	    self.table.insertRow(self.table.currentRow()) 	# insert new Row at Current selected
+            self.table.setItem(self.table.currentRow()-1,7,QtGui.QTableWidgetItem(u"%0.2f" %(float(self.ust)) ))
 	
 
     # Delete a Row
@@ -193,52 +220,48 @@ class monthWidget(QtGui.QWidget):
 	# First write Table-Content to Month-Object
 	data = []
 	for row in range(self.table.rowCount()):
-            if (self.table.item(row,0) is None):
-                lfd = str(row)
-            else:
-                lfd = self.table.item(row,0).text().toUtf8().data()
 
-            if (self.table.item(row,1) is None):
+            if (self.table.item(row,0) is None):
                 mtglnr = ""
             else:
-                mtglnr = self.table.item(row,1).text().toUtf8().data()
+                mtglnr = self.table.item(row,0).text().toUtf8().data()
 
-            if (self.table.item(row,2) is None):
+            if (self.table.item(row,1) is None):
                 name = ""
             else:
-                name = self.table.item(row,2).text().toUtf8().data()
+                name = self.table.item(row,1).text().toUtf8().data()
 
-            if (self.table.item(row,3) is None):
+            if (self.table.item(row,2) is None):
                 firstname = ""
             else:
-                firsname = self.table.item(row,3).text().toUtf8().data()
+                firsname = self.table.item(row,2).text().toUtf8().data()
 
-            if (self.table.item(row,4) is None):
+            if (self.table.item(row,3) is None):
                 aufnahmegeb = "0,00"
             else:
-                aufnahmegeb = self.table.item(row,4).text().toUtf8().data()
+                aufnahmegeb = self.table.item(row,3).text().toUtf8().data()
 
-            if (self.table.item(row,5) is None):
+            if (self.table.item(row,4) is None):
                 aufnahmepayed = "0.00"
             else:
-                aufnahmepayed = self.table.item(row,5).text().toUtf8().data()
+                aufnahmepayed = self.table.item(row,4).text().toUtf8().data()
 
-            if (self.table.item(row,6) is None):
+            if (self.table.item(row,5) is None):
                 beitrag = "0.00"
             else:
-                beitrag = self.table.item(row,6).text().toUtf8().data()
+                beitrag = self.table.item(row,5).text().toUtf8().data()
 
-            if (self.table.item(row,7) is None):
+            if (self.table.item(row,6) is None):
                 beitragpayed = "0.00"
             else:
-                beitragpayed = self.table.item(row,7).text().toUtf8().data()
+                beitragpayed = self.table.item(row,6).text().toUtf8().data()
 	    
-            if (self.table.item(row,8) is None):
-                ust = "0.00"
+            if (self.table.item(row,7) is None):
+                ust = "%0.2f" %(self.ust)
             else:
-                ust = self.table.item(row,8).text().toUtf8().data()
+                ust = self.table.item(row,7).text().toUtf8().data()
 
-            data.append({'lfd':lfd,
+            data.append({'lfd':row+1,
 		    	 'mtgl-nr':mtglnr,
                          'name':name,
 		    	 'firstname':firstname,
