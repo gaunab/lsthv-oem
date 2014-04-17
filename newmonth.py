@@ -59,6 +59,7 @@ class newMonth(QtGui.QWidget):
 	monat.data["year"] = self.edtyear.value() 			# examine year from SpinBox
 	
 	self.monthWin = editmonth.monthWindow(monat) 			# open new Month in editmonth-Window
+        self.close()
 
 def main():
     app = QtGui.QApplication(sys.argv)
