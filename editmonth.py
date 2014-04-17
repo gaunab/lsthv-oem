@@ -76,6 +76,8 @@ class monthWindow(QtGui.QMainWindow):
         editmenu.addAction(addAction)
         editmenu.addAction(removeAction)
 
+        # Create StatusBar
+        monthwidget.setStatusBar(self.statusBar())
 
 class monthWidget(QtGui.QWidget):
 
@@ -107,8 +109,8 @@ class monthWidget(QtGui.QWidget):
 	
 	buttonBox = QtGui.QGridLayout() 	# Container for Buttons
 
-        lblMonth = QtGui.QLabel(u"Monat: "+str(self.month.data["month"]) + "." + str(self.month.data["year"]))
-        vbox.addWidget(lblMonth)
+        self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i" %(self.month.data["month"],self.month.data["year"]) )
+        # vbox.addWidget(lblMonth)
 	# Creating Table
 	# self.table = QtGui.QTableWidget()
         self.table = BeraterTable()
@@ -205,12 +207,14 @@ class monthWidget(QtGui.QWidget):
     def addEntry(self):
 	if (self.table.currentRow() == -1):
 	    self.table.insertRow(0)
-            self.table.setItem(0,7,QtGui.QTableWidgetItem(unicode("%0.2f"))) %(self.ust)
+            self.table.setItem(0,7,QtGui.QTableWidgetItem(u"%0.2f" %(self.ust) ))
 	else:
 	    self.table.insertRow(self.table.currentRow()) 	# insert new Row at Current selected
             self.table.setItem(self.table.currentRow()-1,7,QtGui.QTableWidgetItem(u"%0.2f" %(float(self.ust)) ))
-	
-
+    
+    def setStatusBar(self,bar):
+        self.statusbar = bar
+        self.statusbar.addWidget(self.lblMonth)
     # Delete a Row
     def delEntry(self):
 	self.table.removeRow(self.table.currentRow())   # Delete the current Row
@@ -275,6 +279,7 @@ class monthWidget(QtGui.QWidget):
 
 	self.month.data["table"] = data
 	self.month.save()
+        self.statusbar.showMessage(u"Monat wurde gespeichert",2000)
 
     def handlePrint(self):
 	printdata = printing.printout(self.table,self)
