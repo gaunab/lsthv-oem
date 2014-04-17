@@ -39,8 +39,8 @@ class monthList(QtGui.QWidget):
 	for monat in self.monthlist:  		# Add all found months to Table
 	    item = monthItem(monat)     	# Create new ListItem with month-data
 	    item.setText(monthnames[monat.data['month']-1]+" "+str(monat.data['year'])) # Set Text in TableItem
-	    item.setFlags(QtCore.Qt.ItemFlags(33)) 	# Make item selectable but not editable
-	    self.table.insertItem(self.table.count()-1,item) # Add Item to table
+            item.setFlags(QtCore.Qt.ItemFlags(33)) 	# Make item selectable but not editable
+	    self.table.addItem(item) # Add Item to table
 
 	btnOpen = QtGui.QPushButton(u"Öffnen")
 	vbox.addWidget(btnOpen)
@@ -60,8 +60,8 @@ class monthList(QtGui.QWidget):
 
     def findMonths(self):
 	fileList = os.listdir(".")  		# list of all Files
-	fileList.sort() 			# sort files by name
-	for filename in fileList : 		# iterate through all files
+        fileList.sort() 			# sort files by name
+	for filename in sorted(fileList) : 		# iterate through all files
 	    if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
 		monat = month.lsthvmonth()
 		if (monat.open(filename)): 	# Only append to , if valid month
