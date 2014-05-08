@@ -5,6 +5,92 @@ import settings
 # Doing all the rendering
 # http://pyqt.sourceforge.net/Docs/PyQt4/classes.html
 
+
+###
+# Convert a TableCell to FLoat
+###
+def cellToFloat(cell):
+    origText = cell.text().replace(",",".")             # First replace all ,s as they're entered in Germany with .s
+    return float(origText)
+
+
+class tablePainterRow:
+    def __init__(self,painter,col):
+        self.data = []                                  # List of all fields of this row
+        self.col = col
+        self.painter = painter
+
+    def append(self,data):
+            self.data.append(data)
+
+    def get(self,col):
+        print "Row is throwing %s back" %(self.data[col])
+        return self.data[col]
+
+    def textWidth(self,col):
+       # int QFontMetrics.width (self, QString text, int length = -1)
+       return QtGui.QFontMetrics(self.painter.font()).width(self.data[col])
+
+class tablePainter:
+
+    def __init__(self,painter,col):
+        self.data= []                                   # List of all Rows
+        self.painter = painter                          # Painter to draw on
+        self.col = col                                  # Number of cols
+        self.colwidth = {}                              # manually set minimum widths 
+
+    # Add a line of data (string)
+    def appendRow(self,data):
+        print "Create new Row:" 
+        row = tablePainterRow(self.painter,self.col)                 # Create a new row
+        for i in range(min(len(data),self.col)):        # Add only up to col datas
+           row.append(data[i])
+           print "  -Add %s" %(data[i])
+        self.data.append(row)
+
+    # Set minimum colwidth 
+    def setColMinWidth(self,col,width):
+        if (type(col) == int and type(width) == int):
+            self.colwidth[col] = width
+        else:
+            raise Exception("Not an Integer")
+
+
+
+    # Calculate the Width a Col would need
+    def __calcColWidthDemand(self,col): 
+        width = 0.0
+        for row in self.data:                           # go through all rows
+            width = max(row.textWidth(col),width)       # check whether col in current row needs to be wider - set new width
+
+        return width
+
+    def printOut(self,startPoint):
+
+        colwidths = []                                  # find out how wide every col should be
+        for row in range(self.col):
+
+            if row in self.colwidth:                    # try to find a manually set min-width for this row
+                manualWidth = self.colwidth
+            else:
+                manualWidth = 0                         # if no min-value was set -> take 0 as min-width
+
+            colwidths.append(max(manualWidth,self.__calcColWidthDemand(row))) # Set width of col
+
+        y = startPoint.y()
+        for row in self.data:
+            x = startPoint.x()
+            for col in range(self.col):                 # go through all elements from this row
+                text = row.get(col)                     # fetch Text from Row-Elemen
+                print text
+                self.painter.drawText(x,y,text)         # draw ElementText on page
+                x += colwidths[col]                     # add Width of col to x
+                x += 10                                 # add some space
+
+            y += self.painter.fontInfo().pixelSize()    # go to next line
+
+        return QtCore.QPoint(x,y)
+
 class printout:
 
     def __init__(self,table,window):
@@ -12,6 +98,7 @@ class printout:
 	self.table = table
 	self.printDialog = QtGui.QPrintDialog(self.printer,window)
         self.data = window.month.data
+        self.window = window
         self.beraterData = settings.beraterData()                # load beraterdata
 
 	# dialog.exec_()
@@ -23,13 +110,13 @@ class printout:
 	self.pageheightMM = self.printer.pageRect(0).height()
 
 	### Define Fonts
-	self.tableFont = QtGui.QFont('Helvetica',12) 		# Normal font
+	self.tableFont = QtGui.QFont('Helvetica',10) 		# Normal font
         self.tableHeadFont = QtGui.QFont('Helvetica',12,75)     # Bold font
 	self.headingFont = QtGui.QFont('Helvetica',20,75) 	# Big Heading
 	self.heading2Font = QtGui.QFont('Helvetica',15,50) 	# Paper Description Font
         
         ### Define Table Columns in mm
-        self.tableCols = [0,20,40,60,80,100,120,140]
+        self.tableCols = [0,10,25,55,85,105,125,145,160]
 
     # Calculate from mm to px
     def xmm(self,xpos):
@@ -100,13 +187,14 @@ class printout:
 
 
 
+
     def tableHead(self,page,y):
 
         
         ## Now there's the real Table-Stuff
         y = y + self.ymm(1)                 # first create some distance to top
 
-        headlines = ['Lfd','Mitgl.Nr.','Name','Vorname','Aufnahme','Bezahlt']
+        headlines = ['Lfd','Mitgl.Nr.','Name','Vorname','Aufnahme','Bezahlt','Beitrag','Bezahlt','USt']
         col = 0
         for headline in headlines:
             self.tableCol(page,col,y,headline)
@@ -149,6 +237,7 @@ class printout:
 	pages = QtGui.QPainter(self.printer)
 	printDev = pages.device;
 
+        self.table.drawFrame(pages)
 	# Select font
         pages.setFont(self.tableFont)
 	fontsize =  pages.fontInfo().pixelSize()
@@ -162,11 +251,10 @@ class printout:
 	for i in range(self.table.rowCount()):		# i --> current Row of Table
 	    # Fetch data from table
 	    lfd = str(i)
-            self.tableCol(pages,0,y,str(i))
-	    mtglnr = str(self.table.item(i,0).text())
+            self.tableCol(pages,0,y,str(i+1))             # print Entry-Number
 	    # now print to current row on paper
-            for col in range(1,8):
-                self.tableCol(pages,col,y,str(self.table.item(i,col).text()))
+            for col in range(8):
+                self.tableCol(pages,col+1,y,str(self.table.item(i,col).text())) # print all cols
 	    y = y + fontsize
 
 	    if y > self.pagewidth - fontsize: ### End of page reached
@@ -174,34 +262,50 @@ class printout:
                 y = y + self.tableHead(pages,y)
 
             ### Now let's calculate everything for evaluation
-            aufnahmeges +=  self.table.cellToFloat(i,3)
-            aufnahmeges_bez +=  self.table.cellToFloat(i,4)
-            beitragges  +=  self.table.cellToFloat(i,5)
-            beitragges_bez  += self.table.cellToFloat(i,6)
-            
-            # Now Sort per UST
-            ust = self.table.cellToFloat(i,7)
-            if ust in aufnahme:
-                aufnahme[ust] += float(u"%f") %(self.table.item(i,4).text())
-            if ust in beitrag:
-                beitrag[ust] += float(u"%f") %(self.table.item(i,5).text())
-            
+            try:
+                aufnahmeges +=  cellToFloat(self.table.item(i,3))
+                aufnahmeges_bez +=  cellToFloat(self.table.item(i,4))
+                beitragges  +=  cellToFloat(self.table.item(i,5))
+                beitragges_bez  += cellToFloat(self.table.item(i,6))
 
+                # Now add Values to matching UST
+                ust = self.table.cellToFloat(i,7)
+                if ust in aufnahme:
+                    aufnahme[ust] += cellToFloat(self.table.item(i,4))
+                if ust in beitrag:
+                    beitrag[ust] += cellToFloat(self.table.item(i,5))
+            except:
+                QtGui.QMessageBox.warning(self.window,u"Fehler",u"Eintrag %i konnte nicht gelesen werden:\nkein gültiges Zahlenformat" %(i+1))
+            
 
         # Now lets print the Final Page
         self.printer.newPage()
         y=self.heading(pages,type=2)
      
         y += self.ymm(10)
-        # pages.drawLine(self.xmm(10),y,self.xmm(100),y)
-        self.evaluationCell(pages,0,y,u"Gesamtumsatz")
-        outstr = u"%0.2f €" %(aufnahmeges + beitragges)
-        self.evaluationCell(pages,1,y,outstr) 
 
-	y = y + fontsize
-        self.evaluationCell(pages,0,y,u"direkt bezahlte")
-        outstr = u"%0.2f €" %(aufnahmeges_bez + beitragges_bez)
-        self.evaluationCell(pages,1,y,outstr) 
+        evaluationTable = tablePainter(pages,4)
+        tableRow = [u"Gesamtumsatz",
+                    u"%0.2f€" %(aufnahmeges + beitragges),
+                    "",
+                    ""]
+        evaluationTable.appendRow(tableRow)
+        evaluationTable.appendRow([u"direkt bezahlte",u"%0.2f€" %(aufnahmeges_bez + beitragges_bez) , "", ""])
+        evaluationTable.appendRow([u"Umsatz Verein\n Mitgliedsbeiträge",u"%0.2f€" %(beitragges), "" , ""])
+        evaluationTable.appendRow([u"Umsatz Verein\n Aufnahmegebühren",u"%0.2f€" %(aufnahmeges), "" , ""])
+
+
+        evaluationTable.printOut(QtCore.QPoint(1,y))
+
+        # pages.drawLine(self.xmm(10),y,self.xmm(100),y)
+      #  self.evaluationCell(pages,0,y,u"Gesamtumsatz")
+      #  outstr = u"%0.2f €" %(aufnahmeges + beitragges)
+      #  self.evaluationCell(pages,1,y,outstr) 
+
+	y += fontsize + self.ymm(1)
+       # self.evaluationCell(pages,0,y,u"direkt bezahlte")
+       # outstr = u"%0.2f €" %(aufnahmeges_bez + beitragges_bez)
+       # self.evaluationCell(pages,1,y,outstr) 
 
 
 

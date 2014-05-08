@@ -30,9 +30,10 @@ class beraterData:
 	self.town = (data["town"] if "town" in data else "")
 	# governmental things
 	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
-	self.zip = (data["zip"] if "zip" in data else "")
+        self.zip = (data["zip"] if "zip" in data else "")
+        self.fee = (data["fee"] if "fee" in data else "")
         self.ust = (data["ust"] if "ust" in data else {})
-
+        
 
         if (len(self.iban) > 0):
             if (self.checkiban()):
@@ -73,6 +74,7 @@ class beraterData:
 	data["ustnr"] = self.ustnr
 	data["zip"] = self.zip
         data["ust"] = self.ust
+        data["fee"] = self.fee
 
 	f_settings = open("settings.yaml","w")
 	yaml.dump(data, f_settings ,default_flow_style=False)

@@ -23,6 +23,31 @@ class BeraterTable(QtGui.QTableWidget):
         except:
             return 0.0
 
+    def event(self, event):
+        if (event.type()== QtCore.QEvent.KeyPress) and (event.key()==QtCore.Qt.Key_Tab):
+            self.emit(QtCore.SIGNAL("tabPressed"))
+            return True
+
+        return QtGui.QTableWidget.event(self, event)
+
+
+class TableItem(QtGui.QTableWidgetItem):
+    def __init__(self,text):
+        super(TableItem,self).__init__(text)
+
+    #def __init__(self):
+    #    super(TableItem,self).__init__()
+
+    def event(self, event):
+        if (event.type()== QtCore.QEvent.KeyPress) and (event.key()==QtCore.Qt.Key_Tab):
+            self.emit(QtCore.SIGNAL("tabPressed"))
+            return True
+
+        return QtGui.QTableWidgetItem.event(self, event)
+
+
+
+
 class monthWindow(QtGui.QMainWindow):
     def openMonth(self):
 	self.frmMonthList = monthlist.monthList()
@@ -56,7 +81,7 @@ class monthWindow(QtGui.QMainWindow):
 
         addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
         addAction.setShortcut('Ctrl++')
-        addAction.setStatusTip('Fügt eine neue Zeile ein')
+        addAction.setStatusTip(u'Fügt eine neue Zeile ein')
         addAction.triggered.connect(monthwidget.addEntry)
 
         removeAction = QtGui.QAction(u"Zeile löschen", self)
@@ -95,6 +120,9 @@ class monthWidget(QtGui.QWidget):
 
         return ust	
 
+    def onContextMenu(self,point):
+        self.contextMenu.exec_(self.table.mapToGlobal(point))
+
     def __init__(self,month):
 	super(monthWidget, self).__init__()
 	print "Opening Month"
@@ -122,6 +150,9 @@ class monthWidget(QtGui.QWidget):
 	vbox.addWidget(self.table)
 
         self.table.itemChanged.connect(self.valueFormat)
+        self.connect(self.table, QtCore.SIGNAL("tabPressed"), self.nextCell)
+        self.table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.connect(self.table,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.onContextMenu)
 
 	# Creating Buttons
 	btnAddEntry = QtGui.QPushButton(u"Eintrag hinzufügen")
@@ -139,17 +170,32 @@ class monthWidget(QtGui.QWidget):
 	# Creating Button-Layout	
 	buttonBox.addWidget(btnAddEntry,0,0)
 	buttonBox.addWidget(btnDelEntry,1,0)
-	buttonBox.addWidget(btnPrintPrev,0,1)
+	#buttonBox.addWidget(btnPrintPrev,0,1)
 	buttonBox.addWidget(btnPrint,1,1)
 	buttonBox.addWidget(btnAditional,0,2)
 	buttonBox.addWidget(btnSave,0,4)
+
+        self.contextMenu = QtGui.QMenu(self)
+        addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
+        addAction.setShortcut('Ctrl++')
+        addAction.setStatusTip(u'Fügt eine neue Zeile ein')
+        addAction.triggered.connect(self.addEntry)
+
+        removeAction = QtGui.QAction(u"Zeile löschen", self)
+        removeAction.setShortcut('Ctrl+-')
+        removeAction.setStatusTip('Entfernt die Markierte Zeile')
+        removeAction.triggered.connect(self.delEntry)
+
+        self.contextMenu.addAction(addAction)
+        self.contextMenu.addAction(removeAction)
 
 	vbox.addLayout(buttonBox) 		# Put ButtonBox into Main-Container
 	self.setLayout(vbox)
 	self.show()
 
 
-    # Format Data for number-cols
+
+        # Format Data for number-cols
     def valueFormat(self,editItem):
         red = QtGui.QColor()
         red.setRgb(200,0,0)                      
@@ -182,14 +228,14 @@ class monthWidget(QtGui.QWidget):
                     try:
                         # continue reading with next line after finding an error
                         # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"]))) 	
-                        self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["mtgl-nr"])))
-                        self.table.setItem(self.table.rowCount()-1,1,QtGui.QTableWidgetItem(unicode(entry["name"])))
-                        self.table.setItem(self.table.rowCount()-1,2,QtGui.QTableWidgetItem(unicode(entry["firstname"])))
-                        self.table.setItem(self.table.rowCount()-1,3,QtGui.QTableWidgetItem(unicode(entry["aufnahmegeb"])))
-                        self.table.setItem(self.table.rowCount()-1,4,QtGui.QTableWidgetItem(unicode(entry["aufnahmepayed"])))
-                        self.table.setItem(self.table.rowCount()-1,5,QtGui.QTableWidgetItem(unicode(entry["beitrag"])))
-                        self.table.setItem(self.table.rowCount()-1,6,QtGui.QTableWidgetItem(unicode(entry["beitragpayed"])))
-                        self.table.setItem(self.table.rowCount()-1,7,QtGui.QTableWidgetItem(unicode(entry["ust"])))
+                        self.table.setItem(self.table.rowCount()-1,0,TableItem(unicode(entry["mtgl-nr"])))
+                        self.table.setItem(self.table.rowCount()-1,1,TableItem(unicode(entry["name"])))
+                        self.table.setItem(self.table.rowCount()-1,2,TableItem(unicode(entry["firstname"])))
+                        self.table.setItem(self.table.rowCount()-1,3,TableItem(unicode(entry["aufnahmegeb"])))
+                        self.table.setItem(self.table.rowCount()-1,4,TableItem(unicode(entry["aufnahmepayed"])))
+                        self.table.setItem(self.table.rowCount()-1,5,TableItem(unicode(entry["beitrag"])))
+                        self.table.setItem(self.table.rowCount()-1,6,TableItem(unicode(entry["beitragpayed"])))
+                        self.table.setItem(self.table.rowCount()-1,7,TableItem(unicode(entry["ust"])))
                     except (KeyError), name: 	
                         readerrors+=1 			# only Count Errors
             else:                                                           # Empty table
@@ -207,11 +253,26 @@ class monthWidget(QtGui.QWidget):
     def addEntry(self):
 	if (self.table.currentRow() == -1):
 	    self.table.insertRow(0)
-            self.table.setItem(0,7,QtGui.QTableWidgetItem(u"%0.2f" %(self.ust) ))
+            for i in range(7):
+                self.table.setItem(0,i,TableItem(u""))
+            self.table.setItem(0,7,TableItem(u"%0.2f" %(self.ust) ))
 	else:
-	    self.table.insertRow(self.table.currentRow()) 	# insert new Row at Current selected
-            self.table.setItem(self.table.currentRow()-1,7,QtGui.QTableWidgetItem(u"%0.2f" %(float(self.ust)) ))
-    
+	    self.table.insertRow(self.table.currentRow()+1) 	# insert new Row at Current selected
+            for i in range(7):
+                self.table.setItem(self.table.currentRow()+1,i,TableItem(u""))
+            self.table.setItem(self.table.currentRow()+1,7,TableItem(u"%0.2f" %(float(self.ust)) ))
+  
+    def nextCell(self):
+        curRow = self.table.currentRow() 
+        curCol = self.table.currentColumn() 
+        if (curCol >= self.table.columnCount() -1):
+            if (curRow >= self.table.rowCount() - 1):
+                    self.addEntry()
+            self.table.setCurrentCell(self.table.rowCount()-1,0)
+        else:
+            self.table.setCurrentCell(curRow,curCol+1)
+
+  
     def setStatusBar(self,bar):
         self.statusbar = bar
         self.statusbar.addWidget(self.lblMonth)
@@ -238,7 +299,7 @@ class monthWidget(QtGui.QWidget):
             if (self.table.item(row,2) is None):
                 firstname = ""
             else:
-                firsname = self.table.item(row,2).text().toUtf8().data()
+                firstname = self.table.item(row,2).text().toUtf8().data()
 
             if (self.table.item(row,3) is None):
                 aufnahmegeb = "0,00"
@@ -279,7 +340,7 @@ class monthWidget(QtGui.QWidget):
 
 	self.month.data["table"] = data
 	self.month.save()
-        self.statusbar.showMessage(u"Monat wurde gespeichert",2000)
+        self.statusbar.showMessage(u"Monat wurde erfolgreich gespeichert",2000)
 
     def handlePrint(self):
 	printdata = printing.printout(self.table,self)

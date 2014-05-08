@@ -1,5 +1,6 @@
 bank: !!python/unicode 'BANK'
 bic: !!python/unicode ''
+fee: !!python/unicode '71'
 firstname: !!python/unicode 'Vorname'
 iban: !!python/unicode 'DE38850550004000232741'
 id: !!python/unicode 'Beraternummer'
