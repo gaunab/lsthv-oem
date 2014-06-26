@@ -32,8 +32,12 @@ class ustWidget(QtGui.QWidget):
         self.setLayout(maingrid)
 
     def loadentries(self):
-        ustlist = sorted(self.ust, key=itemgetter('from')) 
-
+        print type(self.ust)
+        print self.ust
+        if (len(self.ust) > 1):
+            ustlist = sorted(self.ust, key=itemgetter('from')) 
+        else:
+            ustlist =  self.ust 
         for entry in ustlist:
             print entry["from"]
             fromstr = str(entry["from"])

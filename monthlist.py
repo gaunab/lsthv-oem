@@ -5,6 +5,7 @@ import os
 import sys
 import month
 import editmonth
+import settings
 
 from PyQt4 import QtGui,QtCore,Qt
 
@@ -18,13 +19,13 @@ class monthItem(QtGui.QListWidgetItem):
     	return self.monat
 
 class monthList(QtGui.QWidget):
-    def __init__(self):
+    def __init__(self,beraterdata):
 	super(monthList, self).__init__()
+        self.beraterdata = beraterdata
 
 	self.monthlist = []
 	self.findMonths()
 	self.initUI()
-
 
     def initUI(self):
 	monthnames = [u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
@@ -63,7 +64,7 @@ class monthList(QtGui.QWidget):
         fileList.sort() 			# sort files by name
 	for filename in sorted(fileList) : 		# iterate through all files
 	    if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
-		monat = month.lsthvmonth()
+		monat = month.lsthvmonth(self.beraterdata)
 		if (monat.open(filename)): 	# Only append to , if valid month
 		    self.monthlist.append(monat)
 		else:

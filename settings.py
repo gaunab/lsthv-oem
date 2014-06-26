@@ -32,7 +32,7 @@ class beraterData:
 	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
         self.zip = (data["zip"] if "zip" in data else "")
         self.fee = (data["fee"] if "fee" in data else "")
-        self.ust = (data["ust"] if "ust" in data else {})
+        self.ust = (data["ust"] if "ust" in data else [])
         
 
         if (len(self.iban) > 0):
@@ -42,7 +42,7 @@ class beraterData:
                 print "IBAN incorrect"
 
         if (len(self.ust) == 0):
-            ust[0] = {"year": 2007, "month": 1, "value:": 19}
+            self.ust.append({"from": "200701",  "value": 19})
 
     def checkiban(self):
         if (len(self.iban) < 20):

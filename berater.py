@@ -78,7 +78,7 @@ class beraterApp(QtGui.QWidget):
             event.ignore()  
 
     def monthList(self):
-	self.frmMonthList = monthlist.monthList()
+	self.frmMonthList = monthlist.monthList(self.berater)
 
     def newMonth(self):
 	self.frmNewMonth = newmonth.newMonth()

@@ -28,6 +28,9 @@ class BeraterTable(QtGui.QTableWidget):
             self.emit(QtCore.SIGNAL("tabPressed"))
             return True
 
+        if (event.type()== QtCore.QEvent.KeyPress) and ( (event.key()==QtCore.Qt.Key_Return) or (event.key()==QtCore.Qt.Key_Enter)  ) :
+            self.emit(QtCore.SIGNAL("returnPressed"))
+            return True
         return QtGui.QTableWidget.event(self, event)
 
 
@@ -42,6 +45,10 @@ class TableItem(QtGui.QTableWidgetItem):
         if (event.type()== QtCore.QEvent.KeyPress) and (event.key()==QtCore.Qt.Key_Tab):
             self.emit(QtCore.SIGNAL("tabPressed"))
             return True
+        
+        if (event.type()== QtCore.QEvent.KeyPress) and ( (event.key()==QtCore.Qt.Key_Return) or (event.key()==QtCore.Qt.Key_Enter)  ) :
+            self.emit(QtCore.SIGNAL("returnPressed"))
+            return True
 
         return QtGui.QTableWidgetItem.event(self, event)
 
@@ -55,6 +62,7 @@ class monthWindow(QtGui.QMainWindow):
     def __init__(self,month):
         super(monthWindow,self).__init__()
         monthwidget = monthWidget(month)
+	self.setWindowTitle('XBerater - Monat bearbeiten') 		# 
         self.setCentralWidget(monthwidget)
         self.show()
         print "New Window"
@@ -137,7 +145,8 @@ class monthWidget(QtGui.QWidget):
 	
 	buttonBox = QtGui.QGridLayout() 	# Container for Buttons
 
-        self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i" %(self.month.data["month"],self.month.data["year"]) )
+        self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i |" %(self.month.data["month"],self.month.data["year"]) )
+        self.lblEvaluation = QtGui.QLabel(u"Vergütung: %0.2f€" %(self.month.evaluation()["payout"]))       # Write payout to Status-Bar
         # vbox.addWidget(lblMonth)
 	# Creating Table
 	# self.table = QtGui.QTableWidget()
@@ -151,6 +160,7 @@ class monthWidget(QtGui.QWidget):
 
         self.table.itemChanged.connect(self.valueFormat)
         self.connect(self.table, QtCore.SIGNAL("tabPressed"), self.nextCell)
+        self.connect(self.table, QtCore.SIGNAL("returnPressed"), self.nextCell)
         self.table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.connect(self.table,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.onContextMenu)
 
@@ -172,7 +182,7 @@ class monthWidget(QtGui.QWidget):
 	buttonBox.addWidget(btnDelEntry,1,0)
 	#buttonBox.addWidget(btnPrintPrev,0,1)
 	buttonBox.addWidget(btnPrint,1,1)
-	buttonBox.addWidget(btnAditional,0,2)
+	#buttonBox.addWidget(btnAditional,0,2)
 	buttonBox.addWidget(btnSave,0,4)
 
         self.contextMenu = QtGui.QMenu(self)
@@ -261,6 +271,8 @@ class monthWidget(QtGui.QWidget):
             for i in range(7):
                 self.table.setItem(self.table.currentRow()+1,i,TableItem(u""))
             self.table.setItem(self.table.currentRow()+1,7,TableItem(u"%0.2f" %(float(self.ust)) ))
+
+        self.updatedata()
   
     def nextCell(self):
         curRow = self.table.currentRow() 
@@ -276,12 +288,14 @@ class monthWidget(QtGui.QWidget):
     def setStatusBar(self,bar):
         self.statusbar = bar
         self.statusbar.addWidget(self.lblMonth)
+        self.statusbar.addWidget(self.lblEvaluation)
     # Delete a Row
     def delEntry(self):
 	self.table.removeRow(self.table.currentRow())   # Delete the current Row
+        self.updatedata()
 
-    # Save monthdata
-    def save(self):
+    # Update monthdata
+    def updatedata(self):
 	# First write Table-Content to Month-Object
 	data = []
 	for row in range(self.table.rowCount()):
@@ -338,7 +352,11 @@ class monthWidget(QtGui.QWidget):
 			}
 		    )
 
-	self.month.data["table"] = data
+	self.month.data["table"] = data                                                             # update data-block in month
+        self.lblEvaluation.setText(u"Vergütung: %0.2f€" %(self.month.evaluation()["payout"]))       # Write payout to Status-Bar
+
+    def save(self):
+        self.updatedata()
 	self.month.save()
         self.statusbar.showMessage(u"Monat wurde erfolgreich gespeichert",2000)
 
