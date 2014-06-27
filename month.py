@@ -18,7 +18,7 @@ class lsthvmonth:
     def __init__(self,beraterdata):
 	self.data = {}
         self.berater = beraterdata
-
+        self.ustdec = 0.19
 
     def evaluation(self):
         beitrag = {}                                                                # list of sums of beitrag one for each ust
@@ -80,6 +80,19 @@ class lsthvmonth:
 	else:
 	    return False	
 
+    # Determine UST-Value for this month
+    def determineUst(self):
+        ustList = sorted(self.berater.ust,key=lambda x: x['from'])
+        ustList.reverse()
+        thismonth = "%4i%2i" %(self.data["year"],self.data["month"])
+        ustValue = 17
+
+        for ust in ustList:
+            if thismonth >= ust["from"]:
+                ustValue = ust["value"]
+
+        
+        return ustValue / 100
 
     def open(self,filename):	
 	f_month = open(filename,"r")
@@ -90,6 +103,8 @@ class lsthvmonth:
 	f_month.close() 
 	# Now Check for Data-Structure: month, yeaar, data
 	if self.data["month"] and  self.data["year"] :
+
+            self.determineUst()
 	    return True
 	else: 
 	    return False

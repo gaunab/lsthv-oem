@@ -115,18 +115,18 @@ class monthWindow(QtGui.QMainWindow):
 class monthWidget(QtGui.QWidget):
 
  
-    # Determine UST
-    def getUST(self):
-        ustlist = sorted(self.beraterData.ust, key=itemgetter('from')) 
-        thismonth = "%i%02i" %(self.month.data["year"], self.month.data["month"])
-        thismonth = int(thismonth)
-        
-        ust = ustlist[0]["value"]
-        for date in ustlist:
-            if thismonth >= date["from"]:
-                ust = date["value"]
-
-        return ust	
+#    # Determine UST
+#    def getUST(self):
+#        ustlist = sorted(self.beraterData.ust, key=itemgetter('from')) 
+#        thismonth = "%i%02i" %(self.month.data["year"], self.month.data["month"])
+#        thismonth = int(thismonth)
+#        
+#        ust = ustlist[0]["value"]
+#        for date in ustlist:
+#            if thismonth >= date["from"]:
+#                ust = date["value"]
+#
+#        return ust	
 
     def onContextMenu(self,point):
         self.contextMenu.exec_(self.table.mapToGlobal(point))
@@ -138,7 +138,7 @@ class monthWidget(QtGui.QWidget):
 	self.initUI() 				# Initialating Month Widget
 	self.loadMonth(month) 			# Load Data into Table
         self.beraterData = settings.beraterData()
-        self.ust = self.getUST()
+        self.ust = self.month.ustdec * 100
 
     def initUI(self):
 	vbox = QtGui.QVBoxLayout() 		# Main Container

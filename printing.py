@@ -260,30 +260,30 @@ class printout:
 	    if y > self.pagewidth - fontsize: ### End of page reached
 		y = 0;
                 y = y + self.tableHead(pages,y)
-
-            ### Now let's calculate everything for evaluation
-            try:
-                aufnahmeges +=  cellToFloat(self.table.item(i,3))
-                aufnahmeges_bez +=  cellToFloat(self.table.item(i,4))
-                beitragges  +=  cellToFloat(self.table.item(i,5))
-                beitragges_bez  += cellToFloat(self.table.item(i,6))
-
-                # Now add Values to matching UST
-                ust = cellToFloat(self.table.item(i,7))
-                 
-                if ust in aufnahme:
-                    aufnahme[ust] += cellToFloat(self.table.item(i,4))
-                else:
-                    aufnahme[ust] = cellToFloat(self.table.item(i,4))
-
-                if ust in beitrag:
-                    beitrag[ust] += cellToFloat(self.table.item(i,5))
-                else:
-                    beitrag[ust] = cellToFloat(self.table.item(i,5))
-            except:
-                QtGui.QMessageBox.warning(self.window,u"Fehler",u"Eintrag %i konnte nicht gelesen werden:\nkein gültiges Zahlenformat" %(i+1))
-            
-            
+###############
+#            ### Now let's calculate everything for evaluation
+#            try:
+#                aufnahmeges +=  cellToFloat(self.table.item(i,3))
+#                aufnahmeges_bez +=  cellToFloat(self.table.item(i,4))
+#                beitragges  +=  cellToFloat(self.table.item(i,5))
+#                beitragges_bez  += cellToFloat(self.table.item(i,6))
+#
+#                # Now add Values to matching UST
+#                ust = cellToFloat(self.table.item(i,7))
+#                 
+#                if ust in aufnahme:
+#                    aufnahme[ust] += cellToFloat(self.table.item(i,4))
+#                else:
+#                    aufnahme[ust] = cellToFloat(self.table.item(i,4))
+#
+#                if ust in beitrag:
+#                    beitrag[ust] += cellToFloat(self.table.item(i,5))
+#                else:
+#                    beitrag[ust] = cellToFloat(self.table.item(i,5))
+#            except:
+#                QtGui.QMessageBox.warning(self.window,u"Fehler",u"Eintrag %i konnte nicht gelesen werden:\nkein gültiges Zahlenformat" %(i+1))
+#            
+################            
 
         # Now lets print the Final Page
         self.printer.newPage()
@@ -302,7 +302,7 @@ class printout:
                     ""]
         evaluationTable.appendRow(tableRow)
         evaluationTable.appendRow([u"direkt bezahlte",u"%0.2f€" %(evaluation["aufnahmeges_bez"] + evaluation["beitragges_bez"]) , "", ""])
-        for ust in aufnahme: # Draw the following lines for all appearing USTs
+        for ust in evaluation["aufnahme"]: # Draw the following lines for all appearing USTs
             ustdec = ust / 100
             beitragnetto = beitrag[ust] / (1+ustdec)
             aufnahmenetto = aufnahme[ust] / (1+ustdec)
@@ -314,8 +314,12 @@ class printout:
                                        u"%0.2f€" %(evaluation["aufnahmenetto"][ust]) ,
                                        u"%0.2f€" %(evaluation["aufnahmenetto"][ust]*ustdec) ])
 
-
+            evaluationTable.appendRow([u"Vergütung Berater",u"%0.2f€" %(evaluation["payout"]),
+                                       u"%0.2f€" %(evaluation["payout"] / (1+ month.ustdec)),
+                                       u"%0.2f€" %(evaluation["payout"] - evaluation["payout"] / (1+ month.ustdec)) ])
         evaluationTable.printOut(QtCore.QPoint(1,y))
+
+
 
         # pages.drawLine(self.xmm(10),y,self.xmm(100),y)
       #  self.evaluationCell(pages,0,y,u"Gesamtumsatz")
