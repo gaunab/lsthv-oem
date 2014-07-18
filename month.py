@@ -30,7 +30,7 @@ class lsthvmonth:
         aufnahmeges_bez = 0
         beitragges = 0
         beitragges_bez = 0
-
+        misc = 0
 
         for entry in self.data["table"]:                                            # go through all entries 
             print entry["aufnahmegeb"]
@@ -69,7 +69,8 @@ class lsthvmonth:
                 "beitrag" : beitrag,
                 "beitragnetto" : beitragnetto,
                 "aufnahmenetto" : aufnahmenetto,
-                "payout" : payout}
+                "payout" : payout,
+                "misc": misc}
 
     def save(self):
 	if ("month" in self.data and "year" in self.data):

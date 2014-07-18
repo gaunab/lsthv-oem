@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui,QtCore
 import settings
+import time
 # Doing all the rendering
 # http://pyqt.sourceforge.net/Docs/PyQt4/classes.html
 
@@ -15,10 +16,11 @@ def cellToFloat(cell):
 
 
 class tablePainterRow:
-    def __init__(self,painter,col):
+    def __init__(self,painter,col,border={}):
         self.data = []                                  # List of all fields of this row
         self.col = col
         self.painter = painter
+        self.border = border
 
     def append(self,data):
             self.data.append(data)
@@ -31,6 +33,7 @@ class tablePainterRow:
        # int QFontMetrics.width (self, QString text, int length = -1)
        return QtGui.QFontMetrics(self.painter.font()).width(self.data[col])
 
+
 class tablePainter:
 
     def __init__(self,painter,col):
@@ -42,7 +45,7 @@ class tablePainter:
     # Add a line of data (string)
     def appendRow(self,data):
         print "Create new Row:" 
-        row = tablePainterRow(self.painter,self.col)                 # Create a new row
+        row = tablePainterRow(self.painter,self.col)    # Create a new row
         for i in range(min(len(data),self.col)):        # Add only up to col datas
            row.append(data[i])
            print "  -Add %s" %(data[i])
@@ -87,7 +90,16 @@ class tablePainter:
                 x += colwidths[col]                     # add Width of col to x
                 x += 10                                 # add some space
 
+            if "top" in row.borders and row.borders['top']:
+                self.painter.drawLine(startPoint.x(),y,x,y) # Draw line below row
+            if "bottom" in row.borders and row.borders['bottom']:
+                self.painter.drawLine(startPoint.x(),y,x,y) # Draw line below row
+
             y += self.painter.fontInfo().pixelSize()    # go to next line
+
+
+
+
 
         return QtCore.QPoint(x,y)
 
@@ -304,8 +316,8 @@ class printout:
         evaluationTable.appendRow([u"direkt bezahlte",u"%0.2f€" %(evaluation["aufnahmeges_bez"] + evaluation["beitragges_bez"]) , "", ""])
         for ust in evaluation["aufnahme"]: # Draw the following lines for all appearing USTs
             ustdec = ust / 100
-            beitragnetto = beitrag[ust] / (1+ustdec)
-            aufnahmenetto = aufnahme[ust] / (1+ustdec)
+            #beitragnetto = beitrag[ust] / (1+ustdec)
+            #aufnahmenetto = aufnahme[ust] / (1+ustdec)
             evaluationTable.appendRow(["","","Nettobetrag","Umsatzsteuer (%0.2f)" %(ust)])
             evaluationTable.appendRow([u"Mitgliedsbeiträge",u"%0.2f€" %(evaluation["beitrag"][ust]), 
                                        u"%0.2f€" %(evaluation["beitragnetto"][ust]),
@@ -315,9 +327,16 @@ class printout:
                                        u"%0.2f€" %(evaluation["aufnahmenetto"][ust]*ustdec) ])
 
             evaluationTable.appendRow([u"Vergütung Berater",u"%0.2f€" %(evaluation["payout"]),
-                                       u"%0.2f€" %(evaluation["payout"] / (1+ month.ustdec)),
-                                       u"%0.2f€" %(evaluation["payout"] - evaluation["payout"] / (1+ month.ustdec)) ])
-        evaluationTable.printOut(QtCore.QPoint(1,y))
+                                       u"%0.2f€" %(evaluation["payout"] / (1+ self.window.month.ustdec)),
+                                       u"%0.2f€" %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec)) ])
+
+        evaluationTable.appendRow([u"sonstige vereinnahmte Beträge",u"%0.2f€" %(evaluation["misc"]),"",""])
+        if evaluation["payout"] >= 0:
+            evaluationTable.appendRow([u"vom Verein zu zahlen",u"%0.2f€" %(evaluation["payout"]),"",""])
+        else:
+            evaluationTable.appendRow([u"an Verein zu zahlen",u"%0.2f€" %(-evaluation["payout"]),"",""])
+
+        y = evaluationTable.printOut(QtCore.QPoint(1,y)).y()
 
 
 
@@ -330,8 +349,26 @@ class printout:
        # self.evaluationCell(pages,0,y,u"direkt bezahlte")
        # outstr = u"%0.2f €" %(aufnahmeges_bez + beitragges_bez)
        # self.evaluationCell(pages,1,y,outstr) 
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Die Vergütungsabrechnung gilt als angenommen, wenn der Vorstand nicht binnen eines Monats") 
+	y += fontsize + self.ymm(1)
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"nach Eingang schriftlich widerspricht.") 
+        y += fontsize + self.ymm(10)
 
+        if evaluation["payout"] >= 0:
+            pages.drawText(self.xmm(self.tableCols[0]),y,u"Mein Guthaben bitte ich auf mein Konto bei %s" %(self.beraterData.bank)) 
+            y += fontsize + self.ymm(1)
+            pages.drawText(self.xmm(self.tableCols[0]),y,u" BIC: %s; IBAN: %s; zu überweisen" %(self.beraterData.bic,self.beraterData.iban)) 
+        else:
+            pages.drawText(self.xmm(self.tableCols[0]),y,u"Den Betrag zugunsten des Vereins habe ich heute vertragsgemäß auf das Konto des Vereins bei") 
+            y += fontsize + self.ymm(1)
+            pages.drawText(self.xmm(self.tableCols[0]),y,u"Sparkasse Meißen; BIC: SOLADES1MEI; IBAN: DE03850550003000007007; überwiesen") 
 
+        y += fontsize + self.ymm(30)
+
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Datum: %s   Unterschrift des Beraters: ..............................................." %(time.strftime("%d.%m.%Y")) ) 
+        y +=  self.ymm(1)
+
+        pages.drawLine(self.xmm(0),y,self.xmm(170),y)
 
         pages.end()
 	   
