@@ -20,7 +20,7 @@ class tablePainterRow:
         self.data = []                                  # List of all fields of this row
         self.col = col
         self.painter = painter
-        self.border = border
+        self.borders = border
 
     def append(self,data):
             self.data.append(data)
@@ -28,6 +28,15 @@ class tablePainterRow:
     def get(self,col):
         print "Row is throwing %s back" %(self.data[col])
         return self.data[col]
+
+    def setBorders(self,key,value):
+        self.borders[key] = value
+
+    def getBorders(self,key):
+        if key in self.borders:
+            return self.borders[key]
+        else:
+            return False
 
     def textWidth(self,col):
        # int QFontMetrics.width (self, QString text, int length = -1)
@@ -43,9 +52,9 @@ class tablePainter:
         self.colwidth = {}                              # manually set minimum widths 
 
     # Add a line of data (string)
-    def appendRow(self,data):
+    def appendRow(self,data,borders={}):
         print "Create new Row:" 
-        row = tablePainterRow(self.painter,self.col)    # Create a new row
+        row = tablePainterRow(self.painter,self.col,borders)    # Create a new row
         for i in range(min(len(data),self.col)):        # Add only up to col datas
            row.append(data[i])
            print "  -Add %s" %(data[i])
@@ -90,9 +99,9 @@ class tablePainter:
                 x += colwidths[col]                     # add Width of col to x
                 x += 10                                 # add some space
 
-            if "top" in row.borders and row.borders['top']:
-                self.painter.drawLine(startPoint.x(),y,x,y) # Draw line below row
-            if "bottom" in row.borders and row.borders['bottom']:
+            if row.getBorders('top'):
+                self.painter.drawLine(startPoint.x(),y - self.painter.fontInfo().pixelSize()  ,x,y- self.painter.fontInfo().pixelSize()  ) # Draw line below row
+            if row.getBorders('bottom'):
                 self.painter.drawLine(startPoint.x(),y,x,y) # Draw line below row
 
             y += self.painter.fontInfo().pixelSize()    # go to next line
@@ -105,10 +114,9 @@ class tablePainter:
 
 class printout:
 
-    def __init__(self,table,window):
-    	self.printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
+    def __init__(self,table,window,printer):
+    	self.printer = printer
 	self.table = table
-	self.printDialog = QtGui.QPrintDialog(self.printer,window)
         self.data = window.month.data
         self.window = window
         self.beraterData = settings.beraterData()                # load beraterdata
@@ -138,10 +146,6 @@ class printout:
 	return int(( ypos * self.pageheight ) / self.pageheightMM)
 
 
-    # Show Printer selection dialog, do the printing if everything is fine 
-    def dialog(self):
-	if self.printDialog.exec_() == QtGui.QDialog.Accepted:
-	    self.create()
 	
     # create the printing-content and send it to the printer
     # use type=1 for "Mitgliedsbeitragsabrechnung"
@@ -325,12 +329,10 @@ class printout:
             evaluationTable.appendRow([u"Aufnahmegebühren",u"%0.2f€" %(evaluation["aufnahme"][ust]), 
                                        u"%0.2f€" %(evaluation["aufnahmenetto"][ust]) ,
                                        u"%0.2f€" %(evaluation["aufnahmenetto"][ust]*ustdec) ])
-
             evaluationTable.appendRow([u"Vergütung Berater",u"%0.2f€" %(evaluation["payout"]),
                                        u"%0.2f€" %(evaluation["payout"] / (1+ self.window.month.ustdec)),
                                        u"%0.2f€" %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec)) ])
-
-        evaluationTable.appendRow([u"sonstige vereinnahmte Beträge",u"%0.2f€" %(evaluation["misc"]),"",""])
+            evaluationTable.appendRow([u"sonstige vereinnahmte Beträge",u"%0.2f€" %(evaluation["misc"]),"",""],{"top":True})
         if evaluation["payout"] >= 0:
             evaluationTable.appendRow([u"vom Verein zu zahlen",u"%0.2f€" %(evaluation["payout"]),"",""])
         else:
