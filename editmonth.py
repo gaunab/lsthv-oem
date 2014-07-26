@@ -65,7 +65,6 @@ class monthWindow(QtGui.QMainWindow):
 	self.setWindowTitle('XBerater - Monat bearbeiten') 		# 
         self.setCentralWidget(monthwidget)
         self.show()
-        print "New Window"
 
         # Create Menubar
         menubar = self.menuBar()
@@ -87,6 +86,11 @@ class monthWindow(QtGui.QMainWindow):
         printAction.setStatusTip('Aktuellen Monat drucken')
         printAction.triggered.connect(monthwidget.handlePrint)
 
+        previewAction = QtGui.QAction('Druckvorschau', self)
+        previewAction.setShortcut('Ctrl+Shift+P')
+        previewAction.setStatusTip('Druckvorschau für den aktuellen Monat')
+        previewAction.triggered.connect(monthwidget.printPreview)
+        
         addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
         addAction.setShortcut('Ctrl++')
         addAction.setStatusTip(u'Fügt eine neue Zeile ein')
@@ -97,6 +101,8 @@ class monthWindow(QtGui.QMainWindow):
         removeAction.setStatusTip('Entfernt die Markierte Zeile')
         removeAction.triggered.connect(monthwidget.delEntry)
 
+
+
         openAction = QtGui.QAction(u"Monat öffnen", self)
         openAction.setShortcut('Ctrl+o')
         openAction.setStatusTip(u"Einen anderen Monat öffnen")
@@ -105,6 +111,7 @@ class monthWindow(QtGui.QMainWindow):
         filemenu.addAction(openAction)
         filemenu.addAction(saveAction)
         filemenu.addAction(printAction)
+        filemenu.addAction(previewAction)
         filemenu.addAction(exitAction)
         editmenu.addAction(addAction)
         editmenu.addAction(removeAction)
@@ -195,6 +202,11 @@ class monthWidget(QtGui.QWidget):
         removeAction.setShortcut('Ctrl+-')
         removeAction.setStatusTip('Entfernt die Markierte Zeile')
         removeAction.triggered.connect(self.delEntry)
+
+        previewAction = QtGui.QAction(u"Druckvorschau", self)
+        previewAction.setShortcut('Ctrl+Shift+P')
+        previewAction.setStatusTip('Vorschau für das Drucken')
+        previewAction.triggered.connect(self.printPreview)
 
         self.contextMenu.addAction(addAction)
         self.contextMenu.addAction(removeAction)
@@ -361,10 +373,27 @@ class monthWidget(QtGui.QWidget):
         self.statusbar.showMessage(u"Monat wurde erfolgreich gespeichert",2000)
 
     def handlePrint(self):
-	printdata = printing.printout(self.table,self)
-	printdata.dialog()
+    	printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
+	printDialog = QtGui.QPrintDialog(printer,self)
+        if printDialog.exec_() == QtGui.QDialog.Accepted:
+	    self.printout(printer)
 
 
+    def printout(self,printer):
+        printdata = printing.printout(self.table,self,printer)
+	printdata.create()
+
+
+    def printPreview(self):
+        print "Preview"
+    	printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
+        previewDialog = QtGui.QPrintPreviewDialog(printer)
+        self.connect(previewDialog,QtCore.SIGNAL("paintRequested (QPrinter *)"),self.printout)
+        # previewDialog.paintRequested.connect(pages)
+        previewDialog.exec_()
+
+    def handlePaintRequest(self, printer):
+        self.view.render(QtGui.QPainter(printer))
 
 def main():
     app = QtGui.QApplication(sys.argv)
