@@ -14,10 +14,39 @@ def cellToFloat(cell):
     origText = cell.text().replace(",",".")             # First replace all ,s as they're entered in Germany with .s
     return float(origText)
 
+# Class for Cells in TablePainter
+class tablePainterCell:
+    def __init__(self,text,border={}):
+        self.text = text
+        self.border = border
+
+    def setPainter(self,painter):
+        self.painter = painter
+
+    def getBorders(self,key):
+        if key in self.border:
+            return self.border[key]
+        else:
+            return False
+    def setBorders(self,key,value):
+        self.border[key] = value
+
+    def getText(self):
+        return self.text
+
+    def setText(self,text):
+        self.text = text
+
+    def textWidth(self):
+       # int QFontMetrics.width (self, QString text, int length = -1)
+       return QtGui.QFontMetrics(self.painter.font()).width(self.text)
+
+
+
 
 class tablePainterRow:
     def __init__(self,painter,col,border={}):
-        self.data = []                                  # List of all fields of this row
+        self.data = []                                  # List of all cells of this row
         self.col = col
         self.painter = painter
         self.borders = border
@@ -26,7 +55,7 @@ class tablePainterRow:
             self.data.append(data)
 
     def get(self,col):
-        print "Row is throwing %s back" %(self.data[col])
+        # print "Row is throwing %s back" %(self.data[col])
         return self.data[col]
 
     def setBorders(self,key,value):
@@ -37,10 +66,6 @@ class tablePainterRow:
             return self.borders[key]
         else:
             return False
-
-    def textWidth(self,col):
-       # int QFontMetrics.width (self, QString text, int length = -1)
-       return QtGui.QFontMetrics(self.painter.font()).width(self.data[col])
 
 
 class tablePainter:
@@ -73,7 +98,9 @@ class tablePainter:
     def __calcColWidthDemand(self,col): 
         width = 0.0
         for row in self.data:                           # go through all rows
-            width = max(row.textWidth(col),width)       # check whether col in current row needs to be wider - set new width
+            cell = row.get(col)
+            cell.setPainter(self.painter)
+            width = max(cell.textWidth(),width)       # check whether col in current row needs to be wider - set new width
 
         return width
 
@@ -312,31 +339,50 @@ class printout:
         
         evaluation = self.window.month.evaluation()
         
-        tableRow = [u"Gesamtumsatz",
-                    u"%0.2f€" %(evaluation["aufnahmeges"] + evaluation["beitragges"]),
-                    "",
-                    ""]
+        tableRow = [tablePainterCell(u"Gesamtumsatz"),
+                    tablePainterCell(u"%0.2f€" %(evaluation["aufnahmeges"] + evaluation["beitragges"])),
+                    tablePainterCell(""),
+                    tablePainterCell("")]
         evaluationTable.appendRow(tableRow)
-        evaluationTable.appendRow([u"direkt bezahlte",u"%0.2f€" %(evaluation["aufnahmeges_bez"] + evaluation["beitragges_bez"]) , "", ""])
+        evaluationTable.appendRow([tablePainterCell(u"direkt bezahlte"),
+                                   tablePainterCell(u"%0.2f€" %(evaluation["aufnahmeges_bez"] + evaluation["beitragges_bez"]) ), 
+                                   tablePainterCell(""), 
+                                   tablePainterCell("")])
         for ust in evaluation["aufnahme"]: # Draw the following lines for all appearing USTs
             ustdec = ust / 100
             #beitragnetto = beitrag[ust] / (1+ustdec)
             #aufnahmenetto = aufnahme[ust] / (1+ustdec)
-            evaluationTable.appendRow(["","","Nettobetrag","Umsatzsteuer (%0.2f)" %(ust)])
-            evaluationTable.appendRow([u"Mitgliedsbeiträge",u"%0.2f€" %(evaluation["beitrag"][ust]), 
-                                       u"%0.2f€" %(evaluation["beitragnetto"][ust]),
-                                       u"%0.2f€" %(evaluation["beitragnetto"][ust]*ustdec)  ])
-            evaluationTable.appendRow([u"Aufnahmegebühren",u"%0.2f€" %(evaluation["aufnahme"][ust]), 
-                                       u"%0.2f€" %(evaluation["aufnahmenetto"][ust]) ,
-                                       u"%0.2f€" %(evaluation["aufnahmenetto"][ust]*ustdec) ])
-            evaluationTable.appendRow([u"Vergütung Berater",u"%0.2f€" %(evaluation["payout"]),
-                                       u"%0.2f€" %(evaluation["payout"] / (1+ self.window.month.ustdec)),
-                                       u"%0.2f€" %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec)) ])
-            evaluationTable.appendRow([u"sonstige vereinnahmte Beträge",u"%0.2f€" %(evaluation["misc"]),"",""],{"top":True})
+            evaluationTable.appendRow([tablePainterCell(""),
+                                       tablePainterCell(""),
+                                       tablePainterCell("Nettobetrag"),
+                                       tablePainterCell("Umsatzsteuer (%0.2f)" %(ust))])
+            evaluationTable.appendRow([tablePainterCell(u"Mitgliedsbeiträge"),
+                                       tablePainterCell(u"%0.2f€" %(evaluation["beitrag"][ust])), 
+                                       tablePainterCell(u"%0.2f€" %(evaluation["beitragnetto"][ust])),
+                                       tablePainterCell(u"%0.2f€" %(evaluation["beitragnetto"][ust]*ustdec))  ])
+            evaluationTable.appendRow([tablePainterCell(u"Aufnahmegebühren",
+                                       tablePainterCell(u"%0.2f€" %(evaluation["aufnahme"][ust]))), 
+                                       tablePainterCell(u"%0.2f€" %(evaluation["aufnahmenetto"][ust])) ,
+                                       tablePainterCell(u"%0.2f€" %(evaluation["aufnahmenetto"][ust]*ustdec)) ])
+            evaluationTable.appendRow([tablePainterCell(u"Vergütung Berater"),
+                                       tablePainterCell(u"%0.2f€" %(evaluation["payout"])),
+                                       tablePainterCell( u"%0.2f€" %(evaluation["payout"] / (1+ self.window.month.ustdec))),
+                                       tablePainterCell(u"%0.2f€" %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec))) ])
+            evaluationTable.appendRow([tablePainterCell(u"sonstige vereinnahmte Beträge"),
+                                       tablePainterCell(u"%0.2f€" %(evaluation["misc"])),
+                                       tablePainterCell(""),
+                                       tablePainterCell("")],
+                                      {"top":True})
         if evaluation["payout"] >= 0:
-            evaluationTable.appendRow([u"vom Verein zu zahlen",u"%0.2f€" %(evaluation["payout"]),"",""])
+            evaluationTable.appendRow([tablePainterCell(u"vom Verein zu zahlen"),
+                                       tablePainterCell(u"%0.2f€" %(evaluation["payout"])),
+                                       tablePainterCell(""),
+                                       tablePainterCell("")])
         else:
-            evaluationTable.appendRow([u"an Verein zu zahlen",u"%0.2f€" %(-evaluation["payout"]),"",""])
+            evaluationTable.appendRow([tablePainterCell(u"an Verein zu zahlen"),
+                                       tablePainterCell(u"%0.2f€" %(-evaluation["payout"])),
+                                       tablePainterCell(""),
+                                       tablePainterCell("")])
 
         y = evaluationTable.printOut(QtCore.QPoint(1,y)).y()
 
