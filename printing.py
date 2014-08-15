@@ -56,7 +56,7 @@ class tablePainterRow:
 
     def get(self,col):
         # print "Row is throwing %s back" %(self.data[col])
-        return self.data[col]
+	return self.data[col]
 
     def setBorders(self,key,value):
         self.borders[key] = value
@@ -78,11 +78,9 @@ class tablePainter:
 
     # Add a line of data (string)
     def appendRow(self,data,borders={}):
-        print "Create new Row:" 
         row = tablePainterRow(self.painter,self.col,borders)    # Create a new row
         for i in range(min(len(data),self.col)):        # Add only up to col datas
            row.append(data[i])
-           print "  -Add %s" %(data[i])
         self.data.append(row)
 
     # Set minimum colwidth 
@@ -92,7 +90,13 @@ class tablePainter:
         else:
             raise Exception("Not an Integer")
 
-
+    #set Text-Align for Col
+    def setColAlign(self,col,align):
+	if align in ['left','right','center']:
+	    self.align[col] = align
+	    return True
+	else:
+	    return False
 
     # Calculate the Width a Col would need
     def __calcColWidthDemand(self,col): 
@@ -107,21 +111,30 @@ class tablePainter:
     def printOut(self,startPoint):
 
         colwidths = []                                  # find out how wide every col should be
-        for row in range(self.col):
+        for col in range(self.col):
 
-            if row in self.colwidth:                    # try to find a manually set min-width for this row
-                manualWidth = self.colwidth
+            if col in self.colwidth:                    # try to find a manually set min-width for this row
+                manualWidth = self.colwidth[col]
             else:
                 manualWidth = 0                         # if no min-value was set -> take 0 as min-width
-
-            colwidths.append(max(manualWidth,self.__calcColWidthDemand(row))) # Set width of col
+            colwidths.append(max(manualWidth,self.__calcColWidthDemand(col))) # Set width of col
 
         y = startPoint.y()
+	lineheight = self.painter.fontInfo().pixelSize() 
         for row in self.data:
             x = startPoint.x()
             for col in range(self.col):                 # go through all elements from this row
-                text = row.get(col)                     # fetch Text from Row-Elemen
-                print text
+                text = row.get(col).getText()                     # fetch Text from Row-Elemen
+		# Now draw line on the left side:
+		if  row.get(col).getBorders('left'):
+		    self.painter.drawLine(x,y,x,y-lineheight)
+		if  row.get(col).getBorders('top'):
+		    self.painter.drawLine(x,y-lineheight,x+colwidths[col],y-lineheight)
+		if  row.get(col).getBorders('right'):
+		    self.painter.drawLine(x+colwidths[col],y-lineheight,x+colwidths[col],y)
+		if  row.get(col).getBorders('bottom'):
+		    self.painter.drawLine(x,y,x+colwidths[col],y)
+
                 self.painter.drawText(x,y,text)         # draw ElementText on page
                 x += colwidths[col]                     # add Width of col to x
                 x += 10                                 # add some space
@@ -157,10 +170,10 @@ class printout:
 	self.pageheightMM = self.printer.pageRect(0).height()
 
 	### Define Fonts
-	self.tableFont = QtGui.QFont('Helvetica',10) 		# Normal font
-        self.tableHeadFont = QtGui.QFont('Helvetica',12,75)     # Bold font
-	self.headingFont = QtGui.QFont('Helvetica',20,75) 	# Big Heading
-	self.heading2Font = QtGui.QFont('Helvetica',15,50) 	# Paper Description Font
+	self.tableFont = QtGui.QFont('Arial',10) 		# Normal font
+        self.tableHeadFont = QtGui.QFont('Arial',12,75)     # Bold font
+	self.headingFont = QtGui.QFont('Arial',20,75) 	# Big Heading
+	self.heading2Font = QtGui.QFont('Arial',15,50) 	# Paper Description Font
         
         ### Define Table Columns in mm
         self.tableCols = [0,10,25,55,85,105,125,145,160]
@@ -264,8 +277,6 @@ class printout:
    
 
     def create(self):
-        print self.data["month"]
-        print self.data["year"]
 
         ### Set Sum's for evaluation-Page to 0 
         aufnahmeges = 0.0
@@ -290,7 +301,6 @@ class printout:
 	y = self.heading(pages,type=1) 	# Write Headline
         pages.setFont(self.tableFont)   # set Font
 	y = self.tableHead(pages,y) + pages.fontInfo().pixelSize() # Create Tablehead, set Cursor to next line
-        print y
 	for i in range(self.table.rowCount()):		# i --> current Row of Table
 	    # Fetch data from table
 	    lfd = str(i)
@@ -339,29 +349,33 @@ class printout:
         
         evaluation = self.window.month.evaluation()
         
-        tableRow = [tablePainterCell(u"Gesamtumsatz"),
-                    tablePainterCell(u"%0.2f€" %(evaluation["aufnahmeges"] + evaluation["beitragges"])),
+	tableRow = [tablePainterCell(u"Gesamtumsatz",{'left':True,'top':True}),
+		tablePainterCell(u"%0.2f€" %(evaluation["aufnahmeges"] + evaluation["beitragges"]),{'top':True,'right':True}),
                     tablePainterCell(""),
-                    tablePainterCell("")]
+                    tablePainterCell(""),
+		    ]
         evaluationTable.appendRow(tableRow)
-        evaluationTable.appendRow([tablePainterCell(u"direkt bezahlte"),
-                                   tablePainterCell(u"%0.2f€" %(evaluation["aufnahmeges_bez"] + evaluation["beitragges_bez"]) ), 
+	evaluationTable.appendRow([tablePainterCell(u"direkt bezahlte",{'left':True}),
+	    tablePainterCell(u"%0.2f€" %(evaluation["aufnahmeges_bez"] + evaluation["beitragges_bez"]),{'right':True} ), 
                                    tablePainterCell(""), 
                                    tablePainterCell("")])
         for ust in evaluation["aufnahme"]: # Draw the following lines for all appearing USTs
             ustdec = ust / 100
             #beitragnetto = beitrag[ust] / (1+ustdec)
             #aufnahmenetto = aufnahme[ust] / (1+ustdec)
+#	    evaluationTable.setColMinWidth(0,100)
+	    evaluationTable.setColMinWidth(1,self.xmm(30))
+#	    evaluationTable.setColMinWidth(2,100)
             evaluationTable.appendRow([tablePainterCell(""),
                                        tablePainterCell(""),
-                                       tablePainterCell("Nettobetrag"),
-                                       tablePainterCell("Umsatzsteuer (%0.2f)" %(ust))])
+				       tablePainterCell("Nettobetrag"),
+				       tablePainterCell("Umsatzsteuer (%0.2f)" %(ust))],{'top':True})
             evaluationTable.appendRow([tablePainterCell(u"Mitgliedsbeiträge"),
                                        tablePainterCell(u"%0.2f€" %(evaluation["beitrag"][ust])), 
                                        tablePainterCell(u"%0.2f€" %(evaluation["beitragnetto"][ust])),
                                        tablePainterCell(u"%0.2f€" %(evaluation["beitragnetto"][ust]*ustdec))  ])
-            evaluationTable.appendRow([tablePainterCell(u"Aufnahmegebühren",
-                                       tablePainterCell(u"%0.2f€" %(evaluation["aufnahme"][ust]))), 
+            evaluationTable.appendRow([tablePainterCell(u"Aufnahmegebühren"),
+                                       tablePainterCell(u"%0.2f€" %(evaluation["aufnahme"][ust])), 
                                        tablePainterCell(u"%0.2f€" %(evaluation["aufnahmenetto"][ust])) ,
                                        tablePainterCell(u"%0.2f€" %(evaluation["aufnahmenetto"][ust]*ustdec)) ])
             evaluationTable.appendRow([tablePainterCell(u"Vergütung Berater"),
