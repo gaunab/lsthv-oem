@@ -1,5 +1,48 @@
 month: 12
-year: 2012
 table:
-  - {lfd: 1, mtgl-nr: 0352173, name: Hans, firstname: dieter}
-  - {lfd: 2, mtgl-nr: 0312312, name: Hans, firstname: paul}
+- aufnahmegeb: 10,00
+  aufnahmepayed: 10,00
+  beitrag: 50,00
+  beitragpayed: 0,00
+  firstname: ''
+  lfd: 1
+  mtgl-nr: ''
+  name: ''
+  ust: 19,00
+- aufnahmegeb: 10,00
+  aufnahmepayed: 0,00
+  beitrag: 50,00
+  beitragpayed: 0,00
+  firstname: ''
+  lfd: 2
+  mtgl-nr: ''
+  name: ''
+  ust: 19,00
+- aufnahmegeb: 10,00
+  aufnahmepayed: 0,00
+  beitrag: 50,00
+  beitragpayed: 0,00
+  firstname: ''
+  lfd: 3
+  mtgl-nr: ''
+  name: ''
+  ust: 19,00
+- aufnahmegeb: 0,00
+  aufnahmepayed: 0,00
+  beitrag: 50,00
+  beitragpayed: 0,00
+  firstname: ''
+  lfd: 4
+  mtgl-nr: ''
+  name: ''
+  ust: 19,00
+- aufnahmegeb: 0,00
+  aufnahmepayed: 0,00
+  beitrag: 50,00
+  beitragpayed: 0,00
+  firstname: ''
+  lfd: 5
+  mtgl-nr: ''
+  name: ''
+  ust: 19,00
+year: 2012
