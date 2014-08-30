@@ -5,8 +5,10 @@
 This Project is for calculating bils 
 
 """
-import month,printing,settings,monthlist 
-import sys
+import newmonth,month,printing,settings,monthlist,editpref 
+import os,sys
+import time
+from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
@@ -57,11 +59,42 @@ class TableItem(QtGui.QTableWidgetItem):
 
 class monthWindow(QtGui.QMainWindow):
     def openMonth(self):
-	self.frmMonthList = monthlist.monthList()
+	self.frmMonthList = monthlist.monthList(settings.beraterData())
     
-    def __init__(self,month):
+    def createMonth(self):
+	self.frmNewMonth = newmonth.newMonth()
+
+    def openPrefs(self):
+        berater = settings.beraterData()
+        self.frmSettingsWindow = editpref.prefWindow(berater)
+
+
+    
+    def __init__(self,monat=None):
         super(monthWindow,self).__init__()
-        monthwidget = monthWidget(month)
+
+        if (monat == None):
+            monat = month.lsthvmonth(settings.beraterData())
+            monthlist=[]
+            fileList = os.listdir(".")  		# list of all Files
+            fileList.sort() 			# sort files by name
+            for filename in sorted(fileList) : 		# iterate through all files
+                if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
+                    if (monat.open(filename)): 	# Only append to , if valid month
+                        monthlist.append(monat)
+                    else:
+                        print "rejecting"+filename
+            
+            lastmonth = date.fromtimestamp(time.time() - (30 * 24 * 60 * 60))
+            lastmonthfilename = "%s%smonat.yaml" %(lastmonth.year,lastmonth.month)
+            if (lastmonthfilename in set(monthlist)):
+                monat.open(lastmonthfilename)
+            else:
+                monat.data["month"] =   lastmonth.month	# examine Month-Number from ComboBox
+                monat.data["year"] =    lastmonth.year 			# examine year from SpinBox
+
+
+        monthwidget = monthWidget(monat)
 	self.setWindowTitle('XBerater - Monat bearbeiten') 		# 
         self.setCentralWidget(monthwidget)
         self.show()
@@ -70,6 +103,7 @@ class monthWindow(QtGui.QMainWindow):
         menubar = self.menuBar()
         filemenu = menubar.addMenu("Datei")
         editmenu = menubar.addMenu("Bearbeiten")
+        settingsmenu = menubar.addMenu("Einstellungen")
 
         exitAction = QtGui.QAction(u"Schließen", self)
         exitAction.setShortcut('Ctrl+Q')
@@ -108,13 +142,28 @@ class monthWindow(QtGui.QMainWindow):
         openAction.setStatusTip(u"Einen anderen Monat öffnen")
         openAction.triggered.connect(self.openMonth)
 
+        createAction = QtGui.QAction(u"Neuer Monat", self)
+        createAction.setShortcut('Ctrl+n')
+        createAction.setStatusTip(u"Einen neuen Monat anlegen")
+        createAction.triggered.connect(self.createMonth)
+
+        openPref = QtGui.QAction(u"Beraterdaten", self)
+        openPref.setStatusTip(u"Persönliche Beraterdaten bearbeiten")
+        openPref.triggered.connect(self.openPrefs)
+
+        filemenu.addAction(createAction)
         filemenu.addAction(openAction)
         filemenu.addAction(saveAction)
+        filemenu.addSeparator()
         filemenu.addAction(printAction)
         filemenu.addAction(previewAction)
+        filemenu.addSeparator()
         filemenu.addAction(exitAction)
         editmenu.addAction(addAction)
         editmenu.addAction(removeAction)
+        settingsmenu.addAction(openPref)
+
+
 
         # Create StatusBar
         monthwidget.setStatusBar(self.statusBar())

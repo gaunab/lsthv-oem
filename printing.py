@@ -143,7 +143,6 @@ class tablePainter:
 		if  row.get(col).getBorders('right'):
 		    self.painter.drawLine(x+colwidths[col],y-lineheight,x+colwidths[col],y)
 		if  row.get(col).getBorders('bottom'):
-		    print "Found bottom-Line"
 		    self.painter.drawLine(x,y,x+colwidths[col],y)
 
 		align = row.get(col).getAlign() 
@@ -391,7 +390,7 @@ class printout:
 	    evaluationTable.appendRow([tablePainterCell("",{'left':True}),
                                        tablePainterCell(""),
 				       tablePainterCell("Nettobetrag",align='center'),
-				       tablePainterCell("Umsatzsteuer (%0.2f)" %(ust),{'right':True},align='center')],{'top':True})
+				       tablePainterCell("Umsatzsteuer (%0.0f%%)" %(ust),{'right':True},align='center')],{'top':True})
 	    evaluationTable.appendRow([tablePainterCell(u"Mitgliedsbeiträge",{'left':True}),
                                        tablePainterCell(u"%0.2f€ " %(evaluation["beitrag"][ust]),align='right'), 
                                        tablePainterCell(u"%0.2f€ " %(evaluation["beitragnetto"][ust]),align='right'),
@@ -404,11 +403,13 @@ class printout:
                                        tablePainterCell(u"%0.2f€ " %(evaluation["payout"]),align='right'),
                                        tablePainterCell(u"%0.2f€ " %(evaluation["payout"] / (1+ self.window.month.ustdec)),align='right'),
 				       tablePainterCell(u"%0.2f€ " %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec)),{'right':True},align='right') ])
-	    evaluationTable.appendRow([tablePainterCell(u"sonstige vereinnahmte Beträge",{'left':True}),
-		tablePainterCell(u"%0.2f€ " %(evaluation["misc"]),{'right':True},align='right'),
-                                       tablePainterCell(""),
-                                       tablePainterCell("")],
-                                      {"top":True})
+
+        
+        evaluationTable.appendRow([tablePainterCell(u"sonstige vereinnahmte Beträge",{'left':True}),
+                                   tablePainterCell(u"%0.2f€ " %(evaluation["misc"]),{'right':True},align='right'),
+                                   tablePainterCell(""),
+                                   tablePainterCell("")],
+                                  {"top":True})
         if evaluation["payout"] >= 0:
 	    evaluationTable.appendRow([tablePainterCell(u"vom Verein zu zahlen",{'left':True,'bottom':True}),
 		tablePainterCell(u"%0.2f€ " %(evaluation["payout"]),{'right':True,'bottom':True},align='right'),

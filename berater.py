@@ -11,7 +11,7 @@ import editpref
 import monthlist
 import newmonth
 import settings
-
+import editmonth
 
 class beraterApp(QtGui.QWidget):
     def __init__(self,berater):
@@ -90,7 +90,9 @@ class beraterApp(QtGui.QWidget):
 def main():
     app = QtGui.QApplication(sys.argv)            # Create new QT4 app
     berater = settings.beraterData()              # load settings and personal information
-    window = beraterApp(berater)                  # create MainMenu
+    #    window = beraterApp(berater)                  # create MainMenu
+    window = editmonth.monthWindow()
+    
     if (not berater.saved):
         QtGui.QMessageBox.critical(window,'Bitte Beraterdaten Eingeben','Konnte Beraterdaten nicht laden.\nBitte geben Sie die Beraterdaten ein.')
     sys.exit(app.exec_())
