@@ -31,32 +31,33 @@ class lsthvmonth:
         beitragges = 0
         beitragges_bez = 0
         misc = 0
+        
+        if ("table" in self.data):
+            for entry in self.data["table"]:                                            # go through all entries 
+                print entry["aufnahmegeb"]
+                aufnahmeges += strToFloat(entry["aufnahmegeb"])                         # sum all aufnahmegebuehr
+                aufnahmeges_bez += strToFloat(entry["aufnahmepayed"])                   # sum all payed aufnhame
+                beitragges += strToFloat(entry["beitrag"])                              # sum all beitraege
+                beitragges_bez += strToFloat(entry["beitragpayed"])                     # sum all payed beitraege
 
-        for entry in self.data["table"]:                                            # go through all entries 
-            print entry["aufnahmegeb"]
-            aufnahmeges += strToFloat(entry["aufnahmegeb"])                         # sum all aufnahmegebuehr
-            aufnahmeges_bez += strToFloat(entry["aufnahmepayed"])                   # sum all payed aufnhame
-            beitragges += strToFloat(entry["beitrag"])                              # sum all beitraege
-            beitragges_bez += strToFloat(entry["beitragpayed"])                     # sum all payed beitraege
+                thisUst = strToFloat(entry["ust"])                                      # get ust of current entry
 
-            thisUst = strToFloat(entry["ust"])                                      # get ust of current entry
+                if thisUst in aufnahme: 
+                    aufnahme[thisUst] += strToFloat(entry["aufnahmegeb"])               # add aufnhamegebuehr to aufnahme of current ust
+                else:
+                    aufnahme[thisUst] = strToFloat(entry["aufnahmegeb"])                # if this is first aufnhame with this ust - create one
 
-            if thisUst in aufnahme: 
-                aufnahme[thisUst] += strToFloat(entry["aufnahmegeb"])               # add aufnhamegebuehr to aufnahme of current ust
-            else:
-                aufnahme[thisUst] = strToFloat(entry["aufnahmegeb"])                # if this is first aufnhame with this ust - create one
-
-            if thisUst in beitrag:
-                beitrag[thisUst] += strToFloat(entry["beitrag"])                    # add beitrag to beitragsum of current ust
-            else:
-                beitrag[thisUst] = strToFloat(entry["beitrag"])                     # if this is first beitrag with this ust - create one
+                if thisUst in beitrag:
+                    beitrag[thisUst] += strToFloat(entry["beitrag"])                    # add beitrag to beitragsum of current ust
+                else:
+                    beitrag[thisUst] = strToFloat(entry["beitrag"])                     # if this is first beitrag with this ust - create one
 
         for ust in aufnahme:                                                        # now calculate net-sums
             ustdec = ust / 100                                                      # recalculate ust from percentage to decimal value
             beitragnetto[ust] = beitrag[ust] / (1+ustdec)                           # calculate net-sum for beitrag
             aufnahmenetto[ust] = aufnahme[ust] / (1+ustdec)                         # calculate net-sum for aufnahme
 
-
+        
         verguetungssatz = strToFloat(self.berater.fee)
         payout = beitragges * (verguetungssatz / 100) + aufnahmeges * (2/3)         # BeraterVerguetung berechnen
 

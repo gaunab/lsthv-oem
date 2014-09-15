@@ -4,17 +4,18 @@
 import os
 import sys
 import month
-import editmonth
+import editmonth,settings
 import time
 from datetime import date
 from PyQt4 import QtGui,QtCore,Qt
 
 
 class newMonth(QtGui.QWidget):
-    def __init__(self):
+    def __init__(self,beraterdata):
 	super(newMonth,self).__init__()
-
+        self.beraterdata=beraterdata
 	self.initUI()
+
 
 
     def initUI(self):
@@ -54,11 +55,11 @@ class newMonth(QtGui.QWidget):
 	self.show()
 
     def createMonth(self):
-	monat = month.lsthvmonth() 					# create new Month-Object
+	monat = month.lsthvmonth(self.beraterdata) 					# create new Month-Object
 	monat.data["month"] =  self.monthselector.currentIndex()+1 	# examine Month-Number from ComboBox
 	monat.data["year"] = self.edtyear.value() 			# examine year from SpinBox
 	
-	self.monthWin = editmonth.monthWindow(monat) 			# open new Month in editmonth-Window
+	self.monthWin = editmonth.monthWindow(self.beraterdata,monat) 			# open new Month in editmonth-Window
         self.close()
 
 def main():
