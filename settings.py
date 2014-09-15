@@ -1,12 +1,14 @@
+# -*- coding: utf-8- -*-
 import yaml
 import os.path
-
+from PyQt4 import QtGui,QtCore,Qt
 # Settings and personal Data are stored in settings.yaml
 
 class beraterData:
 
     def __init__(self):
         
+        self.checkPath()
     	# Open the Settings-File
         if (os.path.isfile("settings.yaml")):
             f_settings = open ("settings.yaml")
@@ -25,12 +27,13 @@ class beraterData:
 	self.bank = (data["bank"] if "bank" in data else "")
 	self.bic = (data["bic"] if "bic" in data else "")
 	self.iban = (data["iban"] if "iban" in data else "")
-	# Contact / Adress
+	# Contact / Address
 	self.street = (data["street"] if "street" in data else "")
 	self.town = (data["town"] if "town" in data else "")
 	# governmental things
 	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
         self.zip = (data["zip"] if "zip" in data else "")
+        print "Fetching fee"
         self.fee = (data["fee"] if "fee" in data else "")
         self.ust = (data["ust"] if "ust" in data else [])
         
@@ -80,4 +83,27 @@ class beraterData:
 	yaml.dump(data, f_settings ,default_flow_style=False)
 	f_settings.close()
 
+    # Check Config Path, create it if needed, set variable
+    def checkPath(self):
+        self.path = '.'
+        if (os.name == 'posix') :               
+            self.path = ("%s/.beraterdata") %(os.getenv('HOME'))
 
+        if (os.name == 'nt'):
+            self.path = ("%s\\beraterdata") %(os.getenv('APPDATA'))
+        
+        if ( not os.path.isdir(self.path)):
+            try:
+                os.makedirs(self.path)
+            except OSError:
+                print "Could not create AppDir"
+                msgbox = QtGui.QMessageBox("Fehler",u" Das Arbeitsverzeichnis konnte nicht erstellt werden. Bitte Prüfen Sie, ob das Verzeichnis %s bereits existiert." %(self.path),QtGui.QMessageBox.Critical,QtGui.QMessageBox.Ok,0,0)
+                msgbox.show()
+                msgbox.exec_()
+                return False
+        os.chdir(self.path)
+        return True
+        
+
+    def getPath(self):
+        return self.path

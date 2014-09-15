@@ -89,11 +89,12 @@ class beraterApp(QtGui.QWidget):
 
 def main():
     app = QtGui.QApplication(sys.argv)            # Create new QT4 app
-    berater = settings.beraterData()              # load settings and personal information
+    global beraterdata
+    beraterdata = settings.beraterData()              # load settings and personal information
     #    window = beraterApp(berater)                  # create MainMenu
-    window = editmonth.monthWindow()
+    window = editmonth.monthWindow(beraterdata)
     
-    if (not berater.saved):
+    if (not beraterdata.saved):
         QtGui.QMessageBox.critical(window,'Bitte Beraterdaten Eingeben','Konnte Beraterdaten nicht laden.\nBitte geben Sie die Beraterdaten ein.')
     sys.exit(app.exec_())
  

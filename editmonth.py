@@ -59,29 +59,30 @@ class TableItem(QtGui.QTableWidgetItem):
 
 class monthWindow(QtGui.QMainWindow):
     def openMonth(self):
-	self.frmMonthList = monthlist.monthList(settings.beraterData())
+	self.frmMonthList = monthlist.monthList(beraterdata)
     
     def createMonth(self):
-	self.frmNewMonth = newmonth.newMonth()
+	self.frmNewMonth = newmonth.newMonth(beraterdata)
 
     def openPrefs(self):
-        berater = settings.beraterData()
-        self.frmSettingsWindow = editpref.prefWindow(berater)
+        self.frmSettingsWindow = editpref.prefWindow(beraterdata)
 
 
     
-    def __init__(self,monat=None):
+    def __init__(self,berater,monat=None):
         super(monthWindow,self).__init__()
-
+        global beraterdata
+        beraterdata = berater
         if (monat == None):
-            monat = month.lsthvmonth(settings.beraterData())
+            monat = month.lsthvmonth(beraterdata)
             monthlist=[]
             fileList = os.listdir(".")  		# list of all Files
             fileList.sort() 			# sort files by name
             for filename in sorted(fileList) : 		# iterate through all files
                 if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
-                    if (monat.open(filename)): 	# Only append to , if valid month
-                        monthlist.append(monat)
+                    monatfile = month.lsthvmonth(beraterdata)
+                    if (monatfile.open(filename)): 	# Only append to , if valid month
+                        monthlist.append(monatfile)
                     else:
                         print "rejecting"+filename
             
@@ -94,7 +95,7 @@ class monthWindow(QtGui.QMainWindow):
                 monat.data["year"] =    lastmonth.year 			# examine year from SpinBox
 
 
-        monthwidget = monthWidget(monat)
+        monthwidget = monthWidget(beraterdata,monat)
 	self.setWindowTitle('XBerater - Monat bearbeiten') 		# 
         self.setCentralWidget(monthwidget)
         self.show()
@@ -187,13 +188,13 @@ class monthWidget(QtGui.QWidget):
     def onContextMenu(self,point):
         self.contextMenu.exec_(self.table.mapToGlobal(point))
 
-    def __init__(self,month):
+    def __init__(self,beraterdata,month):
 	super(monthWidget, self).__init__()
 	print "Opening Month"
 	self.month = month
 	self.initUI() 				# Initialating Month Widget
 	self.loadMonth(month) 			# Load Data into Table
-        self.beraterData = settings.beraterData()
+        self.beraterData = beraterdata
         self.ust = self.month.ustdec * 100
 
     def initUI(self):
@@ -225,7 +226,8 @@ class monthWidget(QtGui.QWidget):
 	btnAddEntry.clicked.connect(self.addEntry)
 	btnDelEntry = QtGui.QPushButton(u"Eintrag löschen")
 	btnDelEntry.clicked.connect(self.delEntry)
-	btnPrintPrev = QtGui.QPushButton(u"Auswertung")
+	btnPrintPrev = QtGui.QPushButton(u"Druckvorschau")
+        btnPrintPrev.clicked.connect(self.printPreview)	
 	btnPrint     = QtGui.QPushButton(u"Drucken")
         btnPrint.clicked.connect(self.handlePrint)	
 	btnAditional = QtGui.QPushButton(u"Sonstige Einnahmen")
@@ -236,7 +238,7 @@ class monthWidget(QtGui.QWidget):
 	# Creating Button-Layout	
 	buttonBox.addWidget(btnAddEntry,0,0)
 	buttonBox.addWidget(btnDelEntry,1,0)
-	#buttonBox.addWidget(btnPrintPrev,0,1)
+	buttonBox.addWidget(btnPrintPrev,0,1)
 	buttonBox.addWidget(btnPrint,1,1)
 	#buttonBox.addWidget(btnAditional,0,2)
 	buttonBox.addWidget(btnSave,0,4)

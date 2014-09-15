@@ -242,7 +242,9 @@ class printout:
         page.drawText(1,y,u"BSL-Nr.: "+self.beraterData.id)
         if type==2:
             page.drawText(self.xmm(92) ,y,u""+self.beraterData.street)
-            y = y +  page.fontInfo().pixelSize()
+        y = y +  page.fontInfo().pixelSize()
+        page.drawText(1,y,u"Steuernummer: "+self.beraterData.ustnr)
+        if type==2:
             page.drawText(self.xmm(92),y,u""+self.beraterData.town)
 
         y = y + 2 * page.fontInfo().pixelSize()
