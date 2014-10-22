@@ -123,7 +123,7 @@ class monthWindow(QtGui.QMainWindow):
 
         previewAction = QtGui.QAction('Druckvorschau', self)
         previewAction.setShortcut('Ctrl+Shift+P')
-        previewAction.setStatusTip('Druckvorschau für den aktuellen Monat')
+        previewAction.setStatusTip(u"Druckvorschau für den aktuellen Monat")
         previewAction.triggered.connect(monthwidget.printPreview)
         
         addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
