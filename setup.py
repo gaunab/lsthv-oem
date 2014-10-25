@@ -21,4 +21,7 @@ setup(  name = "Berater",
         options = {"build_exe": build_exe_options},
         executables = [Executable("berater.py", 
                                    base=base,
-                                   shortcutName="Berater - Abrechnungsprogramm")])
+                                   shortcutName="Berater - Abrechnungsprogramm",
+                                   shortcutDir="StartMenuFolder")
+                       ]
+        )

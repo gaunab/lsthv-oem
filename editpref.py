@@ -1,14 +1,28 @@
 #!/usr/bin/python
 # -*- coding: utf-8- -*-
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui,QtCore
 import editust
+
+class beraterLineEdit(QtGui.QLineEdit):
+    def __init__(self, *args):
+        QtGui.QLineEdit.__init__(self, *args)
+        
+    def event(self, event):
+        if (event.type()== QtCore.QEvent.KeyPress) and ( (event.key()==QtCore.Qt.Key_Return) or (event.key()==QtCore.Qt.Key_Enter)  ) :
+            self.emit(QtCore.SIGNAL("nextElement"));
+            return True
+
+        return QtGui.QLineEdit.event(self, event)
 
 class prefWindow(QtGui.QWidget):
     def __init__(self,berater):
 	super(prefWindow, self).__init__()
 	self.berater = berater
 	self.initUI()
+
+    def event(self,event):
+        return QtGui.QWidget.event(self, event)
 
     def initUI(self):
 	self.setWindowTitle(u"Beraterdaten")
@@ -21,7 +35,7 @@ class prefWindow(QtGui.QWidget):
 	btnClose = QtGui.QPushButton(u"Schließen")
 	btnClose.clicked.connect(self.close)
 
-	self.edtName = QtGui.QLineEdit()
+	self.edtName = beraterLineEdit()
 	self.edtName.setText(self.berater.name)
 	lblName = QtGui.QLabel(u"Name")
 	
@@ -55,7 +69,7 @@ class prefWindow(QtGui.QWidget):
 
 	self.edtTown = QtGui.QLineEdit()
 	self.edtTown.setText(self.berater.town)
-	lblTown = QtGui.QLabel(u"Stadt")
+	lblTown = QtGui.QLabel(u"Ort")
 
 	self.edtZip = QtGui.QLineEdit()
 	self.edtZip.setText(self.berater.zip)
@@ -71,6 +85,8 @@ class prefWindow(QtGui.QWidget):
         ustlayout = QtGui.QHBoxLayout()
         ustlayout.addWidget(self.ustwidget)
         ustgroupBox.setLayout(ustlayout)
+
+        self.connect(self,QtCore.SIGNAL("returnPressed"),self.focusNextChild)
 
 	grid.addWidget(self.edtName,0,1)
 	grid.addWidget(lblName,0,0)
@@ -88,10 +104,10 @@ class prefWindow(QtGui.QWidget):
 	grid.addWidget(lblZip,6,0)
 	grid.addWidget(self.edtBank,7,1)
 	grid.addWidget(lblBank,7,0)
-	grid.addWidget(self.edtBic,8,1)
-	grid.addWidget(lblBic,8,0)
-	grid.addWidget(self.edtIban,9,1)
-	grid.addWidget(lblIban,9,0)
+	grid.addWidget(self.edtIban,8,1)
+	grid.addWidget(lblIban,8,0)
+	grid.addWidget(self.edtBic,9,1)
+	grid.addWidget(lblBic,9,0)
 	grid.addWidget(self.edtFee,10,1)
 	grid.addWidget(lblFee,10,0)
         grid.addWidget(ustgroupBox,11,1)
@@ -111,6 +127,9 @@ class prefWindow(QtGui.QWidget):
 	    msgBox.setText(u"Ihre Daten wurden verändert..");
 	    msgBox.setInformativeText(u"Möchten Sie die Änderungen Speichern?");
 	    msgBox.setStandardButtons(QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel);
+            msgBox.setButtonText(QtGui.QMessageBox.Save ,"Speichern");
+            msgBox.setButtonText(QtGui.QMessageBox.Discard ,"Nicht speichern");
+            msgBox.setButtonText(QtGui.QMessageBox.Cancel,"Abbrechen");
 	    msgBox.setDefaultButton(QtGui.QMessageBox.Save);
 	    ret = msgBox.exec_();
 	    if ret == QtGui.QMessageBox.Save:
