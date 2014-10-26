@@ -214,7 +214,7 @@ class printout:
 	monthnames = [u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
         y = 0
         page.setPen(QtGui.QPen(QtGui.QBrush(2,1),15))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
-	page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage('logo.jpg').scaledToWidth(self.xmm(60)))
+	page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage("./logo.png","png").scaledToWidth(self.xmm(60)))
 	page.setFont(self.headingFont)
 	page.drawText(1,y,'Lohnsteuerhilfeverein')
 	y = y + page.fontInfo().pixelSize()
