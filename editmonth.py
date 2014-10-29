@@ -75,19 +75,21 @@ class monthWindow(QtGui.QMainWindow):
         beraterdata = berater
         if (monat == None):
             monat = month.lsthvmonth(beraterdata)
-            monthlist=[]
+            monthlist=['']
             fileList = os.listdir(".")  		# list of all Files
+            print fileList
             fileList.sort() 			# sort files by name
             for filename in sorted(fileList) : 		# iterate through all files
                 if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
                     monatfile = month.lsthvmonth(beraterdata)
                     if (monatfile.open(filename)): 	# Only append to , if valid month
-                        monthlist.append(monatfile)
+                        monthlist.append(filename)
                     else:
                         print "rejecting"+filename
-            
+            print monthlist 
             lastmonth = date.fromtimestamp(time.time() - (30 * 24 * 60 * 60))
-            lastmonthfilename = "%s%smonat.yaml" %(lastmonth.year,lastmonth.month)
+            lastmonthfilename = "%4i%02imonat.yaml" %(int(lastmonth.year),int(lastmonth.month))
+            print "Opening %s " %(lastmonthfilename)
             if (lastmonthfilename in set(monthlist)):
                 monat.open(lastmonthfilename)
             else:
