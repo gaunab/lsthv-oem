@@ -12,6 +12,8 @@ import time
 ###
 def cellToFloat(cell):
     origText = cell.text().replace(",",".")             # First replace all ,s as they're entered in Germany with .s
+    if len(cell.text()) == 0:
+        origText=0
     return float(origText)
 
 # Class for Cells in TablePainter
@@ -134,7 +136,7 @@ class tablePainter:
         for row in self.data:
             x = startPoint.x()
             for col in range(self.col):                 # go through all elements from this row
-                text = row.get(col).getText()                     # fetch Text from Row-Elemen
+                text = row.get(col).getText()           # fetch Text from Row-Elemen
                 # Now draw line on the left side:
                 if  row.get(col).getBorders('left'):
                     self.painter.drawLine(x,y,x,y-lineheight)
@@ -234,7 +236,11 @@ class printout:
         widthmonat = QtGui.QFontMetrics(self.tableFont,self.printer).width(strmonat)             # determine width of this string
         page.drawText(self.pagewidth - widthmonat,y,strmonat)                                    # Now put this String align right to the right
                                                                                                  # pageborder
+                                                                                                        
         y = y + nextline                                                                         # go on to the next line
+        if type==2:
+            page.drawText(1,y,u"Rchnungs-Nr.: %s/%s/%s" %(str(self.data["year"]),str(self.data["month"]),str(self.beraterData.id)))
+            y = y +  page.fontInfo().pixelSize()
         page.drawText(1,y,u"Berater: "+self.beraterData.name+", "+self.beraterData.firstname)
         if type==2:
             page.drawText(self.xmm(90) ,y,u"Beratungsstelle:")
@@ -331,33 +337,32 @@ class printout:
                 self.tableCol(pages,col+1,y,str(self.table.item(i,col).text())) # print all cols
             y = y + fontsize
 
-            if y > self.pagewidth - fontsize: ### End of page reached
-                y = 0;
-                y = y + self.tableHead(pages,y)
-###############
-#            ### Now let's calculate everything for evaluation
-#            try:
-#                aufnahmeges +=  cellToFloat(self.table.item(i,3))
-#                aufnahmeges_bez +=  cellToFloat(self.table.item(i,4))
-#                beitragges  +=  cellToFloat(self.table.item(i,5))
-#                beitragges_bez  += cellToFloat(self.table.item(i,6))
-#
-#                # Now add Values to matching UST
-#                ust = cellToFloat(self.table.item(i,7))
-#                 
-#                if ust in aufnahme:
-#                    aufnahme[ust] += cellToFloat(self.table.item(i,4))
-#                else:
-#                    aufnahme[ust] = cellToFloat(self.table.item(i,4))
-#
-#                if ust in beitrag:
-#                    beitrag[ust] += cellToFloat(self.table.item(i,5))
-#                else:
-#                    beitrag[ust] = cellToFloat(self.table.item(i,5))
-#            except:
-#                QtGui.QMessageBox.warning(self.window,u"Fehler",u"Eintrag %i konnte nicht gelesen werden:\nkein gültiges Zahlenformat" %(i+1))
-#            
-################            
+
+            
+            try:
+                aufnahmeges +=  cellToFloat(self.table.item(i,3))
+                aufnahmeges_bez +=  cellToFloat(self.table.item(i,4))
+                beitragges  +=  cellToFloat(self.table.item(i,5))
+                beitragges_bez  += cellToFloat(self.table.item(i,6))
+            except:
+                QtGui.QMessageBox.warning(self.window,u"Fehler",u"Eintrag %i konnte nicht gelesen werden:\nkein gültiges Zahlenformat" %(i+1))
+
+            if y > self.pageheight - (3 * fontsize): ### End of page reached
+                self.tableCol(pages,0,y,"Summe")
+                self.tableCol(pages,4,y,"%0.2f" %(aufnahmeges))
+                self.tableCol(pages,5,y,"%0.2f" %(aufnahmeges_bez))
+                self.tableCol(pages,6,y,"%0.2f" %(beitragges))
+                self.tableCol(pages,7,y,"%0.2f" %(beitragges_bez))
+                self.printer.newPage()
+                y = self.heading(pages,type=1)         # Write Headline
+                y = self.tableHead(pages,y) + pages.fontInfo().pixelSize() # Create Tablehead, set Cursor to next line
+
+        # Print SUmmation after        
+        self.tableCol(pages,0,y,"Summe")
+        self.tableCol(pages,4,y,"%0.2f" %(aufnahmeges))
+        self.tableCol(pages,5,y,"%0.2f" %(aufnahmeges_bez))
+        self.tableCol(pages,6,y,"%0.2f" %(beitragges))
+        self.tableCol(pages,7,y,"%0.2f" %(beitragges_bez))
 
         # Now lets print the Final Page
         self.printer.newPage()
