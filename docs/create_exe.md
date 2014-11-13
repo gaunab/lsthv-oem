@@ -2,6 +2,6 @@ Convert Python Code to Exe
 ==========================
 
 Just execute 
-`c:\Python27\Script\cxfreeze berater.py`
+`c:\Python27\Scripts\cxfreeze berater.py`
 in Windows
 

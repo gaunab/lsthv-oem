@@ -9,7 +9,7 @@ class beraterData:
     def __init__(self):
         
         self.checkPath()
-    	# Open the Settings-File
+            # Open the Settings-File
         if (os.path.isfile("settings.yaml")):
             f_settings = open ("settings.yaml")
             data = yaml.load(f_settings)
@@ -19,30 +19,29 @@ class beraterData:
             data = yaml.load("saved: false")
             self.saved = False
 
-	### Read all Fields from settings.yaml ###
-	self.name = (data["name"] if "name" in data else "")
-	self.firstname = (data["firstname"] if "firstname" in data else "")
-	self.id = (data["id"] if "id" in data else "")
-	# Bank-Connection
-	self.bank = (data["bank"] if "bank" in data else "")
-	self.bic = (data["bic"] if "bic" in data else "")
-	self.iban = (data["iban"] if "iban" in data else "")
-	# Contact / Address
-	self.street = (data["street"] if "street" in data else "")
-	self.town = (data["town"] if "town" in data else "")
-	# governmental things
-	self.ustnr = (data["ustnr"] if "ustnr" in data else "")
+        ### Read all Fields from settings.yaml ###
+        self.name = (data["name"] if "name" in data else "")
+        self.firstname = (data["firstname"] if "firstname" in data else "")
+        self.id = (data["id"] if "id" in data else "")
+        # Bank-Connection
+        self.bank = (data["bank"] if "bank" in data else "")
+        self.bic = (data["bic"] if "bic" in data else "")
+        self.iban = (data["iban"] if "iban" in data else "")
+        # Contact / Address
+        self.street = (data["street"] if "street" in data else "")
+        self.town = (data["town"] if "town" in data else "")
+        # governmental things
+        self.ustnr = (data["ustnr"] if "ustnr" in data else "")
         self.zip = (data["zip"] if "zip" in data else "")
-        print "Fetching fee"
         self.fee = (data["fee"] if "fee" in data else "")
         self.ust = (data["ust"] if "ust" in data else [])
         
 
-        if (len(self.iban) > 0):
-            if (self.checkiban()):
-                print "IBAN correct"
-            else:
-                print "IBAN incorrect"
+#        if (len(self.iban) > 0):
+#            if (self.checkiban()):
+#                print "IBAN correct"
+#            else:
+#                print "IBAN incorrect"
 
         if (len(self.ust) == 0):
             self.ust.append({"from": "200701",  "value": 19})
@@ -65,23 +64,23 @@ class beraterData:
             return False
 
     def save(self):
-	data={}
-	data["name"] = self.name
-	data["firstname"] = self.firstname
-	data["id"] = self.id
-	data["bank"] = self.bank
-	data["bic"] = self.bic
-	data["iban"] = self.iban
-	data["street"] = self.street
-	data["town"] = self.town
-	data["ustnr"] = self.ustnr
-	data["zip"] = self.zip
+        data={}
+        data["name"] = self.name
+        data["firstname"] = self.firstname
+        data["id"] = self.id
+        data["bank"] = self.bank
+        data["bic"] = self.bic
+        data["iban"] = self.iban
+        data["street"] = self.street
+        data["town"] = self.town
+        data["ustnr"] = self.ustnr
+        data["zip"] = self.zip
         data["ust"] = self.ust
         data["fee"] = self.fee
 
-	f_settings = open("settings.yaml","w")
-	yaml.dump(data, f_settings ,default_flow_style=False)
-	f_settings.close()
+        f_settings = open("settings.yaml","w")
+        yaml.dump(data, f_settings ,default_flow_style=False)
+        f_settings.close()
 
     # Check Config Path, create it if needed, set variable
     def checkPath(self):
@@ -96,7 +95,7 @@ class beraterData:
             try:
                 os.makedirs(self.path)
             except OSError:
-                print "Could not create AppDir"
+#                print "Could not create AppDir"
                 msgbox = QtGui.QMessageBox("Fehler",u" Das Arbeitsverzeichnis konnte nicht erstellt werden. Bitte Prüfen Sie, ob das Verzeichnis %s bereits existiert." %(self.path),QtGui.QMessageBox.Critical,QtGui.QMessageBox.Ok,0,0)
                 msgbox.show()
                 msgbox.exec_()

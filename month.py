@@ -16,7 +16,7 @@ def strToFloat(input):
 class lsthvmonth:
 
     def __init__(self,beraterdata):
-	self.data = {}
+        self.data = {}
         self.berater = beraterdata
         self.ustdec = 0.19
 
@@ -34,7 +34,6 @@ class lsthvmonth:
         
         if ("table" in self.data):
             for entry in self.data["table"]:                                            # go through all entries 
-                print entry["aufnahmegeb"]
                 aufnahmeges += strToFloat(entry["aufnahmegeb"])                         # sum all aufnahmegebuehr
                 aufnahmeges_bez += strToFloat(entry["aufnahmepayed"])                   # sum all payed aufnhame
                 beitragges += strToFloat(entry["beitrag"])                              # sum all beitraege
@@ -74,13 +73,13 @@ class lsthvmonth:
                 "misc": misc}
 
     def save(self):
-	if ("month" in self.data and "year" in self.data):
-    	    f_month = open(str(self.data["year"])+"%02i" %(self.data["month"]) +"monat.yaml","w")	
-    	    yaml.dump(self.data,f_month, default_flow_style=False)
-    	    f_month.close()
-	    return True
-	else:
-	    return False	
+        if ("month" in self.data and "year" in self.data):
+            f_month = open(str(self.data["year"])+"%02i" %(self.data["month"]) +"monat.yaml","w")        
+            yaml.dump(self.data,f_month, default_flow_style=False)
+            f_month.close()
+            return True
+        else:
+            return False        
 
     # Determine UST-Value for this month
     def determineUst(self):
@@ -90,23 +89,23 @@ class lsthvmonth:
         ustValue = 17
 
         for ust in ustList:
-            if thismonth >= ust["from"]:
+            if thismonth >= str(ust["from"]):
                 ustValue = ust["value"]
 
         
         return ustValue / 100
 
-    def open(self,filename):	
-	f_month = open(filename,"r")
-	try: 					# Try to load File as YAML
-	    self.data = yaml.load(f_month)
-	except:
-	    return False 			# Not a valid YAML-File
-	f_month.close() 
-	# Now Check for Data-Structure: month, yeaar, data
-	if self.data["month"] and  self.data["year"] :
+    def open(self,filename):        
+        f_month = open(filename,"r")
+        try:                                         # Try to load File as YAML
+            self.data = yaml.load(f_month)
+        except:
+            return False                         # Not a valid YAML-File
+        f_month.close() 
+        # Now Check for Data-Structure: month, yeaar, data
+        if self.data["month"] and  self.data["year"] :
 
             self.determineUst()
-	    return True
-	else: 
-	    return False
+            return True
+        else: 
+            return False

@@ -6,9 +6,9 @@ from operator import itemgetter
 
 class ustWidget(QtGui.QWidget):
     def __init__(self,ust):
-	super(ustWidget, self).__init__()
-	self.ust = ust
-	self.initUI()
+        super(ustWidget, self).__init__()
+        self.ust = ust
+        self.initUI()
         self.loadentries()
 
     def initUI(self):
@@ -32,21 +32,16 @@ class ustWidget(QtGui.QWidget):
         self.setLayout(maingrid)
 
     def loadentries(self):
-        print type(self.ust)
-        print self.ust
         if (len(self.ust) > 1):
             ustlist = sorted(self.ust, key=itemgetter('from')) 
         else:
             ustlist =  self.ust 
         for entry in ustlist:
-            print entry["from"]
             fromstr = str(entry["from"])
             if len(fromstr) == 6:
                 self.ustTable.insertRow(self.ustTable.rowCount())
                 monthCell = QtGui.QTableWidgetItem(fromstr[4:])
-                print fromstr[4:]
                 yearCell  = QtGui.QTableWidgetItem(fromstr[:4])
-                print fromstr[:4]
                 valueCell = QtGui.QTableWidgetItem(str(entry["value"]))
                 self.ustTable.setItem(self.ustTable.rowCount()-1,0,monthCell)
                 self.ustTable.setItem(self.ustTable.rowCount()-1,1,yearCell)
@@ -55,7 +50,6 @@ class ustWidget(QtGui.QWidget):
     def returnEntries(self):
         entries = []
         for line in range(self.ustTable.rowCount()):
-            print "Saving UST-Line "+str(line)
             ustentry = {}
             try:
                 fromvalue = "%i%02d" %(int(str(self.ustTable.item(line,1).text())), int(str(self.ustTable.item(line,0).text())))

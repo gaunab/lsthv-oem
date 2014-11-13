@@ -59,10 +59,10 @@ class TableItem(QtGui.QTableWidgetItem):
 
 class monthWindow(QtGui.QMainWindow):
     def openMonth(self):
-	self.frmMonthList = monthlist.monthList(beraterdata)
+        self.frmMonthList = monthlist.monthList(beraterdata)
     
     def createMonth(self):
-	self.frmNewMonth = newmonth.newMonth(beraterdata)
+        self.frmNewMonth = newmonth.newMonth(beraterdata)
 
     def openPrefs(self):
         self.frmSettingsWindow = editpref.prefWindow(beraterdata)
@@ -76,29 +76,24 @@ class monthWindow(QtGui.QMainWindow):
         if (monat == None):
             monat = month.lsthvmonth(beraterdata)
             monthlist=['']
-            fileList = os.listdir(".")  		# list of all Files
-            print fileList
-            fileList.sort() 			# sort files by name
-            for filename in sorted(fileList) : 		# iterate through all files
+            fileList = os.listdir(".")                  # list of all Files
+            fileList.sort()                         # sort files by name
+            for filename in sorted(fileList) :                 # iterate through all files
                 if filename.find("monat.yaml") != -1:   # only continue with month-yaml-files
                     monatfile = month.lsthvmonth(beraterdata)
-                    if (monatfile.open(filename)): 	# Only append to , if valid month
+                    if (monatfile.open(filename)):         # Only append to , if valid month
                         monthlist.append(filename)
-                    else:
-                        print "rejecting"+filename
-            print monthlist 
             lastmonth = date.fromtimestamp(time.time() - (30 * 24 * 60 * 60))
             lastmonthfilename = "%4i%02imonat.yaml" %(int(lastmonth.year),int(lastmonth.month))
-            print "Opening %s " %(lastmonthfilename)
             if (lastmonthfilename in set(monthlist)):
                 monat.open(lastmonthfilename)
             else:
-                monat.data["month"] =   lastmonth.month	# examine Month-Number from ComboBox
-                monat.data["year"] =    lastmonth.year 			# examine year from SpinBox
+                monat.data["month"] =   lastmonth.month        # examine Month-Number from ComboBox
+                monat.data["year"] =    lastmonth.year                         # examine year from SpinBox
 
 
         monthwidget = monthWidget(beraterdata,monat)
-	self.setWindowTitle('XBerater - Monat bearbeiten') 		# 
+        self.setWindowTitle('XBerater - Monat bearbeiten')                 # 
         self.setCentralWidget(monthwidget)
         self.show()
 
@@ -185,37 +180,36 @@ class monthWidget(QtGui.QWidget):
 #            if thismonth >= date["from"]:
 #                ust = date["value"]
 #
-#        return ust	
+#        return ust        
 
     def onContextMenu(self,point):
         self.contextMenu.exec_(self.table.mapToGlobal(point))
 
     def __init__(self,beraterdata,month):
-	super(monthWidget, self).__init__()
-	print "Opening Month"
-	self.month = month
-	self.initUI() 				# Initialating Month Widget
-	self.loadMonth(month) 			# Load Data into Table
+        super(monthWidget, self).__init__()
+        self.month = month
+        self.initUI()                                 # Initialating Month Widget
+        self.loadMonth(month)                         # Load Data into Table
         self.beraterData = beraterdata
         self.ust = self.month.ustdec * 100
 
     def initUI(self):
-	vbox = QtGui.QVBoxLayout() 		# Main Container
-	
-	buttonBox = QtGui.QGridLayout() 	# Container for Buttons
+        vbox = QtGui.QVBoxLayout()                 # Main Container
+        
+        buttonBox = QtGui.QGridLayout()         # Container for Buttons
 
         self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i |" %(self.month.data["month"],self.month.data["year"]) )
         self.lblEvaluation = QtGui.QLabel(u"Vergütung: %0.2f€" %(self.month.evaluation()["payout"]))       # Write payout to Status-Bar
         # vbox.addWidget(lblMonth)
-	# Creating Table
-	# self.table = QtGui.QTableWidget()
+        # Creating Table
+        # self.table = QtGui.QTableWidget()
         self.table = BeraterTable()
-	self.table.setRowCount(0)
-	self.table.setColumnCount(8)
+        self.table.setRowCount(0)
+        self.table.setColumnCount(8)
 
-	self.table.setHorizontalHeaderLabels(['Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
+        self.table.setHorizontalHeaderLabels(['Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
 
-	vbox.addWidget(self.table)
+        vbox.addWidget(self.table)
 
         self.table.itemChanged.connect(self.valueFormat)
         self.connect(self.table, QtCore.SIGNAL("tabPressed"), self.nextCell)
@@ -223,27 +217,27 @@ class monthWidget(QtGui.QWidget):
         self.table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.connect(self.table,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.onContextMenu)
 
-	# Creating Buttons
-	btnAddEntry = QtGui.QPushButton(u"Eintrag hinzufügen")
-	btnAddEntry.clicked.connect(self.addEntry)
-	btnDelEntry = QtGui.QPushButton(u"Eintrag löschen")
-	btnDelEntry.clicked.connect(self.delEntry)
-	btnPrintPrev = QtGui.QPushButton(u"Druckvorschau")
-        btnPrintPrev.clicked.connect(self.printPreview)	
-	btnPrint     = QtGui.QPushButton(u"Drucken")
-        btnPrint.clicked.connect(self.handlePrint)	
-	btnAditional = QtGui.QPushButton(u"Sonstige Einnahmen")
-	
-	btnSave = QtGui.QPushButton(u"Speichern")
-	btnSave.clicked.connect(self.save)
+        # Creating Buttons
+        btnAddEntry = QtGui.QPushButton(u"Eintrag hinzufügen")
+        btnAddEntry.clicked.connect(self.addEntry)
+        btnDelEntry = QtGui.QPushButton(u"Eintrag löschen")
+        btnDelEntry.clicked.connect(self.delEntry)
+        btnPrintPrev = QtGui.QPushButton(u"Druckvorschau")
+        btnPrintPrev.clicked.connect(self.printPreview)        
+        btnPrint     = QtGui.QPushButton(u"Drucken")
+        btnPrint.clicked.connect(self.handlePrint)        
+        btnAditional = QtGui.QPushButton(u"Sonstige Einnahmen")
+        
+        btnSave = QtGui.QPushButton(u"Speichern")
+        btnSave.clicked.connect(self.save)
 
-	# Creating Button-Layout	
-	buttonBox.addWidget(btnAddEntry,0,0)
-	buttonBox.addWidget(btnDelEntry,1,0)
-	buttonBox.addWidget(btnPrintPrev,0,1)
-	buttonBox.addWidget(btnPrint,1,1)
-	#buttonBox.addWidget(btnAditional,0,2)
-	buttonBox.addWidget(btnSave,0,4)
+        # Creating Button-Layout        
+        buttonBox.addWidget(btnAddEntry,0,0)
+        buttonBox.addWidget(btnDelEntry,1,0)
+        buttonBox.addWidget(btnPrintPrev,0,1)
+        buttonBox.addWidget(btnPrint,1,1)
+        #buttonBox.addWidget(btnAditional,0,2)
+        buttonBox.addWidget(btnSave,0,4)
 
         self.contextMenu = QtGui.QMenu(self)
         addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
@@ -264,9 +258,9 @@ class monthWidget(QtGui.QWidget):
         self.contextMenu.addAction(addAction)
         self.contextMenu.addAction(removeAction)
 
-	vbox.addLayout(buttonBox) 		# Put ButtonBox into Main-Container
-	self.setLayout(vbox)
-	self.show()
+        vbox.addLayout(buttonBox)                 # Put ButtonBox into Main-Container
+        self.setLayout(vbox)
+        self.show()
 
 
 
@@ -293,46 +287,46 @@ class monthWidget(QtGui.QWidget):
 
     # Load Month Data into Grid
     def loadMonth(self,month):
-	
-	    readerrors = 0 			# Counting errors on reading the data-file
+        
+            readerrors = 0                         # Counting errors on reading the data-file
             if ("table" in month.data) :
-                for entry in month.data["table"]: 	# Iterate through all Data-Lines
-                    self.table.insertRow(self.table.rowCount()) 	# insert new Row at end of table
+                for entry in month.data["table"]:         # Iterate through all Data-Lines
+                    self.table.insertRow(self.table.rowCount())         # insert new Row at end of table
 
                     # now fill the table with life
                     try:
                         # continue reading with next line after finding an error
-                        # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"]))) 	
-                        self.table.setItem(self.table.rowCount()-1,0,TableItem(unicode(entry["mtgl-nr"])))
-                        self.table.setItem(self.table.rowCount()-1,1,TableItem(unicode(entry["name"])))
-                        self.table.setItem(self.table.rowCount()-1,2,TableItem(unicode(entry["firstname"])))
-                        self.table.setItem(self.table.rowCount()-1,3,TableItem(unicode(entry["aufnahmegeb"])))
-                        self.table.setItem(self.table.rowCount()-1,4,TableItem(unicode(entry["aufnahmepayed"])))
-                        self.table.setItem(self.table.rowCount()-1,5,TableItem(unicode(entry["beitrag"])))
-                        self.table.setItem(self.table.rowCount()-1,6,TableItem(unicode(entry["beitragpayed"])))
-                        self.table.setItem(self.table.rowCount()-1,7,TableItem(unicode(entry["ust"])))
-                    except (KeyError), name: 	
-                        readerrors+=1 			# only Count Errors
+                        # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"])))         
+                        self.table.setItem(self.table.rowCount()-1,0,TableItem((entry["mtgl-nr"])))
+                        self.table.setItem(self.table.rowCount()-1,1,TableItem((entry["name"])))
+                        self.table.setItem(self.table.rowCount()-1,2,TableItem((entry["firstname"])))
+                        self.table.setItem(self.table.rowCount()-1,3,TableItem((entry["aufnahmegeb"])))
+                        self.table.setItem(self.table.rowCount()-1,4,TableItem((entry["aufnahmepayed"])))
+                        self.table.setItem(self.table.rowCount()-1,5,TableItem((entry["beitrag"])))
+                        self.table.setItem(self.table.rowCount()-1,6,TableItem((entry["beitragpayed"])))
+                        self.table.setItem(self.table.rowCount()-1,7,TableItem((entry["ust"])))
+                    except (KeyError) as name:         
+                        readerrors+=1                         # only Count Errors
             else:                                                           # Empty table
                 self.table.insertRow(1)                                     # Create new empty Line
 
-	    if readerrors:
-		QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
+            if readerrors:
+                QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
 
-#	except:
-#	    return False
+#        except:
+#            return False
 
 
 
-    # Adding new Rows	
+    # Adding new Rows        
     def addEntry(self):
-	if (self.table.currentRow() == -1):
-	    self.table.insertRow(0)
+        if (self.table.currentRow() == -1):
+            self.table.insertRow(0)
             for i in range(7):
                 self.table.setItem(0,i,TableItem(u""))
             self.table.setItem(0,7,TableItem(u"%0.2f" %(self.ust) ))
-	else:
-	    self.table.insertRow(self.table.currentRow()+1) 	# insert new Row at Current selected
+        else:
+            self.table.insertRow(self.table.currentRow()+1)         # insert new Row at Current selected
             for i in range(7):
                 self.table.setItem(self.table.currentRow()+1,i,TableItem(u""))
             self.table.setItem(self.table.currentRow()+1,7,TableItem(u"%0.2f" %(float(self.ust)) ))
@@ -356,90 +350,89 @@ class monthWidget(QtGui.QWidget):
         self.statusbar.addWidget(self.lblEvaluation)
     # Delete a Row
     def delEntry(self):
-	self.table.removeRow(self.table.currentRow())   # Delete the current Row
+        self.table.removeRow(self.table.currentRow())   # Delete the current Row
         self.updatedata()
 
     # Update monthdata
     def updatedata(self):
-	# First write Table-Content to Month-Object
-	data = []
-	for row in range(self.table.rowCount()):
+        # First write Table-Content to Month-Object
+        data = []
+        for row in range(self.table.rowCount()):
 
             if (self.table.item(row,0) is None):
                 mtglnr = ""
             else:
-                mtglnr = self.table.item(row,0).text().toUtf8().data()
+                mtglnr = self.table.item(row,0).text()
 
             if (self.table.item(row,1) is None):
                 name = ""
             else:
-                name = self.table.item(row,1).text().toUtf8().data()
+                name = self.table.item(row,1).text()
 
             if (self.table.item(row,2) is None):
                 firstname = ""
             else:
-                firstname = self.table.item(row,2).text().toUtf8().data()
+                firstname = self.table.item(row,2).text()
 
             if (self.table.item(row,3) is None):
                 aufnahmegeb = "0,00"
             else:
-                aufnahmegeb = self.table.item(row,3).text().toUtf8().data()
+                aufnahmegeb = self.table.item(row,3).text()
 
             if (self.table.item(row,4) is None):
                 aufnahmepayed = "0.00"
             else:
-                aufnahmepayed = self.table.item(row,4).text().toUtf8().data()
+                aufnahmepayed = self.table.item(row,4).text()
 
             if (self.table.item(row,5) is None):
                 beitrag = "0.00"
             else:
-                beitrag = self.table.item(row,5).text().toUtf8().data()
+                beitrag = self.table.item(row,5).text()
 
             if (self.table.item(row,6) is None):
                 beitragpayed = "0.00"
             else:
-                beitragpayed = self.table.item(row,6).text().toUtf8().data()
-	    
+                beitragpayed = self.table.item(row,6).text()
+            
             if (self.table.item(row,7) is None):
                 ust = "%0.2f" %(self.ust)
             else:
-                ust = self.table.item(row,7).text().toUtf8().data()
+                ust = self.table.item(row,7).text()
 
             data.append({'lfd':row+1,
-		    	 'mtgl-nr':mtglnr,
+                             'mtgl-nr':mtglnr,
                          'name':name,
-		    	 'firstname':firstname,
-		    	 'aufnahmegeb':aufnahmegeb,
-		    	 'aufnahmepayed':aufnahmepayed,
-		    	 'beitrag':beitrag,
-		    	 'beitragpayed':beitragpayed, 
+                             'firstname':firstname,
+                             'aufnahmegeb':aufnahmegeb,
+                             'aufnahmepayed':aufnahmepayed,
+                             'beitrag':beitrag,
+                             'beitragpayed':beitragpayed, 
                          'ust':ust
-			}
-		    )
+                        }
+                    )
 
-	self.month.data["table"] = data                                                             # update data-block in month
+        self.month.data["table"] = data                                                             # update data-block in month
         self.lblEvaluation.setText(u"Vergütung: %0.2f€" %(self.month.evaluation()["payout"]))       # Write payout to Status-Bar
 
     def save(self):
         self.updatedata()
-	self.month.save()
+        self.month.save()
         self.statusbar.showMessage(u"Monat wurde erfolgreich gespeichert",2000)
 
     def handlePrint(self):
-    	printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
-	printDialog = QtGui.QPrintDialog(printer,self)
+        printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
+        printDialog = QtGui.QPrintDialog(printer,self)
         if printDialog.exec_() == QtGui.QDialog.Accepted:
-	    self.printout(printer)
+            self.printout(printer)
 
 
     def printout(self,printer):
         printdata = printing.printout(self.table,self,printer)
-	printdata.create()
+        printdata.create()
 
 
     def printPreview(self):
-        print "Preview"
-    	printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
+        printer = QtGui.QPrinter(QtGui.QPrinter.HighResolution)
         previewDialog = QtGui.QPrintPreviewDialog(printer)
         self.connect(previewDialog,QtCore.SIGNAL("paintRequested (QPrinter *)"),self.printout)
         # previewDialog.paintRequested.connect(pages)
