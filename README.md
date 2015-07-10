@@ -1,7 +1,7 @@
 lsthv-oem
 =========
 
-Calculatíng statments for tax society
+Calculating statments for tax society
 
 ToDo
 ====
