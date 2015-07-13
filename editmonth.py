@@ -37,6 +37,7 @@ class BeraterTable(QtGui.QTableWidget):
 
 
 class TableItem(QtGui.QTableWidgetItem):
+    """ The main working area: Windows with table of current month """
     def __init__(self,text):
         super(TableItem,self).__init__(text)
 
@@ -67,6 +68,8 @@ class monthWindow(QtGui.QMainWindow):
     def openPrefs(self):
         self.frmSettingsWindow = editpref.prefWindow(beraterdata)
 
+    def about(self):
+         QtGui.QMessageBox.about(self,u"Informationen",u"Beraterabrechnung \n Versions-Datum: 14.06.15")
 
     
     def __init__(self,berater,monat=None):
@@ -99,9 +102,11 @@ class monthWindow(QtGui.QMainWindow):
 
         # Create Menubar
         menubar = self.menuBar()
-        filemenu = menubar.addMenu("Datei")
-        editmenu = menubar.addMenu("Bearbeiten")
-        settingsmenu = menubar.addMenu("Einstellungen")
+        filemenu = menubar.addMenu("&Datei")
+        editmenu = menubar.addMenu("&Bearbeiten")
+        settingsmenu = menubar.addMenu("&Einstellungen")
+        menubar.addSeparator()
+        helpmenu = menubar.addMenu("&Hilfe")
 
         exitAction = QtGui.QAction(u"Schließen", self)
         exitAction.setShortcut('Ctrl+Q')
@@ -145,6 +150,10 @@ class monthWindow(QtGui.QMainWindow):
         createAction.setStatusTip(u"Einen neuen Monat anlegen")
         createAction.triggered.connect(self.createMonth)
 
+        aboutAction =  QtGui.QAction(u"Version",self)
+        aboutAction.setStatusTip(u"Informationen über die Programmversion")
+        aboutAction.triggered.connect(self.about)
+
         openPref = QtGui.QAction(u"Beraterdaten", self)
         openPref.setStatusTip(u"Persönliche Beraterdaten bearbeiten")
         openPref.triggered.connect(self.openPrefs)
@@ -160,8 +169,7 @@ class monthWindow(QtGui.QMainWindow):
         editmenu.addAction(addAction)
         editmenu.addAction(removeAction)
         settingsmenu.addAction(openPref)
-
-
+        helpmenu.addAction(aboutAction)
 
         # Create StatusBar
         monthwidget.setStatusBar(self.statusBar())

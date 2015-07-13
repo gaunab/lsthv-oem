@@ -68,7 +68,7 @@ class monthList(QtGui.QWidget):
                 if (monat.open(filename)): 	# Only append to , if valid month
                     self.monthlist.append(monat)
                 else:
-                    print("rejecting %s") %(filename)
+                    print("rejecting %s" %(filename))
 
 
 def main():
