@@ -27,13 +27,17 @@ class prefWindow(QtGui.QWidget):
     def initUI(self):
         self.setWindowTitle(u"Beraterdaten")
 
-        grid = QtGui.QGridLayout() 		# Main Container
+        grid = QtGui.QGridLayout() 		# In Tab Container
+        maingrid = QtGui.QGridLayout()          # Main Container
 
         btnSave = QtGui.QPushButton(u"Speichern") # Save-Button
         btnSave.clicked.connect(self.save)
 
         btnClose = QtGui.QPushButton(u"Schließen")
         btnClose.clicked.connect(self.close)
+
+        tabWidget = QtGui.QTabWidget()
+        generalPrefs = QtGui.QWidget()
 
         self.edtName = beraterLineEdit()
         self.edtName.setText(self.berater.name)
@@ -76,7 +80,7 @@ class prefWindow(QtGui.QWidget):
         lblZip = QtGui.QLabel(u"Postleitzahl")
 
         self.edtFee = QtGui.QLineEdit()
-        self.edtFee.setText(self.berater.fee)
+        # self.edtFee.setText(self.berater.fee)
         lblFee = QtGui.QLabel(u"Vergütungssatz (in %)")
 
 
@@ -86,6 +90,7 @@ class prefWindow(QtGui.QWidget):
         ustlayout.addWidget(self.ustwidget)
         ustgroupBox.setLayout(ustlayout)
 
+        feeBox = QtGui.QGroupBox(u"Verlauf der Beratervergütung")
         self.connect(self,QtCore.SIGNAL("returnPressed"),self.focusNextChild)
 
         grid.addWidget(self.edtName,0,1)
@@ -110,10 +115,17 @@ class prefWindow(QtGui.QWidget):
         grid.addWidget(lblBic,9,0)
         grid.addWidget(self.edtFee,10,1)
         grid.addWidget(lblFee,10,0)
-        grid.addWidget(ustgroupBox,11,1)
-        grid.addWidget(btnSave,12,0)
-        grid.addWidget(btnClose,12,1)
-        self.setLayout(grid) 			# Grid for Layout
+#        grid.addWidget(ustgroupBox,11,1)
+       
+        generalPrefs.setLayout(grid)
+        tabWidget.insertTab(1,generalPrefs,u"Beratereinstellungen")
+        tabWidget.insertTab(2,ustgroupBox,u"Umsatzsteuer") 
+        tabWidget.insertTab(3,feeBox,u"Vergütung")
+        maingrid.addWidget(tabWidget,1,0)
+        maingrid.addWidget(btnSave,12,0)
+        maingrid.addWidget(btnClose,12,1)
+
+        self.setLayout(maingrid) 			# Grid for Layout
         self.show()
 
     # Checking for changes 

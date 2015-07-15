@@ -33,18 +33,26 @@ class beraterData:
         # governmental things
         self.ustnr = (data["ustnr"] if "ustnr" in data else "")
         self.zip = (data["zip"] if "zip" in data else "")
-        self.fee = (data["fee"] if "fee" in data else "")
+        self.fee = (data["fee"] if "fee" in data else [])
         self.ust = (data["ust"] if "ust" in data else [])
         
-
-#        if (len(self.iban) > 0):
-#            if (self.checkiban()):
-#                print "IBAN correct"
-#            else:
-#                print "IBAN incorrect"
-
         if (len(self.ust) == 0):
             self.ust.append({"from": "200701",  "value": 19})
+        # Now check if fee is available, create one 
+        try:
+            self.fee
+        except NameError:
+            self.fee=[]
+
+        # Check if fee is already a list
+        if not type(self.fee) == list:
+            self.fee = [{"from":"201501", "value":self.fee}]
+        if len(self.fee) == 0:
+            self.fee = [{"from":"201501", "value":0}]
+
+
+
+            
 
     def checkiban(self):
         if (len(self.iban) < 20):
