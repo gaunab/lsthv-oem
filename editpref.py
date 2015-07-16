@@ -2,7 +2,7 @@
 # -*- coding: utf-8- -*-
 
 from PyQt4 import QtGui,QtCore
-import editust
+import editust,editfee
 
 class beraterLineEdit(QtGui.QLineEdit):
     def __init__(self, *args):
@@ -27,14 +27,20 @@ class prefWindow(QtGui.QWidget):
     def initUI(self):
         self.setWindowTitle(u"Beraterdaten")
 
-        grid = QtGui.QGridLayout() 		# In Tab Container
-        maingrid = QtGui.QGridLayout()          # Main Container
+        grid = QtGui.QGridLayout() 		    # In Tab Container
+        maingrid = QtGui.QVBoxLayout()              # Main Container
 
-        btnSave = QtGui.QPushButton(u"Speichern") # Save-Button
+        btnSave = QtGui.QPushButton(u"Speichern")   # Save-Button
         btnSave.clicked.connect(self.save)
 
-        btnClose = QtGui.QPushButton(u"Schließen")
+        btnClose = QtGui.QPushButton(u"Schließen")  # Close Button
         btnClose.clicked.connect(self.close)
+
+        cntButtons = QtGui.QWidget()
+        cntButtonsLayout = QtGui.QHBoxLayout()
+        cntButtonsLayout.addWidget(btnSave)
+        cntButtonsLayout.addWidget(btnClose)
+        cntButtons.setLayout(cntButtonsLayout)
 
         tabWidget = QtGui.QTabWidget()
         generalPrefs = QtGui.QWidget()
@@ -83,14 +89,10 @@ class prefWindow(QtGui.QWidget):
         # self.edtFee.setText(self.berater.fee)
         lblFee = QtGui.QLabel(u"Vergütungssatz (in %)")
 
-
         self.ustwidget = editust.ustWidget(self.berater.ust)
-        ustgroupBox = QtGui.QGroupBox("Verlauf der Umsatzsteuer")
-        ustlayout = QtGui.QHBoxLayout()
-        ustlayout.addWidget(self.ustwidget)
-        ustgroupBox.setLayout(ustlayout)
+        self.feewidget = editfee.feeWidget(self.berater.fee)
 
-        feeBox = QtGui.QGroupBox(u"Verlauf der Beratervergütung")
+
         self.connect(self,QtCore.SIGNAL("returnPressed"),self.focusNextChild)
 
         grid.addWidget(self.edtName,0,1)
@@ -119,11 +121,10 @@ class prefWindow(QtGui.QWidget):
        
         generalPrefs.setLayout(grid)
         tabWidget.insertTab(1,generalPrefs,u"Beratereinstellungen")
-        tabWidget.insertTab(2,ustgroupBox,u"Umsatzsteuer") 
-        tabWidget.insertTab(3,feeBox,u"Vergütung")
-        maingrid.addWidget(tabWidget,1,0)
-        maingrid.addWidget(btnSave,12,0)
-        maingrid.addWidget(btnClose,12,1)
+        tabWidget.insertTab(2,self.ustwidget,u"Umsatzsteuer") 
+        tabWidget.insertTab(3,self.feewidget,u"Vergütung")
+        maingrid.addWidget(tabWidget)
+        maingrid.addWidget(cntButtons)
 
         self.setLayout(maingrid) 			# Grid for Layout
         self.show()
@@ -173,6 +174,6 @@ class prefWindow(QtGui.QWidget):
         self.berater.street = (self.edtStreet.text()).rstrip()
         self.berater.town = (self.edtTown.text()).rstrip()
         self.berater.zip = (self.edtZip.text()).rstrip()
-        self.berater.fee = (self.edtFee.text()).rstrip()
+        self.berater.fee = self.feewidget.returnEntries()
         self.berater.ust = self.ustwidget.returnEntries()
         self.berater.save()
