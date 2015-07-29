@@ -238,9 +238,8 @@ class printout:
                                                                                                  # pageborder
                                                                                                         
         y = y + nextline                                                                         # go on to the next line
-        if type==2:
-            page.drawText(1,y,u"Rchnungs-Nr.: %s/%s/%s" %(str(self.data["year"]),str(self.data["month"]),str(self.beraterData.id)))
-            y = y +  page.fontInfo().pixelSize()
+        page.drawText(1,y,u"Rchnungs-Nr.: %s/%s/%s" %(str(self.data["year"]),str(self.data["month"]),str(self.beraterData.id)))
+        y = y +  page.fontInfo().pixelSize()
         page.drawText(1,y,u"Berater: "+self.beraterData.name+", "+self.beraterData.firstname)
         if type==2:
             page.drawText(self.xmm(90) ,y,u"Beratungsstelle:")
