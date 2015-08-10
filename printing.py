@@ -216,7 +216,7 @@ class printout:
         monthnames = [u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
         y = 0
         page.setPen(QtGui.QPen(QtGui.QBrush(2,1),15))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
-        page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage("./logo.png","png").scaledToWidth(self.xmm(60)))
+        page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage("logo.png","png").scaledToWidth(self.xmm(60)))
         page.setFont(self.headingFont)
         page.drawText(1,y,'Lohnsteuerhilfeverein')
         y = y + page.fontInfo().pixelSize()
@@ -238,7 +238,7 @@ class printout:
                                                                                                  # pageborder
                                                                                                         
         y = y + nextline                                                                         # go on to the next line
-        page.drawText(1,y,u"Rchnungs-Nr.: %s/%s/%s" %(str(self.data["year"]),str(self.data["month"]),str(self.beraterData.id)))
+        page.drawText(1,y,u"Rechnungs-Nr.: %s/%s/%s" %(str(self.data["year"]),str(self.data["month"]),str(self.beraterData.id)))
         y = y +  page.fontInfo().pixelSize()
         page.drawText(1,y,u"Berater: "+self.beraterData.name+", "+self.beraterData.firstname)
         if type==2:
@@ -254,15 +254,15 @@ class printout:
 
         y = y + 2 * page.fontInfo().pixelSize()
         
-       
-
-
         return y
 
     ###
     # Write Content of a Column
     ###
     def tableCol(self,page,col,y,text):
+        """
+        print a new column
+        """
         page.drawText(self.xmm(self.tableCols[col]),y,text) 
         if col > 0:
             page.drawLine(self.xmm(self.tableCols[col]), y-page.fontInfo().pixelSize(), self.xmm(self.tableCols[col]), y)
@@ -271,8 +271,9 @@ class printout:
 
 
     def tableHead(self,page,y):
-
-        
+        """
+        Draw the head of the table
+        """
         ## Now there's the real Table-Stuff
         y = y + self.ymm(1)                 # first create some distance to top
 
@@ -292,6 +293,9 @@ class printout:
         return y
 
     def evaluationCell(self,page,col,y,text):
+        """
+        Create a Cell for the evaluation table
+        """
         cols = [10,60,110,160]                  # Startposition of cols for evaluationPage
         page.drawLine(self.xmm(cols[col]),y,self.xmm(cols[col+1]),y)
         y = y +  page.fontInfo().pixelSize()
@@ -300,10 +304,7 @@ class printout:
 
         return y
 
-   
-
     def create(self):
-
         ### Set Sum's for evaluation-Page to 0 
         aufnahmeges = 0.0
         aufnahmeges_bez = 0.0

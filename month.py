@@ -19,6 +19,7 @@ class lsthvmonth:
         self.data = {}
         self.berater = beraterdata
         self.ustdec = 0.19
+        self.fee = 0
 
     def evaluation(self):
         beitrag = {}                                                                # list of sums of beitrag one for each ust
@@ -57,7 +58,7 @@ class lsthvmonth:
             aufnahmenetto[ust] = aufnahme[ust] / (1+ustdec)                         # calculate net-sum for aufnahme
 
         
-        verguetungssatz = strToFloat(self.berater.fee)
+        verguetungssatz = strToFloat(self.fee)
         payout = beitragges * (verguetungssatz / 100) + aufnahmeges * (2/3)         # BeraterVerguetung berechnen
 
 
@@ -81,8 +82,8 @@ class lsthvmonth:
         else:
             return False        
 
-    # Determine UST-Value for this month
     def determineUst(self):
+        """ Determine UST-Value for this month """
         ustList = sorted(self.berater.ust,key=lambda x: x['from'])
         ustList.reverse()
         thismonth = "%4i%2i" %(self.data["year"],self.data["month"])
@@ -92,8 +93,20 @@ class lsthvmonth:
             if thismonth >= str(ust["from"]):
                 ustValue = ust["value"]
 
-        
         return ustValue / 100
+
+    def determineFee(self):
+        """ Determine Fee-Value for this month """
+        feeList = sorted(self.berater.fee,key=lambda x: x['from'])
+        feeList.reverse()
+        thismonth = "%4i%2i" %(self.data["year"],self.data["month"])
+        feeValue = 70
+
+        for fee in feeList:
+            if thismonth >= str(fee["from"]):
+                feeValue = fee["value"]
+
+        return feeValue / 100
 
     def open(self,filename):        
         f_month = open(filename,"r")
@@ -105,7 +118,8 @@ class lsthvmonth:
         # Now Check for Data-Structure: month, yeaar, data
         if self.data["month"] and  self.data["year"] :
 
-            self.determineUst()
+            self.ust = self.determineUst()
+            self.fee = self.determineFee()
             return True
         else: 
             return False

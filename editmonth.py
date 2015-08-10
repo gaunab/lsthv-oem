@@ -200,6 +200,7 @@ class monthWidget(QtGui.QWidget):
         self.loadMonth(month)                         # Load Data into Table
         self.beraterData = beraterdata
         self.ust = self.month.ustdec * 100
+        self.fee = self.month.fee
 
     def initUI(self):
         vbox = QtGui.QVBoxLayout()                 # Main Container
@@ -208,6 +209,7 @@ class monthWidget(QtGui.QWidget):
 
         self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i |" %(self.month.data["month"],self.month.data["year"]) )
         self.lblEvaluation = QtGui.QLabel(u"Vergütung: %0.2f€" %(self.month.evaluation()["payout"]))       # Write payout to Status-Bar
+        self.lblFee = QtGui.QLabel(u"Vergütungssatz: %0.2f" %(self.month.fee))       # Write Fee to Status-Bar
         # vbox.addWidget(lblMonth)
         # Creating Table
         # self.table = QtGui.QTableWidget()
@@ -321,6 +323,9 @@ class monthWidget(QtGui.QWidget):
             if readerrors:
                 QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
 
+
+            self.lblFee.setText(u"Vergütungssatz: %0.2f" %(self.month.fee))       # Write Fee to Status-Bar
+
 #        except:
 #            return False
 
@@ -356,6 +361,7 @@ class monthWidget(QtGui.QWidget):
         self.statusbar = bar
         self.statusbar.addWidget(self.lblMonth)
         self.statusbar.addWidget(self.lblEvaluation)
+        self.statusbar.addWidget(self.lblFee)
     # Delete a Row
     def delEntry(self):
         self.table.removeRow(self.table.currentRow())   # Delete the current Row
