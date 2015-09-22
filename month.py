@@ -19,7 +19,7 @@ class lsthvmonth:
         self.data = {}
         self.berater = beraterdata
         self.ustdec = 0.19
-        self.fee = 0
+        self.fee = 0.0
 
     def evaluation(self):
         beitrag = {}                                                                # list of sums of beitrag one for each ust
@@ -42,7 +42,7 @@ class lsthvmonth:
 
                 thisUst = strToFloat(entry["ust"])                                      # get ust of current entry
 
-                if thisUst in aufnahme: 
+                if thisUst in aufnahme:
                     aufnahme[thisUst] += strToFloat(entry["aufnahmegeb"])               # add aufnhamegebuehr to aufnahme of current ust
                 else:
                     aufnahme[thisUst] = strToFloat(entry["aufnahmegeb"])                # if this is first aufnhame with this ust - create one
@@ -98,10 +98,8 @@ class lsthvmonth:
     def determineFee(self):
         """ Determine Fee-Value for this month """
         feeList = sorted(self.berater.fee,key=lambda x: x['from'])
-        feeList.reverse()
-        thismonth = "%4i%2i" %(self.data["year"],self.data["month"])
+        thismonth = "%4i%02i" %(self.data["year"],self.data["month"])
         feeValue = 70
-
         for fee in feeList:
             if thismonth >= str(fee["from"]):
                 feeValue = fee["value"]

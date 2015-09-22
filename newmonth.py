@@ -55,11 +55,11 @@ class newMonth(QtGui.QWidget):
         self.show()
 
     def createMonth(self):
-        monat = month.lsthvmonth(self.beraterdata)                                         # create new Month-Object
-        monat.data["month"] =  self.monthselector.currentIndex()+1         # examine Month-Number from ComboBox
-        monat.data["year"] = self.edtyear.value()                         # examine year from SpinBox
-        
-        self.monthWin = editmonth.monthWindow(self.beraterdata,monat)                         # open new Month in editmonth-Window
+        monat = month.lsthvmonth(self.beraterdata)                    # create new Month-Object
+        monat.data["month"] =  self.monthselector.currentIndex()+1    # examine Month-Number from ComboBox
+        monat.data["year"] = self.edtyear.value()                     # examine year from SpinBox
+        monat.determineFee() 
+        self.monthWin = editmonth.monthWindow(self.beraterdata,monat) # open new Month in editmonth-Window
         self.close()
 
 def main():

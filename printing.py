@@ -3,6 +3,7 @@
 from PyQt4 import QtGui,QtCore
 import settings
 import time
+import os
 # Doing all the rendering
 # http://pyqt.sourceforge.net/Docs/PyQt4/classes.html
 
@@ -173,6 +174,51 @@ class tablePainter:
 
         return QtCore.QPoint(x,y)
 
+class tablePainter2:
+    """ Print a table
+    """
+
+
+    def __init__(self, painter,data = []):
+        """ 
+
+        Parameters
+        ----------
+        painter : QPainter
+            Painter to draw the table on
+        data : 2D-Array ndarray
+            Contents of the Table that should be printed
+        """
+
+        self.data == data
+        self.colwidth = {}
+
+        np.ndarray(shape=(12,12),dtype=np.dtype(('U', 128)))
+
+    def calcColWidth(self):
+        """
+        Calculate the individual widths of cols
+
+        Returns
+        -------
+        colwidths : List of integers 
+            an entry with needed space for every column
+
+        """
+        
+        
+
+    def printOut(self, startPoint):
+        """
+
+        Parameters
+        ----------
+        startPoint : QPoint
+            Point where the table starts
+
+        """
+        
+
 class printout:
 
     def __init__(self,table,window,printer):
@@ -216,7 +262,9 @@ class printout:
         monthnames = [u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
         y = 0
         page.setPen(QtGui.QPen(QtGui.QBrush(2,1),15))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
-        page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage("logo.png","png").scaledToWidth(self.xmm(60)))
+        print(os.path.realpath(__file__))
+
+        page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage("%s%slogo.png" %(os.path.dirname(__file__), os.path.sep),"png").scaledToWidth(self.xmm(60)))
         page.setFont(self.headingFont)
         page.drawText(1,y,'Lohnsteuerhilfeverein')
         y = y + page.fontInfo().pixelSize()
@@ -238,7 +286,7 @@ class printout:
                                                                                                  # pageborder
                                                                                                         
         y = y + nextline                                                                         # go on to the next line
-        page.drawText(1,y,u"Rechnungs-Nr.: %s/%s/%s" %(str(self.data["year"]),str(self.data["month"]),str(self.beraterData.id)))
+        page.drawText(1,y,u"Rechnungs-Nr.: %s/%02d/%s" %(str(self.data["year"]),self.data["month"],str(self.beraterData.id)))
         y = y +  page.fontInfo().pixelSize()
         page.drawText(1,y,u"Berater: "+self.beraterData.name+", "+self.beraterData.firstname)
         if type==2:
@@ -263,7 +311,7 @@ class printout:
         """
         print a new column
         """
-        page.drawText(self.xmm(self.tableCols[col]),y,text) 
+        page.drawText(self.xmm(self.tableCols[col]+0.5),y,text)         # Add Text with 0.5mm distance to line 
         if col > 0:
             page.drawLine(self.xmm(self.tableCols[col]), y-page.fontInfo().pixelSize(), self.xmm(self.tableCols[col]), y)
 
@@ -312,6 +360,9 @@ class printout:
         beitragges_bez = 0.0
 
         aufnahme = {}
+
+
+
         beitrag = {}
 
         # Create Output-Dev

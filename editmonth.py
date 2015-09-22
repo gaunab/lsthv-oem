@@ -93,7 +93,7 @@ class monthWindow(QtGui.QMainWindow):
             else:
                 monat.data["month"] =   lastmonth.month        # examine Month-Number from ComboBox
                 monat.data["year"] =    lastmonth.year                         # examine year from SpinBox
-
+                monat.fee = monat.determineFee()
 
         monthwidget = monthWidget(beraterdata,monat)
         self.setWindowTitle('XBerater - Monat bearbeiten')                 # 
@@ -197,18 +197,19 @@ class monthWidget(QtGui.QWidget):
         super(monthWidget, self).__init__()
         self.month = month
         self.initUI()                                 # Initialating Month Widget
-        self.loadMonth(month)                         # Load Data into Table
         self.beraterData = beraterdata
         self.ust = self.month.ustdec * 100
         self.fee = self.month.fee
+        self.loadMonth(month)                         # Load Data into Table
 
     def initUI(self):
         vbox = QtGui.QVBoxLayout()                 # Main Container
         
         buttonBox = QtGui.QGridLayout()         # Container for Buttons
 
-        self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i |" %(self.month.data["month"],self.month.data["year"]) )
+        self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i " %(self.month.data["month"],self.month.data["year"]) )
         self.lblEvaluation = QtGui.QLabel(u"Vergütung: %0.2f€" %(self.month.evaluation()["payout"]))       # Write payout to Status-Bar
+        self.month.fee = self.month.determineFee()
         self.lblFee = QtGui.QLabel(u"Vergütungssatz: %0.2f" %(self.month.fee))       # Write Fee to Status-Bar
         # vbox.addWidget(lblMonth)
         # Creating Table
@@ -217,7 +218,7 @@ class monthWidget(QtGui.QWidget):
         self.table.setRowCount(0)
         self.table.setColumnCount(8)
 
-        self.table.setHorizontalHeaderLabels(['Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr",u"-> Bezahlt",u"Beitrag",u"-> Bezahlt",u"USt"])
+        self.table.setHorizontalHeaderLabels(['Mitgl. Nr.','Name','Vorname',u"Aufnahmegebühr €",u"\u21D2 Bezahlt €",u"Beitrag €",u"\u21D2 Bezahlt €",u"USt [%]"])
 
         vbox.addWidget(self.table)
 
@@ -318,12 +319,14 @@ class monthWidget(QtGui.QWidget):
                     except (KeyError) as name:         
                         readerrors+=1                         # only Count Errors
             else:                                                           # Empty table
-                self.table.insertRow(1)                                     # Create new empty Line
+#                self.table.insertRow(1)                                     # Create new empty Line
+#                self.table.setRowCount(1)
+                self.addEntry()
 
             if readerrors:
                 QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
 
-
+            self.month.determineFee()
             self.lblFee.setText(u"Vergütungssatz: %0.2f" %(self.month.fee))       # Write Fee to Status-Bar
 
 #        except:
