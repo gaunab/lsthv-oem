@@ -12,6 +12,8 @@ from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
+__version__ = "2015.09.23"
+
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
         super(BeraterTable,self).__init__()
@@ -69,7 +71,7 @@ class monthWindow(QtGui.QMainWindow):
         self.frmSettingsWindow = editpref.prefWindow(beraterdata)
 
     def about(self):
-         QtGui.QMessageBox.about(self,u"Informationen",u"Beraterabrechnung \n Versions-Datum: 14.06.15")
+         QtGui.QMessageBox.about(self,u"Informationen",u"<b>Beraterabrechnung</b><br> \n Version: %s" %(__version__))
 
     
     def __init__(self,berater,monat=None):
