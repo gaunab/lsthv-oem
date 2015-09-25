@@ -122,7 +122,7 @@ class tablePainter:
         return width
 
     def printOut(self,startPoint):
-
+        self.painter.pen().setWidth(1)
         colwidths = []                                  # find out how wide every col should be
         for col in range(self.col):
 
