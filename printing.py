@@ -512,6 +512,7 @@ class printout:
         y +=  self.ymm(1)
 
         pages.drawLine(self.xmm(0),y,self.xmm(170),y)
+        pages.drawText(self.xmm(0),y,"<table><tr><td>Hallo</td><td>Welt</td></tr></table>")
 
         pages.end()
            
