@@ -83,12 +83,14 @@ class tablePainterRow:
 class tablePainter:
 
     def __init__(self,painter,col):
+        self.linedist = 10                              # Distance between font 
         self.data= []                                   # List of all Rows
         self.painter = painter                          # Painter to draw on
         self.col = col                                  # Number of cols
         self.colwidth = {}                              # manually set minimum widths 
         self.align= ['left' for x in range(col)]
         
+        self.painter.setPen(QtGui.QPen(QtGui.QBrush(2,1),10))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
     # Add a line of data (string)
     def appendRow(self,data,borders={}):
         row = tablePainterRow(self.painter,self.col,borders)    # Create a new row
@@ -122,7 +124,6 @@ class tablePainter:
         return width
 
     def printOut(self,startPoint):
-        self.painter.pen().setWidth(1)
         colwidths = []                                  # find out how wide every col should be
         for col in range(self.col):
 
@@ -140,13 +141,13 @@ class tablePainter:
                 text = row.get(col).getText()           # fetch Text from Row-Elemen
                 # Now draw line on the left side:
                 if  row.get(col).getBorders('left'):
-                    self.painter.drawLine(x,y,x,y-lineheight)
+                    self.painter.drawLine(x,y + self.linedist/2 ,x,y-(lineheight + self.linedist/2))
                 if  row.get(col).getBorders('top'):
-                    self.painter.drawLine(x,y-lineheight,x+colwidths[col],y-lineheight)
+                    self.painter.drawLine(x,y-(lineheight + self.linedist/2),x+colwidths[col],y-(lineheight + self.linedist/2))
                 if  row.get(col).getBorders('right'):
-                    self.painter.drawLine(x+colwidths[col],y-lineheight,x+colwidths[col],y)
+                    self.painter.drawLine(x+colwidths[col],y-(lineheight + self.linedist/2),x+colwidths[col],y + self.linedist/2)
                 if  row.get(col).getBorders('bottom'):
-                    self.painter.drawLine(x,y,x+colwidths[col],y)
+                    self.painter.drawLine(x,y+self.linedist/2,x+colwidths[col],y+self.linedist/2)
 
                 align = row.get(col).getAlign() 
                 if (align == 'none'):
@@ -166,7 +167,7 @@ class tablePainter:
             if row.getBorders('bottom'):
                 self.painter.drawLine(startPoint.x(),y,x,y) # Draw line below row
 
-            y += self.painter.fontInfo().pixelSize()    # go to next line
+            y += self.painter.fontInfo().pixelSize() + self.linedist   # go to next line
 
 
 
@@ -237,6 +238,7 @@ class printout:
         self.pageheightMM = self.printer.pageRect(0).height()
 
         ### Define Fonts
+        self.smallFont = QtGui.QFont('Arial',8)
         self.tableFont = QtGui.QFont('Arial',10)                 # Normal font
         self.tableHeadFont = QtGui.QFont('Arial',12,75)     # Bold font
         self.headingFont = QtGui.QFont('Arial',20,75)         # Big Heading
@@ -261,7 +263,7 @@ class printout:
 
         monthnames = [u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
         y = 0
-        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),15))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
+        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),1))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
         print(os.path.realpath(__file__))
 
         page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage("%s%slogo.png" %(os.path.dirname(__file__), os.path.sep),"png").scaledToWidth(self.xmm(60)))
@@ -323,6 +325,7 @@ class printout:
         Draw the head of the table
         """
         ## Now there's the real Table-Stuff
+        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),10))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
         y = y + self.ymm(1)                 # first create some distance to top
 
         headlines = ['Lfd','Mitgl.Nr.','Name','Vorname','Aufnahme','Bezahlt','Beitrag','Bezahlt','USt']
@@ -511,9 +514,39 @@ class printout:
         pages.drawText(self.xmm(self.tableCols[0]),y,u"Datum: %s   Unterschrift des Beraters: ..............................................." %(time.strftime("%d.%m.%Y")) ) 
         y +=  self.ymm(1)
 
-        pages.drawLine(self.xmm(0),y,self.xmm(170),y)
-        pages.drawText(self.xmm(0),y,"<table><tr><td>Hallo</td><td>Welt</td></tr></table>")
+        # Page Footer
 
+        paymentTable = tablePainter(pages,3)
+        paymentTable.appendRow([tablePainterCell(u"8400",{'left':True,'top':True}),
+                                   tablePainterCell("",), 
+                                   tablePainterCell("")])
+        paymentTable.appendRow([tablePainterCell(u"8401",{'left':True,'top':True}),
+                                   tablePainterCell("",), 
+                                   tablePainterCell("")])
+        paymentTable.appendRow([tablePainterCell(u"",{'left':True,'top':True}),
+                                   tablePainterCell("",), 
+                                   tablePainterCell("")])
+        paymentTable.appendRow([tablePainterCell(u"",{'left':True,'top':True}),
+                                   tablePainterCell("",), 
+                                   tablePainterCell("")])
+        paymentTable.appendRow([tablePainterCell(u"4760",{'left':True,'top':True}),
+                                   tablePainterCell("",), 
+                                   tablePainterCell("")])
+        paymentTable.appendRow([tablePainterCell(u"Gegenkonto",{'left':True,'top':True}),
+                                   tablePainterCell("",), 
+                                   tablePainterCell("")])
+
+
+        y = self.pageheight - self.ymm(50)
+        pages.drawLine(self.xmm(0),y,self.xmm(170),y) 
+        y += fontsize + self.ymm(1)
+
+        pages.setFont(self.smallFont)
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"(Nicht vom Berater auszufüllen)")
+        pages.setFont(self.tableFont)
+        y += fontsize + self.ymm(1)
+        
+        y = paymentTable.printOut(QtCore.QPoint(1,y)).y()
         pages.end()
            
         return pages
