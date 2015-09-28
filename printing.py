@@ -82,8 +82,8 @@ class tablePainterRow:
 
 class tablePainter:
 
-    def __init__(self,painter,col):
-        self.linedist = 10                              # Distance between font 
+    def __init__(self,painter,col,linedist=10):
+        self.linedist = linedist                            # Distance between font 
         self.data= []                                   # List of all Rows
         self.painter = painter                          # Painter to draw on
         self.col = col                                  # Number of cols
@@ -263,7 +263,6 @@ class printout:
 
         monthnames = [u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
         y = 0
-        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),1))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
         print(os.path.realpath(__file__))
 
         page.drawImage(self.pagewidth - self.xmm(60),y - self.ymm(5),QtGui.QImage("%s%slogo.png" %(os.path.dirname(__file__), os.path.sep),"png").scaledToWidth(self.xmm(60)))
@@ -325,7 +324,6 @@ class printout:
         Draw the head of the table
         """
         ## Now there's the real Table-Stuff
-        page.setPen(QtGui.QPen(QtGui.QBrush(2,1),10))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
         y = y + self.ymm(1)                 # first create some distance to top
 
         headlines = ['Lfd','Mitgl.Nr.','Name','Vorname','Aufnahme','Bezahlt','Beitrag','Bezahlt','USt']
@@ -379,6 +377,9 @@ class printout:
         pages.begin(self.printer)
         # Now let's do the drawing of the Pages
         
+        pages.setPen(QtGui.QPen(QtGui.QBrush(2,1),self.ymm(0.3)))     # Set Color to black = 2, with solid pattern = 1, Width to 0.3mm
+
+
         y = self.heading(pages,type=1)         # Write Headline
         pages.setFont(self.tableFont)   # set Font
         y = self.tableHead(pages,y) + pages.fontInfo().pixelSize() # Create Tablehead, set Cursor to next line
@@ -425,7 +426,7 @@ class printout:
         y += self.ymm(10)
 
 
-        evaluationTable = tablePainter(pages,4)
+        evaluationTable = tablePainter(pages,4,self.ymm(0.4))
         
         evaluation = self.window.month.evaluation()
         
@@ -516,37 +517,54 @@ class printout:
 
         # Page Footer
 
-        paymentTable = tablePainter(pages,3)
+        paymentTable = tablePainter(pages,3,self.ymm(0.4))
+        paymentTable.setColMinWidth(1,self.xmm(30))
+        paymentTable.setColMinWidth(0,self.xmm(30))
         paymentTable.appendRow([tablePainterCell(u"8400",{'left':True,'top':True}),
-                                   tablePainterCell("",), 
-                                   tablePainterCell("")])
+            tablePainterCell("",{'left':True,'right':True,'top':True}), 
+            tablePainterCell(u"  geprüft: ....................")])
         paymentTable.appendRow([tablePainterCell(u"8401",{'left':True,'top':True}),
-                                   tablePainterCell("",), 
+            tablePainterCell("",{'left':True,'right':True,'top':True}), 
                                    tablePainterCell("")])
         paymentTable.appendRow([tablePainterCell(u"",{'left':True,'top':True}),
-                                   tablePainterCell("",), 
+            tablePainterCell("",{'left':True,'right':True,'top':True}), 
                                    tablePainterCell("")])
         paymentTable.appendRow([tablePainterCell(u"",{'left':True,'top':True}),
-                                   tablePainterCell("",), 
+            tablePainterCell("",{'left':True,'right':True,'top':True}), 
                                    tablePainterCell("")])
         paymentTable.appendRow([tablePainterCell(u"4760",{'left':True,'top':True}),
-                                   tablePainterCell("",), 
+            tablePainterCell("",{'left':True,'right':True,'top':True}), 
                                    tablePainterCell("")])
-        paymentTable.appendRow([tablePainterCell(u"Gegenkonto",{'left':True,'top':True}),
-                                   tablePainterCell("",), 
-                                   tablePainterCell("")])
+        paymentTable.appendRow([tablePainterCell(u"Gegenkonto",{'left':True,'top':True,'bottom':True}),
+            tablePainterCell("",{'left':True,'right':True,'top':True,'bottom':True}), 
+            tablePainterCell(u"  gebucht: ....................")])
 
 
+        pages.setPen(QtGui.QPen(QtGui.QBrush(2,1),self.ymm(0.3)))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
         y = self.pageheight - self.ymm(50)
         pages.drawLine(self.xmm(0),y,self.xmm(170),y) 
         y += fontsize + self.ymm(1)
 
+        
         pages.setFont(self.smallFont)
         pages.drawText(self.xmm(self.tableCols[0]),y,u"(Nicht vom Berater auszufüllen)")
         pages.setFont(self.tableFont)
+        y += fontsize + self.ymm(5)
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Buchungsvermerke:")
         y += fontsize + self.ymm(1)
         
         y = paymentTable.printOut(QtCore.QPoint(1,y)).y()
+        pages.setFont(self.tableHeadFont)
+        y += fontsize + self.ymm(1)
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Rechnungsempfänger");
+        y += fontsize + self.ymm(1)
+        pages.setFont(self.tableFont)
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Lohnsteuerhilfeverein \u201eOberes Elbtal-Meißen\u201d e.V.")
+        y += fontsize + self.ymm(1)
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Sitz: Talstraße 5, 01662 Meißen; Eingetragen beim Amtsgericht Dresden VR 10377")
+        y += fontsize + self.ymm(1)
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Steuernummer: 209/140/00182")
+
         pages.end()
            
         return pages
