@@ -82,12 +82,13 @@ class tablePainterRow:
 
 class tablePainter:
 
-    def __init__(self,painter,col,linedist=10):
+    def __init__(self,painter,col,linedist=10,widthdist=10):
         self.linedist = linedist                            # Distance between font 
         self.data= []                                   # List of all Rows
         self.painter = painter                          # Painter to draw on
         self.col = col                                  # Number of cols
         self.colwidth = {}                              # manually set minimum widths 
+        self.widthdist = widthdist
         self.align= ['left' for x in range(col)]
         
         self.painter.setPen(QtGui.QPen(QtGui.QBrush(2,1),10))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
@@ -119,7 +120,7 @@ class tablePainter:
         for row in self.data:                           # go through all rows
             cell = row.get(col)
             cell.setPainter(self.painter)
-            width = max(cell.textWidth(),width)       # check whether col in current row needs to be wider - set new width
+            width = max(cell.textWidth() + self.widthdist ,width)       # check whether col in current row needs to be wider - set new width
 
         return width
 
@@ -153,12 +154,12 @@ class tablePainter:
                 if (align == 'none'):
                     align = self.align[col] 
                 if (align == 'left'):
-                    textx = x
+                    textx = x + self.widthdist / 2
                 if (align == 'right'):
-                    textx = x + colwidths[col] - row.get(col).textWidth()
+                    textx = x + colwidths[col] - row.get(col).textWidth() - self.widthdist/2
                 if (align == 'center'):
                     textx = x + int(colwidths[col] / 2) - int(row.get(col).textWidth() / 2)
-                self.painter.drawText(textx,y,text)         # draw ElementText on page
+                self.painter.drawText(textx ,y,text)         # draw ElementText on page
                 x += colwidths[col]                     # add Width of col to x
                 x += 10                                 # add some space
 
@@ -240,7 +241,7 @@ class printout:
         ### Define Fonts
         self.smallFont = QtGui.QFont('Arial',8)
         self.tableFont = QtGui.QFont('Arial',10)                 # Normal font
-        self.tableHeadFont = QtGui.QFont('Arial',12,75)     # Bold font
+        self.tableHeadFont = QtGui.QFont('Arial',10,75)     # Bold font
         self.headingFont = QtGui.QFont('Arial',20,75)         # Big Heading
         self.heading2Font = QtGui.QFont('Arial',15,50)         # Paper Description Font
         
@@ -381,8 +382,12 @@ class printout:
 
 
         y = self.heading(pages,type=1)         # Write Headline
-        pages.setFont(self.tableFont)   # set Font
+        pages.setFont(self.tableHeadFont)   # set Font
+
+        y_tablestart = y
         y = self.tableHead(pages,y) + pages.fontInfo().pixelSize() # Create Tablehead, set Cursor to next line
+
+        pages.setFont(self.tableFont)   # set Font
         for i in range(self.table.rowCount()):                # i --> current Row of Table
             # Fetch data from table
             lfd = str(i)
@@ -390,10 +395,7 @@ class printout:
             # now print to current row on paper
             for col in range(8):
                 self.tableCol(pages,col+1,y,str(self.table.item(i,col).text())) # print all cols
-            y = y + fontsize
-
-
-            
+            y = y + fontsize + self.ymm(0.25)
             try:
                 aufnahmeges +=  cellToFloat(self.table.item(i,3))
                 aufnahmeges_bez +=  cellToFloat(self.table.item(i,4))
@@ -412,12 +414,27 @@ class printout:
                 y = self.heading(pages,type=1)         # Write Headline
                 y = self.tableHead(pages,y) + pages.fontInfo().pixelSize() # Create Tablehead, set Cursor to next line
 
-        # Print SUmmation after        
+
+        
+        # Print SUmmation after     
+        y_tableend = y - pages.fontInfo().pixelSize() + self.ymm(0.3)
+
+        pages.drawLine(self.xmm(0), y_tableend ,self.xmm(170),y_tableend)
         self.tableCol(pages,0,y,"Summe")
         self.tableCol(pages,4,y,"%0.2f" %(aufnahmeges))
         self.tableCol(pages,5,y,"%0.2f" %(aufnahmeges_bez))
         self.tableCol(pages,6,y,"%0.2f" %(beitragges))
         self.tableCol(pages,7,y,"%0.2f" %(beitragges_bez))
+
+        # Draw Tablelines
+        pages.drawLine(self.xmm(self.tableCols[1]), y_tablestart, self.xmm(self.tableCols[1]), y_tableend)
+        pages.drawLine(self.xmm(self.tableCols[2]), y_tablestart, self.xmm(self.tableCols[2]), y_tableend)
+        pages.drawLine(self.xmm(self.tableCols[3]), y_tablestart, self.xmm(self.tableCols[3]), y_tableend)
+        pages.drawLine(self.xmm(self.tableCols[4]), y_tablestart, self.xmm(self.tableCols[4]), y_tableend)
+        pages.drawLine(self.xmm(self.tableCols[5]), y_tablestart, self.xmm(self.tableCols[5]), y_tableend)
+        pages.drawLine(self.xmm(self.tableCols[6]), y_tablestart, self.xmm(self.tableCols[6]), y_tableend)
+        pages.drawLine(self.xmm(self.tableCols[7]), y_tablestart, self.xmm(self.tableCols[7]), y_tableend)
+        pages.drawLine(self.xmm(self.tableCols[8]), y_tablestart, self.xmm(self.tableCols[8]), y_tableend)
 
         # Now lets print the Final Page
         self.printer.newPage()
@@ -426,7 +443,7 @@ class printout:
         y += self.ymm(10)
 
 
-        evaluationTable = tablePainter(pages,4,self.ymm(0.4))
+        evaluationTable = tablePainter(pages,4,self.ymm(0.4),self.xmm(0.5))
         
         evaluation = self.window.month.evaluation()
         
@@ -450,19 +467,19 @@ class printout:
             evaluationTable.setColMinWidth(3,self.xmm(30))
 #            evaluationTable.setColMinWidth(2,100)
             evaluationTable.appendRow([tablePainterCell("",{'left':True}),
-                                       tablePainterCell(""),
+                tablePainterCell("",{'right':True}),
                                        tablePainterCell("Nettobetrag",align='center'),
                                        tablePainterCell("Umsatzsteuer (%0.0f%%)" %(ust),{'right':True},align='center')],{'top':True})
             evaluationTable.appendRow([tablePainterCell(u"Mitgliedsbeiträge",{'left':True}),
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["beitrag"][ust]),align='right'), 
+                tablePainterCell(u"%0.2f€ " %(evaluation["beitrag"][ust]),{'right':True},align='right'), 
                                        tablePainterCell(u"%0.2f€ " %(evaluation["beitragnetto"][ust]),align='right'),
                                        tablePainterCell(u"%0.2f€ " %(evaluation["beitragnetto"][ust]*ustdec),{'right':True},align='right')  ])
             evaluationTable.appendRow([tablePainterCell(u"Aufnahmegebühren",{'left':True}),
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["aufnahme"][ust]),align='right'), 
+                tablePainterCell(u"%0.2f€ " %(evaluation["aufnahme"][ust]),{'right':True},align='right'), 
                                        tablePainterCell(u"%0.2f€ " %(evaluation["aufnahmenetto"][ust]),align='right') ,
                                        tablePainterCell(u"%0.2f€ " %(evaluation["aufnahmenetto"][ust]*ustdec),{'right':True},align='right') ])
             evaluationTable.appendRow([tablePainterCell(u"Vergütung Berater",{'left':True}),
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["payout"]),align='right'),
+                tablePainterCell(u"%0.2f€ " %(evaluation["payout"]),{'right':True},align='right'),
                                        tablePainterCell(u"%0.2f€ " %(evaluation["payout"] / (1+ self.window.month.ustdec)),align='right'),
                                        tablePainterCell(u"%0.2f€ " %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec)),{'right':True},align='right') ])
 
@@ -510,7 +527,7 @@ class printout:
             y += fontsize + self.ymm(1)
             pages.drawText(self.xmm(self.tableCols[0]),y,u"Sparkasse Meißen; BIC: SOLADES1MEI; IBAN: DE03850550003000007007; überwiesen") 
 
-        y += fontsize + self.ymm(30)
+        y += fontsize + self.ymm(20)
 
         pages.drawText(self.xmm(self.tableCols[0]),y,u"Datum: %s   Unterschrift des Beraters: ..............................................." %(time.strftime("%d.%m.%Y")) ) 
         y +=  self.ymm(1)

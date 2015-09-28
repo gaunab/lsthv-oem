@@ -12,7 +12,7 @@ from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
-__version__ = "2015.09.23"
+__version__ = "2015.09.28"
 
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
@@ -100,8 +100,8 @@ class monthWindow(QtGui.QMainWindow):
         monthwidget = monthWidget(beraterdata,monat)
         self.setWindowTitle('XBerater - Monat bearbeiten')                 # 
         self.setCentralWidget(monthwidget)
+        self.resize(840, 400)
         self.show()
-
         # Create Menubar
         menubar = self.menuBar()
         filemenu = menubar.addMenu("&Datei")
