@@ -99,11 +99,12 @@ class lsthvmonth:
         """ Determine Fee-Value for this month """
         feeList = sorted(self.berater.fee,key=lambda x: x['from'])
         thismonth = "%4i%02i" %(self.data["year"],self.data["month"])
-        feeValue = 70
+        feeValue = "70"
         for fee in feeList:
             if thismonth >= str(fee["from"]):
                 feeValue = fee["value"]
 
+        feeValue = float(feeValue)
         return feeValue / 100
 
     def open(self,filename):        

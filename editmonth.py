@@ -12,7 +12,7 @@ from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
-__version__ = "2015.09.28"
+__version__ = "2015.11.17"
 
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
