@@ -446,7 +446,8 @@ class printout:
         evaluationTable = tablePainter(pages,4,self.ymm(0.4),self.xmm(0.5))
         
         evaluation = self.window.month.evaluation()
-        
+       
+        print evaluation
         tableRow = [tablePainterCell(u"Gesamtumsatz",{'left':True,'top':True}),
                 tablePainterCell(u"%0.2f€ " %(evaluation["aufnahmeges"] + evaluation["beitragges"]),{'top':True,'right':True},align='right'),
                     tablePainterCell(""),
@@ -489,16 +490,17 @@ class printout:
                                    tablePainterCell(""),
                                    tablePainterCell("")],
                                   {"top":True})
-        if evaluation["payout"] >= 0:
+        if evaluation["societypayment"] >= 0:
             evaluationTable.appendRow([tablePainterCell(u"vom Verein zu zahlen",{'left':True,'bottom':True}),
-                tablePainterCell(u"%0.2f€ " %(evaluation["payout"]),{'right':True,'bottom':True},align='right'),
+                tablePainterCell(u"%0.2f€ " %(evaluation["societypayment"]),{'right':True,'bottom':True},align='right'),
                                        tablePainterCell(""),
                                        tablePainterCell("")])
         else:
             evaluationTable.appendRow([tablePainterCell(u"an Verein zu zahlen",{'left':True,'bottom':True}),
-                tablePainterCell(u"%0.2f€ " %(-evaluation["payout"]),{'right':True,'bottom':True},align='right'),
+                tablePainterCell(u"%0.2f€ " %(evaluation["societypayment"]),{'right':True,'bottom':True},align='right'),
                                        tablePainterCell(""),
                                        tablePainterCell("")])
+
 
         y = evaluationTable.printOut(QtCore.QPoint(1,y)).y()
 

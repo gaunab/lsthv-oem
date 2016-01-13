@@ -160,20 +160,20 @@ class prefWindow(QtGui.QWidget):
 
     # Saving Personal Data to berater Object, save to file afterwards
     def save(self):
-        self.berater.name = (self.edtName.text()).rstrip()                           # Convert Edit-Field to unicode string, remove all trailing whitespaces
-        self.berater.firstname = (self.edtFirstName.text()).rstrip()
-        self.berater.id = (self.edtId.text()).rstrip()
-        self.berater.bank = (self.edtBank.text()).rstrip()
-        self.berater.bic = (self.edtBic.text()).rstrip()
-        self.berater.iban = (self.edtIban.text()).rstrip()
-        self.berater.ustnr = (self.edtUstnr.text()).rstrip()
+        self.berater.name = str(self.edtName.text()).rstrip()                           # Convert Edit-Field to unicode string, remove all trailing whitespaces
+        self.berater.firstname = str(self.edtFirstName.text()).rstrip()
+        self.berater.id = str(self.edtId.text()).rstrip()
+        self.berater.bank = str(self.edtBank.text()).rstrip()
+        self.berater.bic = str(self.edtBic.text()).rstrip()
+        self.berater.iban = str(self.edtIban.text()).rstrip()
+        self.berater.ustnr = str(self.edtUstnr.text()).rstrip()
         if (not self.berater.checkiban()):                                                  # Check if IBAN is correct
             msgBox = QtGui.QMessageBox();
             msgBox.setText(u"Die IBAN ist inkorrekt.\nBitte überprüfen Sie Ihre Eingabe.");
             msgBox.exec_()
-        self.berater.street = (self.edtStreet.text()).rstrip()
-        self.berater.town = (self.edtTown.text()).rstrip()
-        self.berater.zip = (self.edtZip.text()).rstrip()
+        self.berater.street = str(self.edtStreet.text()).rstrip()
+        self.berater.town = str(self.edtTown.text()).rstrip()
+        self.berater.zip = str(self.edtZip.text()).rstrip()
         self.berater.fee = self.feewidget.returnEntries()
         self.berater.ust = self.ustwidget.returnEntries()
         self.berater.save()

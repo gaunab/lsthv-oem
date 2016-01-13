@@ -59,8 +59,9 @@ class lsthvmonth:
 
         
         verguetungssatz = strToFloat(self.fee)
-        payout = beitragges * (verguetungssatz / 100) + aufnahmeges * (2/3)         # BeraterVerguetung berechnen
-
+        payout = (beitragges * (verguetungssatz)) + (aufnahmeges * (2.0/3.0))      # BeraterVerguetung berechnen
+        societypayment = payout - (beitragges + aufnahmeges - beitragges_bez - aufnahmeges_bez )
+        print(societypayment)
 
         return {"aufnahmeges" : aufnahmeges,
                 "aufnahmeges_bez": aufnahmeges_bez,
@@ -71,6 +72,7 @@ class lsthvmonth:
                 "beitragnetto" : beitragnetto,
                 "aufnahmenetto" : aufnahmenetto,
                 "payout" : payout,
+                "societypayment": societypayment,
                 "misc": misc}
 
     def save(self):
