@@ -18,7 +18,7 @@ if sys.platform == "win32":
 	
 
 setup(  name = "Berater",
-        version = "0.5",
+        version = "0.6",
         description = u"Abrechnungsprogramm für Berater",
         options = {"build_exe": build_exe_options},
         executables = [Executable("berater.py", 
