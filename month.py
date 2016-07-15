@@ -14,14 +14,47 @@ def strToFloat(input):
         return 0.0
     
 class lsthvmonth:
+    """ Store all Data of a single month
+    
+    All Data is stored in field self.data. All single entries are stored in
+    date["table"] while additional incomes are stored in ["misc_income"]
+
+    
+    """
 
     def __init__(self,beraterdata):
+        """ Create a new lsthvmonth instance 
+
+        Parameters
+        ----------
+
+        beraterdata: beraterData 
+            Give personal Information like fee and ust for calculations within this month
+        
+        """
         self.data = {}
         self.berater = beraterdata
         self.ustdec = 0.19
         self.fee = 0.0
 
     def evaluation(self):
+        """ Calculate everything for Evaluation sheet
+        
+        Returns:
+        --------
+        list with calculated data. Following keys are used:
+           "aufnahmeges" : Summe aller Aufnahmegebühren 
+           "aufnahmeges_bez" : Summer der Bezahlten Aufnahmegebühren
+           "beitragges" : Summe aller Beiträge
+           "beitragges_bez" : Summe der gezahlten Beiträge
+           "aufnahme" : 
+           "beitrag" _:
+           "beitragnetto"   
+           "aufnahmenetto" 
+           "payout" : Was der Berater ausgezahlt bekommt
+           "societypayment" : Was an den Verein bezahlt wird
+           "misc": sonstige Beiträge, die eingenommen wurden
+        """
         beitrag = {}                                                                # list of sums of beitrag one for each ust
         aufnahme = {}                                                               # list of sums of aufnahme one for each ust
         beitragnetto = {}                                                           # see above

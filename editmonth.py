@@ -5,7 +5,7 @@
 This Project is for calculating bils 
 
 """
-import newmonth,month,printing,settings,monthlist,editpref 
+import newmonth,month,printing,settings,monthlist,editpref,misc
 import os,sys
 import time
 from datetime import date
@@ -139,8 +139,10 @@ class monthWindow(QtGui.QMainWindow):
         removeAction.setShortcut('Ctrl+-')
         removeAction.setStatusTip('Entfernt die Markierte Zeile')
         removeAction.triggered.connect(monthwidget.delEntry)
-
-
+        
+        editMiscAction = QtGui.QAction(u"sonstige Einnahmen", self)
+        editMiscAction.setStatusTip(u"Bearbeiten von sonstigen vereinnahmten Beträgen")
+        editMiscAction.triggered.connect(monthwidget.editMisc)
 
         openAction = QtGui.QAction(u"Monat öffnen", self)
         openAction.setShortcut('Ctrl+o')
@@ -170,6 +172,7 @@ class monthWindow(QtGui.QMainWindow):
         filemenu.addAction(exitAction)
         editmenu.addAction(addAction)
         editmenu.addAction(removeAction)
+        editmenu.addAction(editMiscAction)
         settingsmenu.addAction(openPref)
         helpmenu.addAction(aboutAction)
 
@@ -334,6 +337,11 @@ class monthWidget(QtGui.QWidget):
 #        except:
 #            return False
 
+
+    def editMisc(self):
+        """ Open Window to edit addition incomes """
+        miscWidget = misc.miscWidget(self.month)
+        miscWidget.show()
 
 
     # Adding new Rows        

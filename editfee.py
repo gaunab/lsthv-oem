@@ -18,7 +18,6 @@ class feeWidget(QtGui.QWidget):
         self.feeTable = QtGui.QTableWidget()
         self.feeTable.setColumnCount(3)
         self.feeTable.setHorizontalHeaderLabels(["Monat","Jahr",u"Vergütung"])
-
         maingrid.addWidget(self.feeTable,1,0,1,2)
         buttongrid = QtGui.QHBoxLayout()
         btnAddLine = QtGui.QPushButton(u"Hinzufügen")
