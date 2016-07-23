@@ -5,7 +5,7 @@
 This Project is for calculating bils 
 
 """
-import newmonth,month,printing,settings,monthlist,editpref,misc
+import newmonth,month,printing,settings,monthlist,editpref,edtmisc
 import os,sys
 import time
 from datetime import date
@@ -17,7 +17,12 @@ __version__ = "2016.01.13"
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
         super(BeraterTable,self).__init__()
-
+        self.setSortingEnabled(True)
+        self.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        self.setSelectionBehavior(QtGui.QTableView.SelectRows)
+        self.setDropIndicatorShown(True)
+        self.setAcceptDrops(True)
+        self.setDragEnabled(True)
     def cellToFloat(self,col,row):
         try:
             text = str(self.item(col,row).text())
@@ -35,6 +40,8 @@ class BeraterTable(QtGui.QTableWidget):
         if (event.type()== QtCore.QEvent.KeyPress) and ( (event.key()==QtCore.Qt.Key_Return) or (event.key()==QtCore.Qt.Key_Enter)  ) :
             self.emit(QtCore.SIGNAL("returnPressed"))
             return True
+
+
         return QtGui.QTableWidget.event(self, event)
 
 
@@ -114,7 +121,6 @@ class monthWindow(QtGui.QMainWindow):
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Programm Beenden')
         exitAction.triggered.connect(self.close)
-
         saveAction = QtGui.QAction('Speichern', self)
         saveAction.setShortcut('Ctrl+S')
         saveAction.setStatusTip('Aktuellen Monat speichern')
@@ -340,12 +346,13 @@ class monthWidget(QtGui.QWidget):
 
     def editMisc(self):
         """ Open Window to edit addition incomes """
-        miscWidget = misc.miscWidget(self.month)
-        miscWidget.show()
+        self.miscWindow = edtmisc.miscWindow(self.month)
+        self.miscWindow.show()
 
 
     # Adding new Rows        
     def addEntry(self):
+        """ Add new Row to table """
         if (self.table.currentRow() == -1):
             self.table.insertRow(0)
             for i in range(7):

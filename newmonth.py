@@ -16,8 +16,6 @@ class newMonth(QtGui.QWidget):
         self.beraterdata=beraterdata
         self.initUI()
 
-
-
     def initUI(self):
         monthnames = [u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
         grid = QtGui.QGridLayout()                                 # Main Container
