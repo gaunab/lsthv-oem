@@ -64,7 +64,7 @@ class lsthvmonth:
         aufnahmeges_bez = 0
         beitragges = 0
         beitragges_bez = 0
-        misc = 0
+        misc = self.miscSum()
         
         if ("table" in self.data):
             for entry in self.data["table"]:                                            # go through all entries 
@@ -116,6 +116,13 @@ class lsthvmonth:
             return True
         else:
             return False        
+
+    def miscSum(self):
+        """ Caclculate Sum of misc """
+        sum = 0.0
+        for entry in self.data["misc"]:
+            sum += strToFloat(entry["value"])
+        return sum
 
     def determineUst(self):
         """ Determine UST-Value for this month """
