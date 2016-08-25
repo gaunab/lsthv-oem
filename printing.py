@@ -391,10 +391,10 @@ class printout:
         for i in range(self.table.rowCount()):                # i --> current Row of Table
             # Fetch data from table
             lfd = str(i)
-            self.tableCol(pages,0,y,str(i+1))             # print Entry-Number
+            self.tableCol(pages,0,y,unicode(i+1))             # print Entry-Number
             # now print to current row on paper
             for col in range(8):
-                self.tableCol(pages,col+1,y,str(self.table.item(i,col).text())) # print all cols
+                self.tableCol(pages,col+1,y,unicode(self.table.item(i,col).text())) # print all cols
             y = y + fontsize + self.ymm(0.25)
             try:
                 aufnahmeges +=  cellToFloat(self.table.item(i,3))
@@ -467,22 +467,22 @@ class printout:
             evaluationTable.setColMinWidth(2,self.xmm(30))
             evaluationTable.setColMinWidth(3,self.xmm(30))
 #            evaluationTable.setColMinWidth(2,100)
-            evaluationTable.appendRow([tablePainterCell("",{'left':True}),
-                tablePainterCell("",{'right':True}),
-                                       tablePainterCell("Nettobetrag",align='center'),
-                                       tablePainterCell("Umsatzsteuer (%0.0f%%)" %(ust),{'right':True},align='center')],{'top':True})
             evaluationTable.appendRow([tablePainterCell(u"Mitgliedsbeiträge",{'left':True}),
-                tablePainterCell(u"%0.2f€ " %(evaluation["beitrag"][ust]),{'right':True},align='right'), 
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["beitragnetto"][ust]),align='right'),
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["beitragnetto"][ust]*ustdec),{'right':True},align='right')  ])
+                                    tablePainterCell(u"%0.2f€ " %(evaluation["beitrag"][ust]),{'right':True},align='right'),
+                                    tablePainterCell(u""),
+                                    tablePainterCell(u"")]) 
             evaluationTable.appendRow([tablePainterCell(u"Aufnahmegebühren",{'left':True}),
-                tablePainterCell(u"%0.2f€ " %(evaluation["aufnahme"][ust]),{'right':True},align='right'), 
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["aufnahmenetto"][ust]),align='right') ,
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["aufnahmenetto"][ust]*ustdec),{'right':True},align='right') ])
+                                    tablePainterCell(u"%0.2f€ " %(evaluation["aufnahme"][ust]),{'right':True},align='right'),
+                                    tablePainterCell(u""),
+                                    tablePainterCell(u"")])  
+            evaluationTable.appendRow([tablePainterCell("",{'left':True}),
+                                    tablePainterCell("",{'right':True}),
+                                    tablePainterCell("Nettobetrag",align='center'),
+                                    tablePainterCell("Umsatzsteuer (%0.0f%%)" %(ust),{'right':True},align='center')],{'top':True})
             evaluationTable.appendRow([tablePainterCell(u"Vergütung Berater",{'left':True}),
-                tablePainterCell(u"%0.2f€ " %(evaluation["payout"]),{'right':True},align='right'),
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["payout"] / (1+ self.window.month.ustdec)),align='right'),
-                                       tablePainterCell(u"%0.2f€ " %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec)),{'right':True},align='right') ])
+                                    tablePainterCell(u"%0.2f€ " %(evaluation["payout"]),{'right':True},align='right'),
+                                    tablePainterCell(u"%0.2f€ " %(evaluation["payout"] / (1+ self.window.month.ustdec)),align='right'),
+                                    tablePainterCell(u"%0.2f€ " %(evaluation["payout"] - evaluation["payout"] / (1+ self.window.month.ustdec)),{'right':True},align='right') ])
 
         
         evaluationTable.appendRow([tablePainterCell(u"sonstige vereinnahmte Beträge",{'left':True}),

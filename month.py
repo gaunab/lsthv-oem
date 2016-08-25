@@ -111,7 +111,7 @@ class lsthvmonth:
     def save(self):
         if ("month" in self.data and "year" in self.data):
             f_month = open(str(self.data["year"])+"%02i" %(self.data["month"]) +"monat.yaml","w")        
-            yaml.dump(self.data,f_month, default_flow_style=False)
+            yaml.safe_dump(self.data,f_month, default_flow_style=False, encoding='utf-8', tags=False)
             f_month.close()
             return True
         else:
@@ -120,8 +120,9 @@ class lsthvmonth:
     def miscSum(self):
         """ Caclculate Sum of misc """
         sum = 0.0
-        for entry in self.data["misc"]:
-            sum += strToFloat(entry["value"])
+        if self.data.has_key("misc"):
+            for entry in self.data["misc"]:
+                sum += strToFloat(entry["value"])
         return sum
 
     def determineUst(self):

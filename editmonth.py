@@ -12,7 +12,7 @@ from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
-__version__ = "2016.01.13"
+__version__ = "2016.08.24"
 
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
@@ -20,9 +20,12 @@ class BeraterTable(QtGui.QTableWidget):
         self.setSortingEnabled(True)
         self.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.setSelectionBehavior(QtGui.QTableView.SelectRows)
-        self.setDropIndicatorShown(True)
-        self.setAcceptDrops(True)
-        self.setDragEnabled(True)
+        self.setSelectionMode(QtGui.QTableView.SingleSelection)
+        #self.setDropIndicatorShown(True)
+        #self.setAcceptDrops(True)
+        # self.setDragEnabled(True)
+        
+
     def cellToFloat(self,col,row):
         try:
             text = str(self.item(col,row).text())
@@ -303,7 +306,7 @@ class monthWidget(QtGui.QWidget):
                 editItem.setTextColor(red)
 
         elif editItem.column() in [1,2]:                            # Convert first Letter of Names to Capital letter
-            itemtext = str(editItem.text()).title()
+            itemtext = unicode(editItem.text()).title()
             editItem.setText(itemtext)
                 
 
@@ -394,55 +397,55 @@ class monthWidget(QtGui.QWidget):
         for row in range(self.table.rowCount()):
 
             if (self.table.item(row,0) is None):
-                mtglnr = ""
+                mtglnr = unicode("")
             else:
-                mtglnr = self.table.item(row,0).text()
+                mtglnr = unicode(self.table.item(row,0).text())
 
             if (self.table.item(row,1) is None):
-                name = ""
+                name = unicode("")
             else:
-                name = self.table.item(row,1).text()
+                name = unicode(self.table.item(row,1).text())
 
             if (self.table.item(row,2) is None):
-                firstname = ""
+                firstname = unicode("")
             else:
-                firstname = self.table.item(row,2).text()
+                firstname = unicode(self.table.item(row,2).text())
 
             if (self.table.item(row,3) is None):
-                aufnahmegeb = "0,00"
+                aufnahmegeb = unicode("0,00")
             else:
-                aufnahmegeb = self.table.item(row,3).text()
+                aufnahmegeb = unicode(self.table.item(row,3).text())
 
             if (self.table.item(row,4) is None):
-                aufnahmepayed = "0.00"
+                aufnahmepayed = unicode("0.00")
             else:
-                aufnahmepayed = self.table.item(row,4).text()
+                aufnahmepayed = unicode(self.table.item(row,4).text())
 
             if (self.table.item(row,5) is None):
-                beitrag = "0.00"
+                beitrag = unicode("0.00")
             else:
-                beitrag = self.table.item(row,5).text()
+                beitrag = unicode(self.table.item(row,5).text())
 
             if (self.table.item(row,6) is None):
-                beitragpayed = "0.00"
+                beitragpayed = unicode("0.00")
             else:
-                beitragpayed = self.table.item(row,6).text()
+                beitragpayed = unicode(self.table.item(row,6).text())
             
             if (self.table.item(row,7) is None):
                 ust = "%0.2f" %(self.ust)
             else:
-                ust = self.table.item(row,7).text()
+                ust = unicode(self.table.item(row,7).text())
 
             data.append({'lfd':row+1,
                              'mtgl-nr':mtglnr,
-                         'name':name,
+                             'name':name,
                              'firstname':firstname,
                              'aufnahmegeb':aufnahmegeb,
                              'aufnahmepayed':aufnahmepayed,
                              'beitrag':beitrag,
                              'beitragpayed':beitragpayed, 
                          'ust':ust
-                        }
+                           }
                     )
 
         self.month.data["table"] = data                                                             # update data-block in month

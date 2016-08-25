@@ -22,10 +22,9 @@ class MiscTable(QtGui.QTableWidget):
 
     def cellToFloat(self,col,row):
         try:
-            text = str(self.item(col,row).text())
-            text.replace(",",".")
-            return float(text)
-
+            value = str(self.item(col,row).text())
+            value = value.replace(",",".")
+            return float(value)
         except:
             return 0.0
 
@@ -201,7 +200,7 @@ class miscWidget(QtGui.QWidget):
                 
                 try:
                     self.miscTable.setItem(self.miscTable.rowCount()-1,0,TableItem((entry["text"])))
-                    self.miscTable.setItem(self.miscTable.rowCount()-1,1,TableItem((entry["value"])))
+                    self.miscTable.setItem(self.miscTable.rowCount()-1,1,TableItem((str(entry["value"]))))
                 except (KeyError) as name:         
                     readerrors+=1                         # only Count Errors
         else:                                             # Empty table
@@ -214,18 +213,18 @@ class miscWidget(QtGui.QWidget):
         """ Save Data back to month Object """
 
         data = []
+        print(self.miscTable.rowCount())
         for row in range(self.miscTable.rowCount()):
             if (self.miscTable.item(row,0) is None):
-                text = ""
+                text = unicode("")
             else:
-                text = self.miscTable.item(row,0).text()
-            if (self.miscTable.item(row,1) is None):
-                value = "0,00"
-            else:
-                value = self.miscTable.item(row,1).text()
+                text = unicode(self.miscTable.item(row,0).text())
+            value = self.miscTable.cellToFloat(row,1)
+            print(value)
+            print("Saving misc entry: %s %f" %(text,value))
 
-        data.append({'text':text,'value':value})
-        self.monat.data["misc"] = data
+            data.append({'text':text,'value':value})
+            self.monat.data["misc"] = data
 
 def main():
     app = QtGui.QApplication(sys.argv)
