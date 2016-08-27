@@ -2,7 +2,7 @@
 # -*- coding: utf-8- -*-
 
 """
-This Project is for calculating bils 
+This Project is for calculating bils
 
 """
 import newmonth,month,printing,settings,monthlist,editpref,edtmisc
@@ -24,7 +24,6 @@ class BeraterTable(QtGui.QTableWidget):
         #self.setDropIndicatorShown(True)
         #self.setAcceptDrops(True)
         # self.setDragEnabled(True)
-        
 
     def cellToFloat(self,col,row):
         try:
@@ -53,6 +52,7 @@ class TableItem(QtGui.QTableWidgetItem):
     def __init__(self,text):
         super(TableItem,self).__init__(text)
 
+
     #def __init__(self):
     #    super(TableItem,self).__init__()
 
@@ -60,7 +60,7 @@ class TableItem(QtGui.QTableWidgetItem):
         if (event.type()== QtCore.QEvent.KeyPress) and (event.key()==QtCore.Qt.Key_Tab):
             self.emit(QtCore.SIGNAL("tabPressed"))
             return True
-        
+
         if (event.type()== QtCore.QEvent.KeyPress) and ( (event.key()==QtCore.Qt.Key_Return) or (event.key()==QtCore.Qt.Key_Enter)  ) :
             self.emit(QtCore.SIGNAL("returnPressed"))
             return True
@@ -73,7 +73,7 @@ class TableItem(QtGui.QTableWidgetItem):
 class monthWindow(QtGui.QMainWindow):
     def openMonth(self):
         self.frmMonthList = monthlist.monthList(beraterdata)
-    
+
     def createMonth(self):
         self.frmNewMonth = newmonth.newMonth(beraterdata)
 
@@ -83,7 +83,7 @@ class monthWindow(QtGui.QMainWindow):
     def about(self):
          QtGui.QMessageBox.about(self,u"Informationen",u"<b>Beraterabrechnung</b><br> \n Version: %s" %(__version__))
 
-    
+
     def __init__(self,berater,monat=None):
         super(monthWindow,self).__init__()
         global beraterdata
@@ -108,10 +108,21 @@ class monthWindow(QtGui.QMainWindow):
                 monat.fee = monat.determineFee()
 
         monthwidget = monthWidget(beraterdata,monat)
-        self.setWindowTitle('XBerater - Monat bearbeiten')                 # 
+        monthwidget.table.cellChanged.connect(self.storeChanges)
+        monthwidget.table.un
+        self.setWindowTitle('XBerater - Monat bearbeiten')                 #
         self.setCentralWidget(monthwidget)
         self.resize(840, 400)
         self.show()
+
+        #Undo Stack
+        self.undoStack = QtGui.QUndoStack()
+        undoAction = self.undoStack.createUndoAction(self,self.tr("&Undo"))
+        undoAction.setShortcuts(QtGui.QKeySequence.Undo)
+        self.undoStack.
+        redoAction = self.undoStack.createRedoAction(self,self.tr("&Redo"))
+        redoAction.setShortcuts(QtGui.QKeySequence.Redo)
+
         # Create Menubar
         menubar = self.menuBar()
         filemenu = menubar.addMenu("&Datei")
@@ -138,7 +149,7 @@ class monthWindow(QtGui.QMainWindow):
         previewAction.setShortcut('Ctrl+Shift+P')
         previewAction.setStatusTip(u"Druckvorschau für den aktuellen Monat")
         previewAction.triggered.connect(monthwidget.printPreview)
-        
+
         addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
         addAction.setShortcut('Ctrl++')
         addAction.setStatusTip(u'Fügt eine neue Zeile ein')
@@ -148,7 +159,7 @@ class monthWindow(QtGui.QMainWindow):
         removeAction.setShortcut('Ctrl+-')
         removeAction.setStatusTip('Entfernt die Markierte Zeile')
         removeAction.triggered.connect(monthwidget.delEntry)
-        
+
         editMiscAction = QtGui.QAction(u"sonstige Einnahmen", self)
         editMiscAction.setStatusTip(u"Bearbeiten von sonstigen vereinnahmten Beträgen")
         editMiscAction.triggered.connect(monthwidget.editMisc)
@@ -182,27 +193,52 @@ class monthWindow(QtGui.QMainWindow):
         editmenu.addAction(addAction)
         editmenu.addAction(removeAction)
         editmenu.addAction(editMiscAction)
+        editmenu.addAction(undoAction)
+        editmenu.addAction(redoAction)
         settingsmenu.addAction(openPref)
         helpmenu.addAction(aboutAction)
 
         # Create StatusBar
         monthwidget.setStatusBar(self.statusBar())
 
+    def storeChanges(self,row,column):
+        command = StoreCommand(self.sender(),row,column)
+        self.undoStack.push(command)
+
+class StoreCommand(QtGui.QUndoCommand):
+
+    def __init__(self,tableelement , row, column):
+        QtGui.QUndoCommand.__init__(self)
+        # record the field that has changed
+        self.row = row
+        self.column = column
+        self.tableelement = tableelement
+        self.text = tableelement.item(row,column).text()
+        print("Storing %s from field %i,%i " %(self.text,row,column))
+
+    def undo(self):
+        item = self.tableelement.item(self.row,self.column)
+        item.setText(self.text)
+        print("Undoing %s" %(self.text))
+
+    def redo(self):
+        self.tableelement.item(self.row,self.column).setText(self.text)
+
 class monthWidget(QtGui.QWidget):
 
- 
+
 #    # Determine UST
 #    def getUST(self):
-#        ustlist = sorted(self.beraterData.ust, key=itemgetter('from')) 
+#        ustlist = sorted(self.beraterData.ust, key=itemgetter('from'))
 #        thismonth = "%i%02i" %(self.month.data["year"], self.month.data["month"])
 #        thismonth = int(thismonth)
-#        
+#
 #        ust = ustlist[0]["value"]
 #        for date in ustlist:
 #            if thismonth >= date["from"]:
 #                ust = date["value"]
 #
-#        return ust        
+#        return ust
 
     def onContextMenu(self,point):
         self.contextMenu.exec_(self.table.mapToGlobal(point))
@@ -218,7 +254,7 @@ class monthWidget(QtGui.QWidget):
 
     def initUI(self):
         vbox = QtGui.QVBoxLayout()                 # Main Container
-        
+
         buttonBox = QtGui.QGridLayout()         # Container for Buttons
 
         self.lblMonth = QtGui.QLabel(u"Monat: %02i.%04i " %(self.month.data["month"],self.month.data["year"]) )
@@ -248,15 +284,15 @@ class monthWidget(QtGui.QWidget):
         btnDelEntry = QtGui.QPushButton(u"Eintrag löschen")
         btnDelEntry.clicked.connect(self.delEntry)
         btnPrintPrev = QtGui.QPushButton(u"Druckvorschau")
-        btnPrintPrev.clicked.connect(self.printPreview)        
+        btnPrintPrev.clicked.connect(self.printPreview)
         btnPrint     = QtGui.QPushButton(u"Drucken")
-        btnPrint.clicked.connect(self.handlePrint)        
+        btnPrint.clicked.connect(self.handlePrint)
         btnAditional = QtGui.QPushButton(u"Sonstige Einnahmen")
-        
+
         btnSave = QtGui.QPushButton(u"Speichern")
         btnSave.clicked.connect(self.save)
 
-        # Creating Button-Layout        
+        # Creating Button-Layout
         buttonBox.addWidget(btnAddEntry,0,0)
         buttonBox.addWidget(btnDelEntry,1,0)
         buttonBox.addWidget(btnPrintPrev,0,1)
@@ -292,9 +328,9 @@ class monthWidget(QtGui.QWidget):
         # Format Data for number-cols
     def valueFormat(self,editItem):
         red = QtGui.QColor()
-        red.setRgb(200,0,0)                      
+        red.setRgb(200,0,0)
         black = QtGui.QColor()
-        black.setRgb(0,0,0)                       
+        black.setRgb(0,0,0)
         # editItem.setTextColor(black)                              # on default all Columns are black
         if editItem.column() in [3,4,5,6,7]:                        # Format only Currency-Related cols
             origText = editItem.text().replace(",",".")             # First replace all ,s as they're entered in Germany with .s
@@ -308,11 +344,11 @@ class monthWidget(QtGui.QWidget):
         elif editItem.column() in [1,2]:                            # Convert first Letter of Names to Capital letter
             itemtext = unicode(editItem.text()).title()
             editItem.setText(itemtext)
-                
+
 
     # Load Month Data into Grid
     def loadMonth(self,month):
-        
+
             readerrors = 0                         # Counting errors on reading the data-file
             if ("table" in month.data) :
                 for entry in month.data["table"]:         # Iterate through all Data-Lines
@@ -321,7 +357,7 @@ class monthWidget(QtGui.QWidget):
                     # now fill the table with life
                     try:
                         # continue reading with next line after finding an error
-                        # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"])))         
+                        # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"])))
                         self.table.setItem(self.table.rowCount()-1,0,TableItem((entry["mtgl-nr"])))
                         self.table.setItem(self.table.rowCount()-1,1,TableItem((entry["name"])))
                         self.table.setItem(self.table.rowCount()-1,2,TableItem((entry["firstname"])))
@@ -330,7 +366,7 @@ class monthWidget(QtGui.QWidget):
                         self.table.setItem(self.table.rowCount()-1,5,TableItem((entry["beitrag"])))
                         self.table.setItem(self.table.rowCount()-1,6,TableItem((entry["beitragpayed"])))
                         self.table.setItem(self.table.rowCount()-1,7,TableItem((entry["ust"])))
-                    except (KeyError) as name:         
+                    except (KeyError) as name:
                         readerrors+=1                         # only Count Errors
             else:                                                           # Empty table
 #                self.table.insertRow(1)                                     # Create new empty Line
@@ -353,7 +389,7 @@ class monthWidget(QtGui.QWidget):
         self.miscWindow.show()
 
 
-    # Adding new Rows        
+    # Adding new Rows
     def addEntry(self):
         """ Add new Row to table """
         if (self.table.currentRow() == -1):
@@ -368,10 +404,10 @@ class monthWidget(QtGui.QWidget):
             self.table.setItem(self.table.currentRow()+1,7,TableItem(u"%0.2f" %(float(self.ust)) ))
 
         self.updatedata()
-  
+
     def nextCell(self):
-        curRow = self.table.currentRow() 
-        curCol = self.table.currentColumn() 
+        curRow = self.table.currentRow()
+        curCol = self.table.currentColumn()
         if (curCol >= self.table.columnCount() -1):
             if (curRow >= self.table.rowCount() - 1):
                     self.addEntry()
@@ -379,7 +415,7 @@ class monthWidget(QtGui.QWidget):
         else:
             self.table.setCurrentCell(curRow,curCol+1)
 
-  
+
     def setStatusBar(self,bar):
         self.statusbar = bar
         self.statusbar.addWidget(self.lblMonth)
@@ -430,7 +466,7 @@ class monthWidget(QtGui.QWidget):
                 beitragpayed = unicode("0.00")
             else:
                 beitragpayed = unicode(self.table.item(row,6).text())
-            
+
             if (self.table.item(row,7) is None):
                 ust = "%0.2f" %(self.ust)
             else:
@@ -443,7 +479,7 @@ class monthWidget(QtGui.QWidget):
                              'aufnahmegeb':aufnahmegeb,
                              'aufnahmepayed':aufnahmepayed,
                              'beitrag':beitrag,
-                             'beitragpayed':beitragpayed, 
+                             'beitragpayed':beitragpayed,
                          'ust':ust
                            }
                     )
@@ -485,6 +521,6 @@ def main():
 
 
     sys.exit(app.exec_())
- 
+
 if __name__ == '__main__' :
     main()
