@@ -12,7 +12,7 @@ from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
-__version__ = "2016.08.24"
+__version__ = "2016.08.30"
 
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
@@ -52,6 +52,7 @@ class TableItem(QtGui.QTableWidgetItem):
     def __init__(self,text):
         super(TableItem,self).__init__(text)
 
+        self.oldText = text
 
     #def __init__(self):
     #    super(TableItem,self).__init__()
@@ -107,11 +108,11 @@ class monthWindow(QtGui.QMainWindow):
                 monat.data["year"] =    lastmonth.year                         # examine year from SpinBox
                 monat.fee = monat.determineFee()
 
-        monthwidget = monthWidget(beraterdata,monat)
-        monthwidget.table.cellChanged.connect(self.storeChanges)
-        monthwidget.table.un
+        self.monthwidget = monthWidget(beraterdata,monat)
+        self.monthwidget.table.cellChanged.connect(self.storeChanges)
+        self.monthwidget.table.currentCellChanged.connect(self.activated)
         self.setWindowTitle('XBerater - Monat bearbeiten')                 #
-        self.setCentralWidget(monthwidget)
+        self.setCentralWidget(self.monthwidget)
         self.resize(840, 400)
         self.show()
 
@@ -119,7 +120,6 @@ class monthWindow(QtGui.QMainWindow):
         self.undoStack = QtGui.QUndoStack()
         undoAction = self.undoStack.createUndoAction(self,self.tr("&Undo"))
         undoAction.setShortcuts(QtGui.QKeySequence.Undo)
-        self.undoStack.
         redoAction = self.undoStack.createRedoAction(self,self.tr("&Redo"))
         redoAction.setShortcuts(QtGui.QKeySequence.Redo)
 
@@ -138,31 +138,31 @@ class monthWindow(QtGui.QMainWindow):
         saveAction = QtGui.QAction('Speichern', self)
         saveAction.setShortcut('Ctrl+S')
         saveAction.setStatusTip('Aktuellen Monat speichern')
-        saveAction.triggered.connect(monthwidget.save)
+        saveAction.triggered.connect(self.monthwidget.save)
 
         printAction = QtGui.QAction('Drucken', self)
         printAction.setShortcut('Ctrl+P')
         printAction.setStatusTip('Aktuellen Monat drucken')
-        printAction.triggered.connect(monthwidget.handlePrint)
+        printAction.triggered.connect(self.monthwidget.handlePrint)
 
         previewAction = QtGui.QAction('Druckvorschau', self)
         previewAction.setShortcut('Ctrl+Shift+P')
         previewAction.setStatusTip(u"Druckvorschau für den aktuellen Monat")
-        previewAction.triggered.connect(monthwidget.printPreview)
+        previewAction.triggered.connect(self.monthwidget.printPreview)
 
         addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
         addAction.setShortcut('Ctrl++')
         addAction.setStatusTip(u'Fügt eine neue Zeile ein')
-        addAction.triggered.connect(monthwidget.addEntry)
+        addAction.triggered.connect(self.monthwidget.addEntry)
 
         removeAction = QtGui.QAction(u"Zeile löschen", self)
         removeAction.setShortcut('Ctrl+-')
         removeAction.setStatusTip('Entfernt die Markierte Zeile')
-        removeAction.triggered.connect(monthwidget.delEntry)
+        removeAction.triggered.connect(self.monthwidget.delEntry)
 
         editMiscAction = QtGui.QAction(u"sonstige Einnahmen", self)
         editMiscAction.setStatusTip(u"Bearbeiten von sonstigen vereinnahmten Beträgen")
-        editMiscAction.triggered.connect(monthwidget.editMisc)
+        editMiscAction.triggered.connect(self.monthwidget.editMisc)
 
         openAction = QtGui.QAction(u"Monat öffnen", self)
         openAction.setShortcut('Ctrl+o')
@@ -199,11 +199,21 @@ class monthWindow(QtGui.QMainWindow):
         helpmenu.addAction(aboutAction)
 
         # Create StatusBar
-        monthwidget.setStatusBar(self.statusBar())
+        self.monthwidget.setStatusBar(self.statusBar())
 
     def storeChanges(self,row,column):
-        command = StoreCommand(self.sender(),row,column)
-        self.undoStack.push(command)
+        print("nothing")
+     #   command = StoreCommand(self.sender(),row,column)
+     #   self.undoStack.push(command)
+
+    def activated(self,row,column,prevrow, prevcol):
+        self.monthwidget.table.item(row,column).oldText = self.monthwidget.table.item(row,column).text()
+         
+        if (self.monthwidget.table.item(prevrow,prevcol).oldText != self.monthwidget.table.item(prevrow,prevcol).text()):
+            command = StoreCommand(self.monthwidget.table,prevrow,prevcol)
+            self.undoStack.push(command)
+
+
 
 class StoreCommand(QtGui.QUndoCommand):
 
@@ -213,7 +223,7 @@ class StoreCommand(QtGui.QUndoCommand):
         self.row = row
         self.column = column
         self.tableelement = tableelement
-        self.text = tableelement.item(row,column).text()
+        self.text = tableelement.item(row,column).oldText
         print("Storing %s from field %i,%i " %(self.text,row,column))
 
     def undo(self):
@@ -221,8 +231,9 @@ class StoreCommand(QtGui.QUndoCommand):
         item.setText(self.text)
         print("Undoing %s" %(self.text))
 
-    def redo(self):
-        self.tableelement.item(self.row,self.column).setText(self.text)
+#    def redo(self):
+#        self.tableelement.item(self.row,self.column).setText(self.text)
+#        print("Redo")
 
 class monthWidget(QtGui.QWidget):
 
