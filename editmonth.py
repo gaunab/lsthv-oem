@@ -18,12 +18,59 @@ class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
         super(BeraterTable,self).__init__()
         self.setSortingEnabled(True)
-        self.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
-        self.setSelectionBehavior(QtGui.QTableView.SelectRows)
-        self.setSelectionMode(QtGui.QTableView.SingleSelection)
-        #self.setDropIndicatorShown(True)
-        #self.setAcceptDrops(True)
+        # self.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        # self.setSelectionBehavior(QtGui.QTableView.SelectRows)
+        # self.setSelectionBehavior(QtGui.QTableView.SelectRows)
+        # self.setSelectionMode(QtGui.QTableView.SingleSelection)
+        # self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        # self.setSelectionMode(QtGui.QTableView.SingleSelection)
         # self.setDragEnabled(True)
+        # self.setDropIndicatorShown(True)
+        # self.setDropIndicatorShown(True)
+        # self.setAcceptDrops(False)
+        # self.setDragEnabled(True)
+        # self.setDragDropMode(QtGui.QAbstractItemView.InternalMove)   
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.viewport().setAcceptDrops(True)
+        self.setDragDropOverwriteMode(False)
+        self.setDropIndicatorShown(True)
+
+        # self.setSelectionMode( QtGui.QAbstractItemView.SingleSelection ) 
+        # self.setSelectionBehavior( QtGui.QAbstractItemView.SelectRows )
+        self.setDragDropMode( QtGui.QAbstractItemView.InternalMove )   
+
+    def dropEvent(self, event):
+        print("Drop")
+        if event.source() == self:
+            rows = set([mi.row() for mi in self.selectedIndexes()])
+            targetRow = self.indexAt(event.pos()).row()
+            rows.discard(targetRow)
+            rows = sorted(rows)
+            print(rows)
+            if not rows:
+                return
+            if targetRow == -1:
+                targetRow = self.rowCount()
+            for _ in range(len(rows)):
+                self.insertRow(targetRow)
+            rowMapping = dict() # Src row to target row.
+            for idx, row in enumerate(rows):
+                print(row)
+                if row < targetRow:
+                    rowMapping[row] = targetRow + idx
+                else:
+                    rowMapping[row + len(rows)] = targetRow + idx
+            colCount = self.columnCount()
+            for srcRow, tgtRow in sorted(rowMapping.iteritems()):
+                for col in range(0, colCount):
+                    self.setItem(tgtRow, col, self.takeItem(srcRow, col))
+            for row in reversed(sorted(rowMapping.iterkeys())):
+                self.removeRow(row)
+            event.accept()
+        return
+
+
 
     def cellToFloat(self,col,row):
         try:
@@ -43,9 +90,8 @@ class BeraterTable(QtGui.QTableWidget):
             self.emit(QtCore.SIGNAL("returnPressed"))
             return True
 
-
         return QtGui.QTableWidget.event(self, event)
-
+    
 
 class TableItem(QtGui.QTableWidgetItem):
     """ The main working area: Windows with table of current month """
@@ -109,8 +155,6 @@ class monthWindow(QtGui.QMainWindow):
                 monat.fee = monat.determineFee()
 
         self.monthwidget = monthWidget(beraterdata,monat)
-        self.monthwidget.table.cellChanged.connect(self.storeChanges)
-        self.monthwidget.table.currentCellChanged.connect(self.activated)
         self.setWindowTitle('XBerater - Monat bearbeiten')                 #
         self.setCentralWidget(self.monthwidget)
         self.resize(840, 400)
@@ -201,21 +245,9 @@ class monthWindow(QtGui.QMainWindow):
         # Create StatusBar
         self.monthwidget.setStatusBar(self.statusBar())
 
-    def storeChanges(self,row,column):
-        print("nothing")
-     #   command = StoreCommand(self.sender(),row,column)
-     #   self.undoStack.push(command)
-
-    def activated(self,row,column,prevrow, prevcol):
-        self.monthwidget.table.item(row,column).oldText = self.monthwidget.table.item(row,column).text()
-         
-        if (self.monthwidget.table.item(prevrow,prevcol).oldText != self.monthwidget.table.item(prevrow,prevcol).text()):
-            command = StoreCommand(self.monthwidget.table,prevrow,prevcol)
-            self.undoStack.push(command)
 
 
-
-class StoreCommand(QtGui.QUndoCommand):
+class StoreEdit(QtGui.QUndoCommand):
 
     def __init__(self,tableelement , row, column):
         QtGui.QUndoCommand.__init__(self)
@@ -223,17 +255,19 @@ class StoreCommand(QtGui.QUndoCommand):
         self.row = row
         self.column = column
         self.tableelement = tableelement
-        self.text = tableelement.item(row,column).oldText
-        print("Storing %s from field %i,%i " %(self.text,row,column))
+        self.oldtext = tableelement.item(row,column).oldText
+        self.text = tableelement.item(row,column).text()
 
     def undo(self):
         item = self.tableelement.item(self.row,self.column)
-        item.setText(self.text)
-        print("Undoing %s" %(self.text))
+        item.setText(self.oldtext)
 
-#    def redo(self):
-#        self.tableelement.item(self.row,self.column).setText(self.text)
-#        print("Redo")
+    def redo(self):
+        item = self.tableelement.item(self.row,self.column)
+        item.setText(self.text)
+
+
+
 
 class monthWidget(QtGui.QWidget):
 
@@ -312,11 +346,18 @@ class monthWidget(QtGui.QWidget):
         buttonBox.addWidget(btnSave,0,4)
 
         self.contextMenu = QtGui.QMenu(self)
+
+        moveUpAction = QtGui.QAction(u"verschiebe Zeile nach oben", self)
+        moveUpAction.triggered.connect(self.moveUp)
+
+        moveDownAction = QtGui.QAction(u"verschiebe Zeile nach unten", self)
+        moveDownAction.triggered.connect(self.moveDown)
+
+
         addAction = QtGui.QAction(u"Neue Zeile einfügen", self)
         addAction.setShortcut('Ctrl++')
         addAction.setStatusTip(u'Fügt eine neue Zeile ein')
         addAction.triggered.connect(self.addEntry)
-
         removeAction = QtGui.QAction(u"Zeile löschen", self)
         removeAction.setShortcut('Ctrl+-')
         removeAction.setStatusTip('Entfernt die Markierte Zeile')
@@ -327,13 +368,36 @@ class monthWidget(QtGui.QWidget):
         previewAction.setStatusTip('Vorschau für das Drucken')
         previewAction.triggered.connect(self.printPreview)
 
+        self.contextMenu.addAction(moveUpAction)
+        self.contextMenu.addAction(moveDownAction)
         self.contextMenu.addAction(addAction)
         self.contextMenu.addAction(removeAction)
+        
 
         vbox.addLayout(buttonBox)                 # Put ButtonBox into Main-Container
         self.setLayout(vbox)
         self.show()
 
+    def moveDown(self):
+        row = self.table.currentRow()
+        column = self.table.currentColumn();
+        if row < self.table.rowCount()-1:
+            self.table.insertRow(row+2)
+            for i in range(self.table.columnCount()):
+               self.table.setItem(row+2,i,self.table.takeItem(row,i))
+               self.table.setCurrentCell(row+2,column)
+            self.table.removeRow(row)        
+
+
+    def moveUp(self):    
+        row = self.table.currentRow()
+        column = self.table.currentColumn();
+        if row > 0:
+            self.table.insertRow(row-1)
+            for i in range(self.table.columnCount()):
+               self.table.setItem(row-1,i,self.table.takeItem(row+1,i))
+               self.table.setCurrentCell(row-1,column)
+            self.table.removeRow(row+1)        
 
 
         # Format Data for number-cols
