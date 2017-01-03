@@ -55,11 +55,12 @@ class beraterData:
             
 
     def checkiban(self):
-        if (len(self.iban) < 20):
+        iban = ''.join(self.iban.split())
+        if (len(iban) < 20):
             return False
 
         try:
-            iban = self.iban.upper()                                                # Make Sure all Letters are Capitals
+            iban = iban.upper()                                                     # Make Sure all Letters are Capitals
             country = str(ord(iban[0])-55) + str(ord(iban[1])-55)                   # Every Letter gets a Value beginning with 10 for A
             checksum = iban[2] + iban[3]                                            # Fetch Checksum
             bban = iban[4:]                                                         # Fetch bban
