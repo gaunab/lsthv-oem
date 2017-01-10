@@ -12,32 +12,17 @@ from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
-__version__ = "2016.08.30"
+__version__ = "2017.01.10"
 
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
         super(BeraterTable,self).__init__()
         self.setSortingEnabled(True)
-        # self.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
-        # self.setSelectionBehavior(QtGui.QTableView.SelectRows)
-        # self.setSelectionBehavior(QtGui.QTableView.SelectRows)
-        # self.setSelectionMode(QtGui.QTableView.SingleSelection)
-        # self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        # self.setSelectionMode(QtGui.QTableView.SingleSelection)
-        # self.setDragEnabled(True)
-        # self.setDropIndicatorShown(True)
-        # self.setDropIndicatorShown(True)
-        # self.setAcceptDrops(False)
-        # self.setDragEnabled(True)
-        # self.setDragDropMode(QtGui.QAbstractItemView.InternalMove)   
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
         self.viewport().setAcceptDrops(True)
         self.setDragDropOverwriteMode(False)
         self.setDropIndicatorShown(True)
-
-        # self.setSelectionMode( QtGui.QAbstractItemView.SingleSelection ) 
-        # self.setSelectionBehavior( QtGui.QAbstractItemView.SelectRows )
         self.setDragDropMode( QtGui.QAbstractItemView.InternalMove )   
 
     def dropEvent(self, event):
@@ -266,24 +251,13 @@ class StoreEdit(QtGui.QUndoCommand):
         item = self.tableelement.item(self.row,self.column)
         item.setText(self.text)
 
+class StoreDelLine(QtGui.QUndoCommand):
+    def __init__(self, row):
+
 
 
 
 class monthWidget(QtGui.QWidget):
-
-
-#    # Determine UST
-#    def getUST(self):
-#        ustlist = sorted(self.beraterData.ust, key=itemgetter('from'))
-#        thismonth = "%i%02i" %(self.month.data["year"], self.month.data["month"])
-#        thismonth = int(thismonth)
-#
-#        ust = ustlist[0]["value"]
-#        for date in ustlist:
-#            if thismonth >= date["from"]:
-#                ust = date["value"]
-#
-#        return ust
 
     def onContextMenu(self,point):
         self.contextMenu.exec_(self.table.mapToGlobal(point))
