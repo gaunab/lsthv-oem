@@ -232,10 +232,10 @@ class monthWindow(QtGui.QMainWindow):
 
 
 
-class StoreEdit(QtGui.QUndoCommand):
+class CommandEdit(QtGui.QUndoCommand):
 
-    def __init__(self,tableelement , row, column):
-        QtGui.QUndoCommand.__init__(self)
+    def __init__(self, tablewidget, row, column, description):
+        super(CommandEdit, self).__init__(description)
         # record the field that has changed
         self.row = row
         self.column = column
