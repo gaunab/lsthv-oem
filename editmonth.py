@@ -147,9 +147,9 @@ class monthWindow(QtGui.QMainWindow):
 
         #Undo Stack
         self.undoStack = QtGui.QUndoStack()
-        undoAction = self.undoStack.createUndoAction(self,self.tr("&Undo"))
+        undoAction = self.monthwidget.undoStack.createUndoAction(self,self.tr("&Undo"))
         undoAction.setShortcuts(QtGui.QKeySequence.Undo)
-        redoAction = self.undoStack.createRedoAction(self,self.tr("&Redo"))
+        redoAction = self.monthwidget.undoStack.createRedoAction(self,self.tr("&Redo"))
         redoAction.setShortcuts(QtGui.QKeySequence.Redo)
 
         # Create Menubar
@@ -251,10 +251,35 @@ class StoreEdit(QtGui.QUndoCommand):
         item = self.tableelement.item(self.row,self.column)
         item.setText(self.text)
 
-class StoreDelLine(QtGui.QUndoCommand):
-    def __init__(self, row):
+class CommandDelLine(QtGui.QUndoCommand):
+    def __init__(self, tablewidget, row, description):
+        super(CommandDelLine, self).__init__(description)
+        self.entries = []
+        self.row = row
+        self.tablewidget = tablewidget
+        
+        for col in range(tablewidget.columnCount()):                            # read all entries for column
+            self.entries.append(tablewidget.item(row, col).text())
 
+    def undo(self):
+        self.tablewidget.insertRow(self.row)                                    # recreate row
+        for col in range(len(self.entries)):                                    # insert stored entries
+            self.tablewidget.item(self.row, col).setText(self.entries[col])
 
+    def redo(self):
+        self.tablewidget.removeRow(self.row)                                    # delete the Row
+
+class CommandInsertLine(QtGui.QUndoCommand):
+    def __init__(self, tablewidget, row, description):
+        super(CommandInsertLine, self).__init__(description)
+        self.row = row
+        self.tablewidget = tablewidget
+
+    def undo(self):
+        self.tablewidget.removeRow(self.row)
+
+    def redo(self):
+        self.tablewidget.insertRow(self.row)
 
 
 class monthWidget(QtGui.QWidget):
@@ -266,10 +291,12 @@ class monthWidget(QtGui.QWidget):
         super(monthWidget, self).__init__()
         self.month = month
         self.initUI()                                 # Initialating Month Widget
+        self.undoStack = QtGui.QUndoStack(self)
         self.beraterData = beraterdata
         self.ust = self.month.ustdec * 100
         self.fee = self.month.fee
         self.loadMonth(month)                         # Load Data into Table
+
 
     def initUI(self):
         vbox = QtGui.QVBoxLayout()                 # Main Container
@@ -442,12 +469,14 @@ class monthWidget(QtGui.QWidget):
     def addEntry(self):
         """ Add new Row to table """
         if (self.table.currentRow() == -1):
-            self.table.insertRow(0)
+            command = CommandInsertLine(self.table, 0, u"Neue Zeile")
+            self.undoStack.push(command)
             for i in range(7):
                 self.table.setItem(0,i,TableItem(u""))
             self.table.setItem(0,7,TableItem(u"%0.2f" %(self.ust) ))
         else:
-            self.table.insertRow(self.table.currentRow()+1)         # insert new Row at Current selected
+            command = CommandInsertLine(self.table, self.table.currentRow()+1, u"Neue Zeile")
+            self.undoStack.push(command)
             for i in range(7):
                 self.table.setItem(self.table.currentRow()+1,i,TableItem(u""))
             self.table.setItem(self.table.currentRow()+1,7,TableItem(u"%0.2f" %(float(self.ust)) ))
