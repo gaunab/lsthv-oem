@@ -296,7 +296,7 @@ class monthWidget(QtGui.QWidget):
         self.ust = self.month.ustdec * 100
         self.fee = self.month.fee
         self.loadMonth(month)                         # Load Data into Table
-
+        self.textBeforeEdit = u""                     # Temporary store Text before editing a cell
 
     def initUI(self):
         vbox = QtGui.QVBoxLayout()                 # Main Container
@@ -319,6 +319,9 @@ class monthWidget(QtGui.QWidget):
         vbox.addWidget(self.table)
 
         self.table.itemChanged.connect(self.valueFormat)
+        self.table.currentItemChanged.connect(self.currentItemChanged) 
+
+
         self.connect(self.table, QtCore.SIGNAL("tabPressed"), self.nextCell)
         self.connect(self.table, QtCore.SIGNAL("returnPressed"), self.nextCell)
         self.table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -379,6 +382,10 @@ class monthWidget(QtGui.QWidget):
         self.setLayout(vbox)
         self.show()
 
+    def currentItemChanged(self, item):
+        self.textBeforeEdit = item.text()
+
+
     def moveDown(self):
         row = self.table.currentRow()
         column = self.table.currentColumn();
@@ -403,6 +410,9 @@ class monthWidget(QtGui.QWidget):
 
         # Format Data for number-cols
     def valueFormat(self,editItem):
+        command = CommandEdit(self.todoList, item, self.todoList.row(item),
+        self.textBeforeEdit, "Rename item '{0}' to '{1}'".format(self.textBeforeEdit, item.text()))
+        self.undoStack.push(command)
         red = QtGui.QColor()
         red.setRgb(200,0,0)
         black = QtGui.QColor()
