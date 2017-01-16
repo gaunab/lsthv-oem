@@ -234,21 +234,22 @@ class monthWindow(QtGui.QMainWindow):
 
 class CommandEdit(QtGui.QUndoCommand):
 
-    def __init__(self, tablewidget, row, column, description):
+    def __init__(self, tablewidget, row, column, oldText, description):
         super(CommandEdit, self).__init__(description)
         # record the field that has changed
         self.row = row
         self.column = column
-        self.tableelement = tableelement
-        self.oldtext = tableelement.item(row,column).oldText
-        self.text = tableelement.item(row,column).text()
+        self.tablewidget = tablewidget
+        self.oldtext = oldText
+        self.text = tablewidget.item(row,column).text()
+        print(self.text)
 
     def undo(self):
-        item = self.tableelement.item(self.row,self.column)
+        item = self.tablewidget.item(self.row,self.column)
         item.setText(self.oldtext)
 
     def redo(self):
-        item = self.tableelement.item(self.row,self.column)
+        item = self.tablewidget.item(self.row,self.column)
         item.setText(self.text)
 
 class CommandDelLine(QtGui.QUndoCommand):
@@ -410,8 +411,8 @@ class monthWidget(QtGui.QWidget):
 
         # Format Data for number-cols
     def valueFormat(self,editItem):
-        command = CommandEdit(self.todoList, item, self.todoList.row(item),
-        self.textBeforeEdit, "Rename item '{0}' to '{1}'".format(self.textBeforeEdit, item.text()))
+        command = CommandEdit(self.table, self.table.currentRow(), self.table.currentColumn(),
+        self.textBeforeEdit, "Rename item '{0}' to '{1}'".format(self.textBeforeEdit, editItem.text()))
         self.undoStack.push(command)
         red = QtGui.QColor()
         red.setRgb(200,0,0)
