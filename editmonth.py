@@ -148,9 +148,9 @@ class monthWindow(QtGui.QMainWindow):
         #Undo Stack
         self.undoStack = QtGui.QUndoStack()
         undoAction = self.monthwidget.undoStack.createUndoAction(self,self.tr("&Undo"))
-        undoAction.setShortcuts(QtGui.QKeySequence.Undo)
+   #     undoAction.setShortcuts(QtGui.QKeySequence.Undo)
         redoAction = self.monthwidget.undoStack.createRedoAction(self,self.tr("&Redo"))
-        redoAction.setShortcuts(QtGui.QKeySequence.Redo)
+   #     redoAction.setShortcuts(QtGui.QKeySequence.Redo)
 
         # Create Menubar
         menubar = self.menuBar()
@@ -222,8 +222,8 @@ class monthWindow(QtGui.QMainWindow):
         editmenu.addAction(addAction)
         editmenu.addAction(removeAction)
         editmenu.addAction(editMiscAction)
-        editmenu.addAction(undoAction)
-        editmenu.addAction(redoAction)
+       # editmenu.addAction(undoAction)
+       # editmenu.addAction(redoAction)
         settingsmenu.addAction(openPref)
         helpmenu.addAction(aboutAction)
 
