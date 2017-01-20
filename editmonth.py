@@ -12,7 +12,7 @@ from datetime import date
 from PyQt4 import QtGui,QtCore
 from operator import itemgetter
 
-__version__ = "2017.01.10"
+__version__ = "2017.01.20"
 
 class BeraterTable(QtGui.QTableWidget):
     def __init__(self):
@@ -47,10 +47,10 @@ class BeraterTable(QtGui.QTableWidget):
                 else:
                     rowMapping[row + len(rows)] = targetRow + idx
             colCount = self.columnCount()
-            for srcRow, tgtRow in sorted(rowMapping.iteritems()):
+            for srcRow, tgtRow in sorted(rowMapping.items()):
                 for col in range(0, colCount):
                     self.setItem(tgtRow, col, self.takeItem(srcRow, col))
-            for row in reversed(sorted(rowMapping.iterkeys())):
+            for row in reversed(sorted(rowMapping.keys())):
                 self.removeRow(row)
             event.accept()
         return
@@ -241,16 +241,25 @@ class CommandEdit(QtGui.QUndoCommand):
         self.column = column
         self.tablewidget = tablewidget
         self.oldtext = oldText
-        self.text = tablewidget.item(row,column).text()
+        try:
+            self.text = tablewidget.item(row,column).text()
+        except:
+            self.text = ""
         print(self.text)
 
     def undo(self):
         item = self.tablewidget.item(self.row,self.column)
-        item.setText(self.oldtext)
+        try:
+            item.setText(self.oldtext)
+        except:
+            pass
 
     def redo(self):
         item = self.tablewidget.item(self.row,self.column)
-        item.setText(self.text)
+        try:
+            item.setText(self.text)
+        except:
+            pass
 
 class CommandDelLine(QtGui.QUndoCommand):
     def __init__(self, tablewidget, row, description):
@@ -296,8 +305,8 @@ class monthWidget(QtGui.QWidget):
         self.beraterData = beraterdata
         self.ust = self.month.ustdec * 100
         self.fee = self.month.fee
-        self.loadMonth(month)                         # Load Data into Table
         self.textBeforeEdit = u""                     # Temporary store Text before editing a cell
+        self.loadMonth(month)                         # Load Data into Table
 
     def initUI(self):
         vbox = QtGui.QVBoxLayout()                 # Main Container
@@ -429,7 +438,7 @@ class monthWidget(QtGui.QWidget):
                 editItem.setTextColor(red)
 
         elif editItem.column() in [1,2]:                            # Convert first Letter of Names to Capital letter
-            itemtext = unicode(editItem.text()).title()
+            itemtext = str(editItem.text()).title()
             editItem.setText(itemtext)
 
 
@@ -444,7 +453,7 @@ class monthWidget(QtGui.QWidget):
                     # now fill the table with life
                     try:
                         # continue reading with next line after finding an error
-                        # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(unicode(entry["lfd"])))
+                        # self.table.setItem(self.table.rowCount()-1,0,QtGui.QTableWidgetItem(str(entry["lfd"])))
                         self.table.setItem(self.table.rowCount()-1,0,TableItem((entry["mtgl-nr"])))
                         self.table.setItem(self.table.rowCount()-1,1,TableItem((entry["name"])))
                         self.table.setItem(self.table.rowCount()-1,2,TableItem((entry["firstname"])))
@@ -461,7 +470,7 @@ class monthWidget(QtGui.QWidget):
                 self.addEntry()
 
             if readerrors:
-                QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
+                QtGui.QMessageBox.critical(self,"Fehler",str(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
 
             self.month.determineFee()
             self.lblFee.setText(u"Vergütungssatz: %0.2f" %(self.month.fee))       # Write Fee to Status-Bar
@@ -522,44 +531,44 @@ class monthWidget(QtGui.QWidget):
         for row in range(self.table.rowCount()):
 
             if (self.table.item(row,0) is None):
-                mtglnr = unicode("")
+                mtglnr = str("")
             else:
-                mtglnr = unicode(self.table.item(row,0).text())
+                mtglnr = str(self.table.item(row,0).text())
 
             if (self.table.item(row,1) is None):
-                name = unicode("")
+                name = str("")
             else:
-                name = unicode(self.table.item(row,1).text())
+                name = str(self.table.item(row,1).text())
 
             if (self.table.item(row,2) is None):
-                firstname = unicode("")
+                firstname = str("")
             else:
-                firstname = unicode(self.table.item(row,2).text())
+                firstname = str(self.table.item(row,2).text())
 
             if (self.table.item(row,3) is None):
-                aufnahmegeb = unicode("0,00")
+                aufnahmegeb = str("0,00")
             else:
-                aufnahmegeb = unicode(self.table.item(row,3).text())
+                aufnahmegeb = str(self.table.item(row,3).text())
 
             if (self.table.item(row,4) is None):
-                aufnahmepayed = unicode("0.00")
+                aufnahmepayed = str("0.00")
             else:
-                aufnahmepayed = unicode(self.table.item(row,4).text())
+                aufnahmepayed = str(self.table.item(row,4).text())
 
             if (self.table.item(row,5) is None):
-                beitrag = unicode("0.00")
+                beitrag = str("0.00")
             else:
-                beitrag = unicode(self.table.item(row,5).text())
+                beitrag = str(self.table.item(row,5).text())
 
             if (self.table.item(row,6) is None):
-                beitragpayed = unicode("0.00")
+                beitragpayed = str("0.00")
             else:
-                beitragpayed = unicode(self.table.item(row,6).text())
+                beitragpayed = str(self.table.item(row,6).text())
 
             if (self.table.item(row,7) is None):
                 ust = "%0.2f" %(self.ust)
             else:
-                ust = unicode(self.table.item(row,7).text())
+                ust = str(self.table.item(row,7).text())
 
             data.append({'lfd':row+1,
                              'mtgl-nr':mtglnr,

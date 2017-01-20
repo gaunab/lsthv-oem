@@ -207,7 +207,7 @@ class miscWidget(QtGui.QWidget):
             self.addNewEntry()
 
         if readerrors:
-            QtGui.QMessageBox.critical(self,"Fehler",unicode(str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten"))
+            QtGui.QMessageBox.critical(self,"Fehler",str(readerrors)+u" Datensätze konnten nicht gelesen werden oder waren unvollständig.\n \n Bitte überprüfen Sie die Daten")
 
     def saveData(self):
         """ Save Data back to month Object """
@@ -216,9 +216,9 @@ class miscWidget(QtGui.QWidget):
         print(self.miscTable.rowCount())
         for row in range(self.miscTable.rowCount()):
             if (self.miscTable.item(row,0) is None):
-                text = unicode("")
+                text = str("")
             else:
-                text = unicode(self.miscTable.item(row,0).text())
+                text = str(self.miscTable.item(row,0).text())
             value = self.miscTable.cellToFloat(row,1)
             print(value)
             print("Saving misc entry: %s %f" %(text,value))

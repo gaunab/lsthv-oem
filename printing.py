@@ -277,7 +277,7 @@ class printout:
         if type==1:
             page.drawText(1,y,u"Mitgliederbeitragsabrechnung")
         if type==2:
-            page.drawText(1,y,u"Rechnung über Beratervergütung")
+            page.drawText(1,y,u"Abrechnung über Beratervergütung")
         
         nextline =   page.fontInfo().pixelSize()
         # Print out the Month and Year
@@ -300,7 +300,7 @@ class printout:
         y = y +  page.fontInfo().pixelSize()
         page.drawText(1,y,u"Steuernummer: "+self.beraterData.ustnr)
         if type==2:
-            page.drawText(self.xmm(92),y,u""+self.beraterData.town)
+            page.drawText(self.xmm(92),y,u""+self.beraterData.zip+" "+self.beraterData.town)
 
         y = y + 2 * page.fontInfo().pixelSize()
         
@@ -391,10 +391,10 @@ class printout:
         for i in range(self.table.rowCount()):                # i --> current Row of Table
             # Fetch data from table
             lfd = str(i)
-            self.tableCol(pages,0,y,unicode(i+1))             # print Entry-Number
+            self.tableCol(pages,0,y,str(i+1))             # print Entry-Number
             # now print to current row on paper
             for col in range(8):
-                self.tableCol(pages,col+1,y,unicode(self.table.item(i,col).text())) # print all cols
+                self.tableCol(pages,col+1,y,str(self.table.item(i,col).text())) # print all cols
             y = y + fontsize + self.ymm(0.25)
             try:
                 aufnahmeges +=  cellToFloat(self.table.item(i,3))
@@ -447,7 +447,6 @@ class printout:
         
         evaluation = self.window.month.evaluation()
        
-        print evaluation
         tableRow = [tablePainterCell(u"Gesamtumsatz",{'left':True,'top':True}),
                 tablePainterCell(u"%0.2f€ " %(evaluation["aufnahmeges"] + evaluation["beitragges"]),{'top':True,'right':True},align='right'),
                     tablePainterCell(""),
@@ -536,8 +535,8 @@ class printout:
 
         # Page Footer
 
-        paymentTable = tablePainter(pages,3,self.ymm(0.4))
-        paymentTable.setColMinWidth(1,self.xmm(30))
+        paymentTable = tablePainter(pages,3,self.ymm(7.5))
+        paymentTable.setColMinWidth(1,self.xmm(50))
         paymentTable.setColMinWidth(0,self.xmm(30))
         paymentTable.appendRow([tablePainterCell(u"8400",{'left':True,'top':True}),
             tablePainterCell("",{'left':True,'right':True,'top':True}), 
@@ -560,7 +559,7 @@ class printout:
 
 
         pages.setPen(QtGui.QPen(QtGui.QBrush(2,1),self.ymm(0.3)))     # Set Color to black = 2, with solid pattern = 1, Width to 10px
-        y = self.pageheight - self.ymm(50)
+        y = self.pageheight - self.ymm(90)
         pages.drawLine(self.xmm(0),y,self.xmm(170),y) 
         y += fontsize + self.ymm(1)
 
@@ -568,9 +567,9 @@ class printout:
         pages.setFont(self.smallFont)
         pages.drawText(self.xmm(self.tableCols[0]),y,u"(Nicht vom Berater auszufüllen)")
         pages.setFont(self.tableFont)
-        y += fontsize + self.ymm(5)
+        y += self.ymm(5)
         pages.drawText(self.xmm(self.tableCols[0]),y,u"Buchungsvermerke:")
-        y += fontsize + self.ymm(1)
+        y += fontsize + self.ymm(5)
         
         y = paymentTable.printOut(QtCore.QPoint(1,y)).y()
         pages.setFont(self.tableHeadFont)
@@ -580,7 +579,7 @@ class printout:
         pages.setFont(self.tableFont)
         pages.drawText(self.xmm(self.tableCols[0]),y,u"Lohnsteuerhilfeverein \u201eOberes Elbtal-Meißen\u201d e.V.")
         y += fontsize + self.ymm(1)
-        pages.drawText(self.xmm(self.tableCols[0]),y,u"Sitz: Talstraße 5, 01662 Meißen; Eingetragen beim Amtsgericht Dresden VR 10377")
+        pages.drawText(self.xmm(self.tableCols[0]),y,u"Sitz: Talstraße 5, 01662 Meißen; Eingetragen beim Amtsgericht Dresden-VR 10377")
         y += fontsize + self.ymm(1)
         pages.drawText(self.xmm(self.tableCols[0]),y,u"Steuernummer: 209/140/00182")
 

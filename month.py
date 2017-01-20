@@ -120,9 +120,11 @@ class lsthvmonth:
     def miscSum(self):
         """ Caclculate Sum of misc """
         sum = 0.0
-        if self.data.has_key("misc"):
+        try:
             for entry in self.data["misc"]:
                 sum += strToFloat(entry["value"])
+        except:
+            pass
         return sum
 
     def determineUst(self):
